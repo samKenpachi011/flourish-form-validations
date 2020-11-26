@@ -1,1 +1,3 @@
 from .caregiver_locator_form_validator import CaregiverLocatorFormValidator
+from .locator_logs_validator import LocatorLogEntryFormValidator
+from .subject_consent_form_validation import SubjectConsentFormValidator
