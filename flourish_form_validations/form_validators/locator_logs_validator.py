@@ -10,4 +10,4 @@ class LocatorLogEntryFormValidator(FormValidator):
             'not_found',
             field='log_status',
             field_required='comment',
-            required_msg='Please provde a short brief/reason')
+            required_msg='Please provide a short brief reason')
