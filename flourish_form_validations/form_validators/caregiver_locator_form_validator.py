@@ -1,5 +1,5 @@
 from django.core.exceptions import ValidationError
-from edc_constants.constants import YES, NO
+from edc_constants.constants import YES, NO, NOT_APPLICABLE
 from edc_form_validators.form_validator import FormValidator
 
 
@@ -16,7 +16,7 @@ class CaregiverLocatorFormValidator(FormValidator):
 
         for not_required in not_required_fields:
             self.not_required_if(
-                NO,
+                *[NO, NOT_APPLICABLE],
                 field='may_call',
                 field_required=not_required,
                 inverse=False)
@@ -48,13 +48,10 @@ class CaregiverLocatorFormValidator(FormValidator):
                 field_required=field,
                 inverse=False)
 
-        fields = ['indirect_contact_name', 'indirect_contact_relation',
-                  'indirect_contact_physical_address']
-        for field in fields:
-            self.required_if(
-                YES,
-                field='may_contact_indirectly',
-                field_required=field)
+        self.required_if(
+            YES,
+            field='may_contact_indirectly',
+            field_required='indirect_contact_physical_address')
 
         contact_indirectly = self.cleaned_data.get('may_contact_indirectly')
         indirect_contact_cell = self.cleaned_data.get('indirect_contact_cell')
@@ -65,7 +62,8 @@ class CaregiverLocatorFormValidator(FormValidator):
             self._errors.update(msg)
             raise ValidationError(msg)
 
-        not_required_fields = ['indirect_contact_cell', 'indirect_contact_phone']
+        not_required_fields = ['indirect_contact_cell', 'indirect_contact_phone',
+                               'indirect_contact_name', 'indirect_contact_relation']
         for not_required in not_required_fields:
             self.not_required_if(
                 NO,
@@ -73,22 +71,10 @@ class CaregiverLocatorFormValidator(FormValidator):
                 field_required=not_required,
                 inverse=False)
 
-        required_fields = ['caretaker_name']
-
-        for field in required_fields:
-            self.required_if(
-                YES,
-                field='has_caretaker',
-                field_required=field)
-
-        has_caretaker = self.cleaned_data.get('has_caretaker')
-        caretaker_cell = self.cleaned_data.get('caretaker_cell')
-        caretaker_tel = self.cleaned_data.get('caretaker_tel')
-        if has_caretaker == YES and (not caretaker_cell and not caretaker_tel):
-            msg = {'has_caretaker':
-                   'Please provide either the caretaker\'s cell number or telephone.'}
-            self._errors.update(msg)
-            raise ValidationError(msg)
+        self.required_if(
+            YES,
+            field='has_caretaker',
+            field_required='caretaker_name')
 
         not_required_fields = ['caretaker_cell', 'caretaker_tel']
         for not_required in not_required_fields:
