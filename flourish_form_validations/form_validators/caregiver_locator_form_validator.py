@@ -48,21 +48,20 @@ class CaregiverLocatorFormValidator(FormValidator):
                 field_required=field,
                 inverse=False)
 
-        self.required_if(
-            YES,
-            field='may_contact_indirectly',
-            field_required='indirect_contact_physical_address')
-
         contact_indirectly = self.cleaned_data.get('may_contact_indirectly')
         indirect_contact_cell = self.cleaned_data.get('indirect_contact_cell')
         indirect_contact_phone = self.cleaned_data.get('indirect_contact_phone')
-        if contact_indirectly == YES and (not indirect_contact_cell and not indirect_contact_phone):
+        indirect_contact_physical = self.cleaned_data.get('indirect_contact_physical_address')
+        if contact_indirectly == YES and (not indirect_contact_physical and\
+                                          not indirect_contact_cell and not indirect_contact_phone):
             msg = {'may_contact_indirectly':
-                   'Please provide either the cell number or telephone of the contact.'}
+                   'Please provide the physical address or either cell number or '
+                   'telephone of the contact.'}
             self._errors.update(msg)
             raise ValidationError(msg)
 
-        not_required_fields = ['indirect_contact_cell', 'indirect_contact_phone',
+        not_required_fields = ['indirect_contact_physical_address',
+                               'indirect_contact_cell', 'indirect_contact_phone',
                                'indirect_contact_name', 'indirect_contact_relation']
         for not_required in not_required_fields:
             self.not_required_if(
