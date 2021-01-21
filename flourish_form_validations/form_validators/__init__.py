@@ -10,3 +10,4 @@ from .socio_demographic_data_form_validator import SocioDemographicDataFormValid
 from .subject_consent_form_validation import SubjectConsentFormValidator
 from .substance_use_prior_form_validator import SubstanceUsePriorFormValidator
 from .tb_history_preg_form_validator import TbHistoryPregFormValidator
+from .tb_screen_preg_form_validator import TbScreenPregFormValidator
