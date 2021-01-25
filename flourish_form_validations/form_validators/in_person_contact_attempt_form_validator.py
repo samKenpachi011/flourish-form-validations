@@ -6,20 +6,14 @@ class InPersonContactAttemptFormValidator(FormValidator):
 
     def clean(self):
 
-        self.required_if(
-            OTHER,
-            field='phy_addr_unsuc',
-            field_required='phy_addr_unsuc_other')
+        self.validate_other_specify(
+            field='phy_addr_unsuc')
 
-        self.required_if(
-            OTHER,
-            field='workplace_unsuc',
-            field_required='workplace_unsuc_other')
+        self.validate_other_specify(
+            field='workplace_unsuc')
 
-        self.required_if(
-            OTHER,
-            field='contact_person_unsuc',
-            field_required='contact_person_unsuc_other')
+        self.validate_other_specify(
+            field='contact_person_unsuc')
 
         contact_location = self.cleaned_data.get('contact_location')
         successful_location = self.cleaned_data.get('successful_location')
