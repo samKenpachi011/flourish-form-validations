@@ -1,4 +1,3 @@
-from .antenatal_enrollment_form_validation import AntenatalEnrollmentFormValidator
 from .caregiver_locator_form_validator import CaregiverLocatorFormValidator
 from .caregiver_prev_enrolled_form_validator import CaregiverPrevEnrolledFormValidator
 from .child import ChildMedicalHistoryFormValidator
