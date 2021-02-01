@@ -6,8 +6,7 @@ class CRFFormValidator:
     def clean(self):
         self.validate_against_visit_datetime(
             self.cleaned_data.get('report_datetime'))
-        if self.instance and not self.instance.id:
-            self.validate_offstudy_model()
+        super().clean()
 
     def validate_against_visit_datetime(self, report_datetime):
         if (report_datetime and report_datetime <
