@@ -29,10 +29,12 @@ class ScreeningPriorBhpParticipantsFormValidator(FormValidator):
                 raise ValidationError(message)
 
     def validate_child_alive(self):
-        self.not_applicable_if(
-            NO,
-            field='child_alive',
-            field_applicable='mother_alive')
+        fields_applicable = ['mother_alive', 'flourish_participation']
+        for field_applicable in fields_applicable:
+            self.not_applicable_if(
+                NO,
+                field='child_alive',
+                field_applicable=field_applicable)
 
         self.not_required_if(
             NO,
