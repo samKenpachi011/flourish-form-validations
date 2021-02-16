@@ -6,17 +6,12 @@ from django.core.exceptions import ValidationError
 class FlourishFormValidatorMixin:
 
     antenatal_enrollment_model = 'flourish_caregiver.antenatalenrollment'
-    consent_version_model = 'flourish_caregiver.flourishconsentversion'
     caregiver_consent_model = 'flourish_caregiver.subjectconsent'
     subject_screening_model = 'flourish_caregiver.subjectscreening'
 
     @property
     def antenatal_enrollment_cls(self):
         return django_apps.get_model(self.antenatal_enrollment_model)
-
-    @property
-    def consent_version_cls(self):
-        return django_apps.get_model(self.consent_version_model)
 
     @property
     def caregiver_consent_cls(self):
@@ -30,37 +25,24 @@ class FlourishFormValidatorMixin:
         """Returns an instance of the current maternal consent or
         raises an exception if not found."""
 
-        consent = self.validate_against_consent(id=id)
+        consent = self.validate_against_consent()
 
         if report_datetime and report_datetime < consent.consent_datetime:
             raise forms.ValidationError(
                 "Report datetime cannot be before consent datetime")
 
-    def validate_against_consent(self, id=None):
+    def validate_against_consent(self):
         """Returns an instance of the current maternal consent version form or
         raises an exception if not found."""
         try:
-            consent_version = self.consent_version_cls.objects.get(
-                screening_identifier=self.subject_screening.screening_identifier)
-        except self.consent_version_cls.DoesNotExist:
-            raise ValidationError(
-                'Please complete mother\'s consent version form before proceeding')
-        else:
-            if not id:
-                consent = self.caregiver_consent_cls.objects.filter(
-                    subject_identifier=self.subject_identifier,
-                    version=consent_version.version).order_by(
-                        '-consent_datetime').first()
-            else:
-                consent = self.caregiver_consent_cls.objects.filter(
-                    subject_identifier=self.subject_identifier).order_by(
-                        'consent_datetime').first()
-            if not consent:
+            consent = self.caregiver_consent_cls.objects.get(
+                subject_identifier=self.subject_identifier)
+        except self.caregiver_consent_cls.DoesNotExist:
                 raise ValidationError(
-                    'Please complete Maternal Consent form '
+                    'Please complete Caregiver Consent form '
                     f'before  proceeding.')
-            else:
-                return consent
+        else:
+            return consent
 
     @property
     def subject_screening(self):
