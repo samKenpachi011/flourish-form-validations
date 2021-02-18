@@ -25,17 +25,18 @@ class ScreeningPriorBhpParticipantsFormValidator(FormValidator):
         mother_alive = cleaned_data.get('mother_alive')
         flourish_interest = cleaned_data.get('flourish_interest')
         flourish_participation = cleaned_data.get('flourish_participation')
-        if mother_alive in [NO, UNKNOWN] and flourish_interest == NO:
-            if cleaned_data.get('flourish_participation') != NOT_APPLICABLE:
-                message = {'flourish_participation':
-                           'This field is not applicable'}
-                self._errors.update(message)
-                raise ValidationError(message)
-        if YES in mother_alive and flourish_participation == NOT_APPLICABLE:
-                message = {'flourish_participation':
-                           'This field is applicable'}
-                self._errors.update(message)
-                raise ValidationError(message)
+        if mother_alive:
+            if mother_alive in [NO, UNKNOWN] and flourish_interest == NO:
+                if cleaned_data.get('flourish_participation') != NOT_APPLICABLE:
+                    message = {'flourish_participation':
+                               'This field is not applicable'}
+                    self._errors.update(message)
+                    raise ValidationError(message)
+            if YES in mother_alive and flourish_participation == NOT_APPLICABLE:
+                    message = {'flourish_participation':
+                               'This field is applicable'}
+                    self._errors.update(message)
+                    raise ValidationError(message)
 
     def validate_child_alive(self):
         self.not_applicable_if(
