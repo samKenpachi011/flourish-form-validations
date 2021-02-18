@@ -17,3 +17,4 @@ from .substance_use_prior_form_validator import SubstanceUsePriorFormValidator
 from .tb_history_preg_form_validator import TbHistoryPregFormValidator
 from .tb_presence_household_members_form_validator import TbPresenceHouseholdMembersFormValidator
 from .tb_screen_preg_form_validator import TbScreenPregFormValidator
+from .ultrasound_form_validator import UltrasoundFormValidator
