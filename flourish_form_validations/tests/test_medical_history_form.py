@@ -4,7 +4,8 @@ from django.test import TestCase
 from edc_base.utils import get_utcnow
 from edc_constants.constants import POS, NOT_APPLICABLE, MALE, YES, NO, NEG
 
-from flourish_caregiver.models.list_models import ChronicConditions, CaregiverMedications, WcsDxAdult
+from flourish_caregiver.models.list_models import (
+    ChronicConditions,CaregiverMedications, WcsDxAdult)
 
 from ..form_validators import MedicalHistoryFormValidator
 from .models import (
@@ -22,7 +23,7 @@ class MaternalStatusHelper:
         return self.status
 
 
-class TestMaternalMedicalHistoryForm(TestCase):
+class TestMedicalHistoryForm(TestCase):
 
     def setUp(self):
         MedicalHistoryFormValidator.antenatal_enrollment_model = \

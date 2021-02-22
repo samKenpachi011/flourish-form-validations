@@ -40,7 +40,7 @@ class FlourishFormValidatorMixin:
         except self.caregiver_consent_cls.DoesNotExist:
                 raise ValidationError(
                     'Please complete Caregiver Consent form '
-                    f'before  proceeding.')
+                    f'before proceeding.')
         else:
             return consent
 

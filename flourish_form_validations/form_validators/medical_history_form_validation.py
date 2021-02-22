@@ -28,7 +28,7 @@ class MedicalHistoryFormValidator(CRFFormValidator, FormValidator):
             cleaned_data=self.cleaned_data)
         self.validate_who_diagnosis_who_chronic_list(
             cleaned_data=self.cleaned_data)
-        self.validate_mother_caregiver_chronic_multiple_selection()
+        self.validate_caregiver_chronic_multiple_selection()
         self.validate_other_caregiver()
         self.validate_caregiver_medications_multiple_selections()
         self.validate_other_caregiver_medications()
@@ -87,7 +87,7 @@ class MedicalHistoryFormValidator(CRFFormValidator, FormValidator):
                 NOT_APPLICABLE,
                 m2m_field='who')
 
-    def validate_mother_caregiver_chronic_multiple_selection(self):
+    def validate_caregiver_chronic_multiple_selection(self):
         selections = [NOT_APPLICABLE]
 
         self.m2m_single_selection_if(
