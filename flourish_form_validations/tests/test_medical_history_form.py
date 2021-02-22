@@ -27,7 +27,7 @@ class TestMedicalHistoryForm(TestCase):
 
     def setUp(self):
         MedicalHistoryFormValidator.antenatal_enrollment_model = \
-            'td_maternal_validators.antenatalenrollment'
+            'flourish_form_validations.antenatalenrollment'
 
         self.subject_consent = SubjectConsent.objects.create(
             subject_identifier='11111111',
