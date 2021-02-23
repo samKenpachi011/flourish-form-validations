@@ -125,3 +125,10 @@ class SubjectScreening(BaseUuidModel):
     has_omang = models.CharField(max_length=3)
 
     age_in_years = age_in_years = models.IntegerField()
+
+
+class UltraSound(models.Model):
+
+    maternal_visit = models.OneToOneField(MaternalVisit, on_delete=PROTECT)
+
+    ga_confirmed = models.IntegerField()
