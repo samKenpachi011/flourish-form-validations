@@ -5,7 +5,7 @@ from edc_base.utils import get_utcnow
 from edc_constants.constants import YES, NO, NOT_APPLICABLE
 from ..form_validators import MaternalArvDuringPregFormValidator
 from .models import MaternalVisit, Appointment, MaternalArvDuringPreg
-from .models import MaternalArvPrePreg, SubjectScreening, SubjectConsent
+from .models import ArvsPrePregnancy, SubjectScreening, SubjectConsent
 
 
 class TestMaternalArvDuringPregForm(TestCase):
@@ -40,7 +40,7 @@ class TestMaternalArvDuringPregForm(TestCase):
         self.maternal_arv_during_preg = MaternalArvDuringPreg.objects.create(
             maternal_visit=self.maternal_visit,)
 
-        # self.maternal_arv_pre_preg = MaternalArvPrePreg.objects.create(
+        # self.maternal_arv_pre_preg = ArvsPrePregnancy.objects.create(
         #     maternal_visit=self.maternal_visit)
 
     def test_medication_interrupted_invalid(self):

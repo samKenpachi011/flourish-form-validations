@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'edc_protocol.apps.AppConfig',
     'flourish_form_validations.apps.EdcVisitTrackingAppConfig',
     'flourish_caregiver.apps.AppConfig',
+    'flourish_child.apps.AppConfig',
     'flourish_form_validations.apps.AppConfig',
 ]
 

@@ -8,13 +8,13 @@ from edc_form_validators import FormValidator
 
 class SubjectConsentFormValidator(FormValidator):
 
-    screening_model = 'flourish_caregiver.subjectscreening'
+    prior_screening_model = 'flourish_caregiver.screeningpriorbhpparticipants'
 
     subject_consent_model = 'flourish_caregiver.subjectconsent'
 
     @property
-    def subject_screening_cls(self):
-        return django_apps.get_model(self.screening_model)
+    def bhp_prior_screening_cls(self):
+        return django_apps.get_model(self.prior_screening_model)
 
     @property
     def subject_consent_cls(self):
@@ -25,25 +25,25 @@ class SubjectConsentFormValidator(FormValidator):
         self.subject_identifier = cleaned_data.get('subject_identifier')
         super().clean()
 
-        try:
-            subject_screening = self.subject_screening_cls.objects.get(
-                screening_identifier=cleaned_data.get('screening_identifier'))
-        except self.subject_screening_cls.DoesNotExist:
-            raise ValidationError(
-                'Complete the "Subject Screening" form before proceeding.')
+#         try:
+#             subject_screening = self.subject_screening_cls.objects.get(
+#                 screening_identifier=cleaned_data.get('screening_identifier'))
+#         except self.subject_screening_cls.DoesNotExist:
+#             raise ValidationError(
+#                 'Complete the "Subject Screening" form before proceeding.')
 
-        if cleaned_data.get('citizen') != subject_screening.has_omang:
-            message = {'citizen':
-                       'During screening you said has_omang is {}. '
-                       'Yet you wrote citizen is {}. Please correct.'.format(
-                           subject_screening.has_omang, cleaned_data.get('citizen'))}
-            self._errors.update(message)
-            raise ValidationError(message)
+#         if cleaned_data.get('citizen') != subject_screening.has_omang:
+#             message = {'citizen':
+#                        'During screening you said has_omang is {}. '
+#                        'Yet you wrote citizen is {}. Please correct.'.format(
+#                            subject_screening.has_omang, cleaned_data.get('citizen'))}
+#             self._errors.update(message)
+#             raise ValidationError(message)
 
         self.clean_full_name_syntax()
         self.clean_initials_with_full_name()
-        self.validate_dob(cleaned_data=self.cleaned_data,
-                          model_obj=subject_screening)
+#         self.validate_dob(cleaned_data=self.cleaned_data,
+#                           model_obj=subject_screening)
         self.validate_identity_number(cleaned_data=self.cleaned_data)
         self.validate_recruit_source()
         self.validate_recruitment_clinic()

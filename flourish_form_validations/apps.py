@@ -11,4 +11,6 @@ class AppConfig(DjangoApponfig):
 class EdcVisitTrackingAppConfig(BaseEdcVisitTrackingAppConfig):
     visit_models = {
         'flourish_caregiver': (
-            'maternal_visit', 'flourish_caregiver.maternalvisit')}
+            'maternal_visit', 'flourish_caregiver.maternalvisit'),
+        'flourish_child': (
+            'child_visit', 'flourish_child.childvisit')}

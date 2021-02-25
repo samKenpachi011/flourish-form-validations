@@ -105,13 +105,30 @@ class MaternalArvDuringPreg(models.Model):
     maternal_visit = models.OneToOneField(MaternalVisit, on_delete=PROTECT)
 
 
-class MaternalArvPrePreg(models.Model):
+class MaternalArv(models.Model):
+
+    maternal_arv_durg_preg = models.ForeignKey(MaternalArvDuringPreg, on_delete=PROTECT)
+
+    arv_code = models.CharField(
+        verbose_name="ARV code",
+        max_length=35)
+
+    start_date = models.DateField(
+        null=True,
+        blank=False)
+
+    stop_date = models.DateField(
+        null=True,
+        blank=True)
+
+
+class ArvsPrePregnancy(models.Model):
 
     maternal_visit = models.ForeignKey(MaternalVisit, on_delete=PROTECT)
 
-    preg_on_haart = models.CharField(max_length=25, choices=YES_NO_NA)
+    preg_on_art = models.CharField(max_length=25, choices=YES_NO_NA)
 
-    haart_start_date = models.DateField(
+    art_start_date = models.DateField(
         blank=True,
         null=True)
 
