@@ -3,7 +3,7 @@ from django.db.models.deletion import PROTECT
 from django_crypto_fields.fields import FirstnameField, LastnameField
 from edc_base.model_mixins import BaseUuidModel, ListModelMixin
 from edc_base.utils import get_utcnow
-from edc_constants.choices import GENDER
+from edc_constants.choices import GENDER, YES_NO, YES_NO_NA
 from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
 
 
@@ -95,6 +95,25 @@ class MaternalVisit(BaseUuidModel):
         self.visit_code = self.appointment.visit_code
         self.subject_identifier = self.appointment.subject_identifier
         super().save(*args, **kwargs)
+
+
+class MaternalArvDuringPreg(models.Model):
+
+    took_arv = models.CharField(
+        choices=YES_NO,
+        max_length=10)
+    maternal_visit = models.OneToOneField(MaternalVisit, on_delete=PROTECT)
+
+
+class MaternalArvPrePreg(models.Model):
+
+    maternal_visit = models.ForeignKey(MaternalVisit, on_delete=PROTECT)
+
+    preg_on_haart = models.CharField(max_length=25, choices=YES_NO_NA)
+
+    haart_start_date = models.DateField(
+        blank=True,
+        null=True)
 
 
 class RegisteredSubject(BaseUuidModel):
