@@ -4,7 +4,7 @@ from django.test import TestCase
 from edc_base.utils import get_utcnow
 from edc_constants.constants import YES, NO, NOT_APPLICABLE
 from ..form_validators import MaternalArvDuringPregFormValidator
-from .models import MaternalVisit, Appointment, MaternalArvDuringPreg
+from .models import MaternalVisit, Appointment
 from .models import ArvsPrePregnancy, SubjectScreening, SubjectConsent
 
 
@@ -15,6 +15,8 @@ class TestMaternalArvDuringPregForm(TestCase):
             'flourish_form_validations.subjectconsent'
         MaternalArvDuringPregFormValidator.subject_screening_model = \
             'flourish_form_validations.subjectscreening'
+        MaternalArvDuringPregFormValidator.arvs_pre_preg_model = \
+            'flourish_form_validations.arvsprepregnancy'
 
         self.subject_identifier = '11111111'
 
@@ -37,11 +39,9 @@ class TestMaternalArvDuringPregForm(TestCase):
             appointment=self.appointment,
             subject_identifier=self.subject_consent.subject_identifier)
 
-        self.maternal_arv_during_preg = MaternalArvDuringPreg.objects.create(
-            maternal_visit=self.maternal_visit,)
-
-        # self.maternal_arv_pre_preg = ArvsPrePregnancy.objects.create(
-        #     maternal_visit=self.maternal_visit)
+        self.arvs_pre_preg = ArvsPrePregnancy.objects.create(
+            maternal_visit=self.maternal_visit,
+            preg_on_art=YES)
 
     def test_medication_interrupted_invalid(self):
         '''Assert raises if arvs was interrupted but
@@ -103,3 +103,33 @@ class TestMaternalArvDuringPregForm(TestCase):
             cleaned_data=cleaned_data)
         self.assertRaises(ValidationError, form_validator.validate)
         self.assertIn('interrupt', form_validator._errors)
+
+    def test_took_arv_preg_on_art_invalid(self):
+        '''Assert raises if preg on art but took arv is `NO`.
+        '''
+        cleaned_data = {
+            'maternal_visit': self.maternal_visit,
+            'is_interrupt': NO,
+            'interrupt': NOT_APPLICABLE,
+            'took_arv': NO
+        }
+        form_validator = MaternalArvDuringPregFormValidator(
+            cleaned_data=cleaned_data)
+        self.assertRaises(ValidationError, form_validator.validate)
+        self.assertIn('took_arv', form_validator._errors)
+
+    def test_took_arv_preg_on_art_valid(self):
+        '''True if preg on art and took arv.
+        '''
+        cleaned_data = {
+            'maternal_visit': self.maternal_visit,
+            'is_interrupt': NO,
+            'interrupt': NOT_APPLICABLE,
+            'took_arv': YES
+        }
+        form_validator = MaternalArvDuringPregFormValidator(
+            cleaned_data=cleaned_data)
+        try:
+            form_validator.validate()
+        except ValidationError as e:
+            self.fail(f'ValidationError raised. Got {e}')

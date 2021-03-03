@@ -32,17 +32,16 @@ class MaternalArvDuringPregFormValidator(CRFFormValidator, FormValidator):
             required_msg='Please give reason for interruption'
         )
 
-        # try:
-        #     arvs_pre_preg = self.arvs_pre_preg_cls.objects.get(
-        #         maternal_visit__subject_identifier=self.subject_identifier)
-        # except self.arvs_pre_preg_cls.DoesNotExist:
-        #     raise forms.ValidationError(
-        #         'Please complete the ARV\'s pre pregnancy form first')
-        # else:
-        #
-        #     if (arvs_pre_preg.preg_on_haart == YES and
-        #             self.cleaned_data.get('took_arv') == NO):
-        #             message = {'took_arv':
-        #                        'cannot be answered as No'}
-        #             self._errors.update(message)
-        #             raise ValidationError(message)
+        try:
+            arvs_pre_preg = self.arvs_pre_preg_cls.objects.get(
+                maternal_visit=self.cleaned_data.get('maternal_visit'))
+        except self.arvs_pre_preg_cls.DoesNotExist:
+            raise forms.ValidationError(
+                'Please complete the ARV\'s pre pregnancy form first.')
+        else:
+            if (arvs_pre_preg.preg_on_art == YES and
+                    self.cleaned_data.get('took_arv') == NO):
+                    message = {'took_arv':
+                               'cannot be answered as No'}
+                    self._errors.update(message)
+                    raise ValidationError(message)
