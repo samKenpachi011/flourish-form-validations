@@ -3,6 +3,7 @@ from django import forms
 from django.apps import apps as django_apps
 from django.core.exceptions import ValidationError
 from edc_base.utils import relativedelta
+from edc_constants.constants import FEMALE, MALE
 from edc_form_validators import FormValidator
 
 
@@ -149,10 +150,15 @@ class SubjectConsentFormValidator(FormValidator):
                        'Please correct.'}
                 self._errors.update(msg)
                 raise ValidationError(msg)
-            if cleaned_data.get('identity')[4] != '2':
+            gender = cleaned_data.get('gender')
+            if gender == FEMALE and cleaned_data.get('identity')[4] != '2':
                 msg = {'identity':
-                       'Identity provided indicates participant is Male. Please '
-                       'correct.'}
+                       'Participant gender is Female. Please correct identity number.'}
+                self._errors.update(msg)
+                raise ValidationError(msg)
+            elif gender == MALE and cleaned_data.get('identity')[4] != '1':
+                msg = {'identity':
+                       'Participant is Male. Please correct identity number.'}
                 self._errors.update(msg)
                 raise ValidationError(msg)
 
