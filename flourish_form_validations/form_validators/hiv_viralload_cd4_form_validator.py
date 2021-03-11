@@ -17,3 +17,11 @@ class HivViralLoadCd4FormValidator(FormValidator):
             YES,
             field='last_vl_known',
             field_required='vl_detectable')
+
+        viral_load_fields = ['vl_detectable', 'recent_vl_results',
+                             'hiv_results_quantifier', 'last_vl_date']
+        for field in viral_load_fields:
+            self.required_if(
+                YES,
+                field='last_vl_known',
+                field_required=field)
