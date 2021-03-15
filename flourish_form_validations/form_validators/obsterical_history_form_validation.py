@@ -64,7 +64,7 @@ class ObstericalHistoryFormValidator(CRFFormValidator, FormValidator):
                 if (cleaned_data.get('pregs_24wks_or_more') <
                         cleaned_data.get('lost_after_24wks')):
                     message = {'pregs_24wks_or_more':
-                               'Sum of pregnancies more than 24 weeks should be'
+                               'Sum of pregnancies more than 24 weeks should NOT be'
                                ' less than those lost'}
                     self._errors.update(message)
                     raise ValidationError(message)
