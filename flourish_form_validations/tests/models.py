@@ -35,6 +35,16 @@ class SubjectConsent(UpdatesOrCreatesRegistrationModelMixin, BaseUuidModel):
         max_length=10,
         editable=False)
 
+    child_dob = models.DateField(blank=True, null=True)
+
+    child_test = models.CharField(max_length=5)
+
+    child_remain_in_study = models.CharField(max_length=5)
+
+    child_preg_test = models.CharField(max_length=5)
+
+    child_knows_status = models.CharField(max_length=5)
+
 
 class AntenatalEnrollment(BaseUuidModel):
 
@@ -168,3 +178,21 @@ class UltraSound(models.Model):
     maternal_visit = models.OneToOneField(MaternalVisit, on_delete=PROTECT)
 
     ga_confirmed = models.IntegerField()
+
+
+class MaternalDataset(BaseUuidModel):
+
+    screening_identifier = models.CharField(max_length=36)
+
+    study_child_identifier = models.CharField(max_length=36)
+
+    study_maternal_identifier = models.CharField(max_length=36)
+
+    delivdt = models.DateField()
+
+
+class ChildDataset(BaseUuidModel):
+
+    study_child_identifier = models.CharField(max_length=36)
+
+    infant_sex = models.CharField(max_length=7)

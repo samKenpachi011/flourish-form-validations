@@ -3,7 +3,7 @@ from django import forms
 from django.apps import apps as django_apps
 from django.core.exceptions import ValidationError
 from edc_base.utils import relativedelta
-from edc_constants.constants import FEMALE, MALE
+from edc_constants.constants import FEMALE, MALE, NO
 from edc_form_validators import FormValidator
 
 
@@ -14,6 +14,8 @@ class SubjectConsentFormValidator(FormValidator):
     subject_consent_model = 'flourish_caregiver.subjectconsent'
 
     maternal_dataset_model = 'flourish_caregiver.maternaldataset'
+
+    child_dataset_model = 'flourish_child.childdataset'
 
     @property
     def bhp_prior_screening_cls(self):
@@ -27,40 +29,33 @@ class SubjectConsentFormValidator(FormValidator):
     def maternal_dataset_cls(self):
         return django_apps.get_model(self.maternal_dataset_model)
 
+    @property
+    def child_dataset_cls(self):
+        return django_apps.get_model(self.child_dataset_model)
+
     def clean(self):
         cleaned_data = self.cleaned_data
         self.subject_identifier = cleaned_data.get('subject_identifier')
+        self.screening_identifier = cleaned_data.get('screening_identifier')
         super().clean()
-
-#         try:
-#             subject_screening = self.subject_screening_cls.objects.get(
-#                 screening_identifier=cleaned_data.get('screening_identifier'))
-#         except self.subject_screening_cls.DoesNotExist:
-#             raise ValidationError(
-#                 'Complete the "Subject Screening" form before proceeding.')
-
-#         if cleaned_data.get('citizen') != subject_screening.has_omang:
-#             message = {'citizen':
-#                        'During screening you said has_omang is {}. '
-#                        'Yet you wrote citizen is {}. Please correct.'.format(
-#                            subject_screening.has_omang, cleaned_data.get('citizen'))}
-#             self._errors.update(message)
-#             raise ValidationError(message)
 
         self.clean_full_name_syntax()
         self.clean_initials_with_full_name()
-#         self.validate_dob(cleaned_data=self.cleaned_data,
-#                           model_obj=subject_screening)
-        self.validate_child_dob(cleaned_data=self.cleaned_data)
-        self.validate_identity_number(cleaned_data=self.cleaned_data)
         self.validate_recruit_source()
         self.validate_recruitment_clinic()
+        self.validate_is_literate()
+        self.validate_dob(cleaned_data=self.cleaned_data)
+        self.validate_citizenship()
+        self.validate_identity_number(cleaned_data=self.cleaned_data)
+        self.validate_child_dob(cleaned_data=self.cleaned_data)
+        self.validate_consent_for_child(cleaned_data=self.cleaned_data)
         self.validate_reconsent()
 
     def validate_reconsent(self):
         try:
             consent_obj = self.subject_consent_cls.objects.get(
-                subject_identifier=self.cleaned_data.get('subject_identifier'))
+                subject_identifier=self.cleaned_data.get('subject_identifier'),
+                version=self.cleaned_data.get('version'))
         except self.subject_consent_cls.DoesNotExist:
             pass
         else:
@@ -83,17 +78,19 @@ class SubjectConsentFormValidator(FormValidator):
         first_name = cleaned_data.get("first_name")
         last_name = cleaned_data.get("last_name")
 
-        if not re.match(r'^[A-Z]+$|^([A-Z]+[ ][A-Z]+)$', first_name):
-            message = {'first_name': 'Ensure first name is letters (A-Z) in '
-                       'upper case, no special characters, except spaces.'}
-            self._errors.update(message)
-            raise ValidationError(message)
+        if first_name:
+            if not re.match(r'^[A-Z]+$|^([A-Z]+[ ][A-Z]+)$', first_name):
+                message = {'first_name': 'Ensure first name is letters (A-Z) in '
+                           'upper case, no special characters, except spaces.'}
+                self._errors.update(message)
+                raise ValidationError(message)
 
-        if not re.match(r'^[A-Z-]+$', last_name):
-            message = {'last_name': 'Ensure last name is letters (A-Z) in '
-                       'upper case, no special characters, except hyphens.'}
-            self._errors.update(message)
-            raise ValidationError(message)
+        if last_name:
+            if not re.match(r'^[A-Z-]+$', last_name):
+                message = {'last_name': 'Ensure last name is letters (A-Z) in '
+                           'upper case, no special characters, except hyphens.'}
+                self._errors.update(message)
+                raise ValidationError(message)
 
         if first_name and last_name:
             if first_name != first_name.upper():
@@ -162,8 +159,7 @@ class SubjectConsentFormValidator(FormValidator):
                 self._errors.update(msg)
                 raise ValidationError(msg)
 
-    def validate_dob(self, cleaned_data=None, model_obj=None):
-
+    def validate_dob(self, cleaned_data=None):
         consent_datetime = cleaned_data.get('consent_datetime')
         consent_age = relativedelta(
             consent_datetime.date(), cleaned_data.get('dob')).years
@@ -171,13 +167,12 @@ class SubjectConsentFormValidator(FormValidator):
 
         try:
             consent_obj = self.subject_consent_cls.objects.get(
-                screening_identifier=self.cleaned_data.get('screening_identifier'),)
+                screening_identifier=self.cleaned_data.get('screening_identifier'),
+                version=self.cleaned_data.get('version'))
         except self.subject_consent_cls.DoesNotExist:
-            age_in_years = model_obj.age_in_years
-            if consent_age != age_in_years:
+            if consent_age < 18:
                 message = {'dob':
-                           'In Subject Screening you indicated the '
-                           'participant is {age_in_years}, but age derived '
+                           'Participant is less than 18 years, age derived '
                            f'from the DOB is {consent_age}.'}
                 self._errors.update(message)
                 raise ValidationError(message)
@@ -194,20 +189,37 @@ class SubjectConsentFormValidator(FormValidator):
 
     def validate_child_dob(self, cleaned_data=None):
         child_dob = cleaned_data.get('child_dob')
-        screening_identifier = cleaned_data.get('screening_identifier')
-        if child_dob:
-            try:
-                maternal_dataset = self.maternal_dataset_cls.objects.get(
-                    screening_identifier=screening_identifier)
-            except self.maternal_dataset_cls.DoesNotExist:
-                pass
-            else:
-                if child_dob != maternal_dataset.delivdt:
-                    msg = {'child_dob':
-                           'Child date of birth does not match with dob '
-                           f'({maternal_dataset.delivdt}) from the dataset.'}
-                    self._errors.update(msg)
-                    raise ValidationError(msg)
+        if child_dob and self.maternal_dataset:
+            if child_dob != self.maternal_dataset.delivdt:
+                msg = {'child_dob':
+                       'Child date of birth does not match with dob '
+                       f'({self.maternal_dataset.delivdt}) from the dataset.'}
+                self._errors.update(msg)
+                raise ValidationError(msg)
+
+    def validate_consent_for_child(self, cleaned_data=None):
+        consent_datetime = cleaned_data.get('consent_datetime')
+        fields = ['child_test', 'child_remain_in_study', ]
+        for field in fields:
+            self.applicable_if_true(
+                self.maternal_dataset is not None,
+                field_applicable=field)
+        if self.maternal_dataset:
+            child_dataset = self.child_dataset(
+                study_child_identifier=self.maternal_dataset.study_child_identifier)
+            if child_dataset:
+                self.applicable_if_true(
+                    child_dataset.infant_sex[:1] == FEMALE,
+                    field_applicable='child_preg_test',
+                    applicable_msg=('Child\'s gender is female from the dataset '
+                                    'This field is applicable.'))
+            child_age_in_years = relativedelta(
+                consent_datetime.date(), self.maternal_dataset.delivdt).years
+            self.applicable_if_true(
+                child_age_in_years >= 16,
+                field_applicable='child_knows_status',
+                applicable_msg=(f'Age derived from the child DOB is {child_age_in_years} '
+                                'This field is applicable.'))
 
     def validate_recruit_source(self):
         self.validate_other_specify(
@@ -226,3 +238,37 @@ class SubjectConsentFormValidator(FormValidator):
             required_msg=('You MUST specify other facility that mother was '
                           f'recruited from as you already indicated {clinic}')
         )
+
+    def validate_is_literate(self):
+        self.required_if(
+            NO,
+            field='is_literate',
+            field_required='witness_name',
+            required_msg='Participant is illiterate please provide witness\'s name(s).')
+
+    def validate_citizenship(self):
+        cleaned_data = self.cleaned_data
+        if cleaned_data.get('citizen') == NO:
+            msg = {'citizen':
+                   'Participant MUST be a botswana citizen.'}
+            self._errors.update(msg)
+            raise ValidationError(msg)
+
+    @property
+    def maternal_dataset(self):
+        try:
+            maternal_dataset = self.maternal_dataset_cls.objects.get(
+                screening_identifier=self.screening_identifier)
+        except self.maternal_dataset_cls.DoesNotExist:
+            return None
+        else:
+            return maternal_dataset
+
+    def child_dataset(self, study_child_identifier=None):
+        try:
+            child_dataset = self.child_dataset_cls.objects.get(
+                study_child_identifier=study_child_identifier)
+        except self.child_dataset_cls.DoesNotExist:
+            return None
+        else:
+            return child_dataset
