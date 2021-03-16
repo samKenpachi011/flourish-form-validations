@@ -7,18 +7,11 @@ class ScreeningPriorBhpParticipantsFormValidator(FormValidator):
 
     def clean(self):
         self.validate_child_alive()
-        self.validate_mother_alive()
         self.applicable_only(
             YES,
             field='flourish_interest',
             field_applicable='flourish_participation')
         self.validate_participation()
-
-    def validate_mother_alive(self):
-        self.applicable_if(
-            *[NO, UNKNOWN],
-            field='mother_alive',
-            field_applicable='flourish_interest')
 
     def validate_participation(self):
         cleaned_data = self.cleaned_data
