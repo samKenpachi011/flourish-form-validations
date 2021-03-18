@@ -206,7 +206,7 @@ class SubjectConsentFormValidator(FormValidator):
                 field_applicable=field)
         if self.maternal_dataset:
             child_dataset = self.child_dataset(
-                study_child_identifier=self.maternal_dataset.study_child_identifier)
+                study_maternal_identifier=self.maternal_dataset.study_maternal_identifier)
             if child_dataset:
                 self.applicable_if_true(
                     child_dataset.infant_sex[:1] == FEMALE,
@@ -264,10 +264,10 @@ class SubjectConsentFormValidator(FormValidator):
         else:
             return maternal_dataset
 
-    def child_dataset(self, study_child_identifier=None):
+    def child_dataset(self, study_maternal_identifier=None):
         try:
             child_dataset = self.child_dataset_cls.objects.get(
-                study_child_identifier=study_child_identifier)
+                study_maternal_identifier=study_maternal_identifier)
         except self.child_dataset_cls.DoesNotExist:
             return None
         else:
