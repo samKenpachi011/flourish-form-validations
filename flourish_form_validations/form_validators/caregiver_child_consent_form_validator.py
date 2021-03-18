@@ -1,20 +1,11 @@
 import re
-from django import forms
-from django.apps import apps as django_apps
 from django.core.exceptions import ValidationError
 
-from edc_constants.choices import NO
-from edc_constants.constants import MALE, FEMALE
+from edc_constants.choices import FEMALE, MALE, NO
 from edc_form_validators import FormValidator
 
 
 class CaregiverChildConsentFormValidator(FormValidator):
-
-    subject_consent_model = 'flourish_caregiver.subjectconsent'
-
-    @property
-    def subject_consent_cls(self):
-        return django_apps.get_model(self.subject_consent_model)
 
     def clean(self):
 
@@ -27,9 +18,7 @@ class CaregiverChildConsentFormValidator(FormValidator):
             field_required='witness_name')
 
         self.clean_full_name_syntax()
-        self.clean_initials_with_full_name()
         self.validate_identity_number(cleaned_data=self.cleaned_data)
-        self.validate_personal_fields()
 
     def clean_full_name_syntax(self):
         cleaned_data = self.cleaned_data
@@ -58,73 +47,27 @@ class CaregiverChildConsentFormValidator(FormValidator):
                 self._errors.update(message)
                 raise ValidationError(message)
 
-    def clean_initials_with_full_name(self):
-        cleaned_data = self.cleaned_data
-        first_name = cleaned_data.get("first_name")
-        last_name = cleaned_data.get("last_name")
-        initials = cleaned_data.get("initials")
-        try:
-            middle_name = None
-            is_first_name = False
-            new_first_name = None
-            if len(first_name.split(' ')) > 1:
-                new_first_name = first_name.split(' ')[0]
-                middle_name = first_name.split(' ')[1]
-
-            if (middle_name and
-                (initials[:1] != new_first_name[:1] or
-                 initials[1:2] != middle_name[:1])):
-                is_first_name = True
-
-            elif not middle_name and initials[:1] != first_name[:1]:
-                is_first_name = True
-
-            if is_first_name or initials[-1:] != last_name[:1]:
-                raise forms.ValidationError(
-                    {'initials': 'Initials do not match full name.'},
-                    params={
-                        'initials': initials,
-                        'first_name': first_name,
-                        'last_name': last_name},
-                    code='invalid')
-        except (IndexError, TypeError):
-            raise forms.ValidationError('Initials do not match fullname.')
-
     def validate_identity_number(self, cleaned_data=None):
+        if cleaned_data.get('identity') != cleaned_data.get(
+                'confirm_identity'):
+            msg = {'identity': '\'Identity\' must match \'confirm identity\'.'}
+            self._errors.update(msg)
+            raise ValidationError(msg)
         if cleaned_data.get('identity_type') == 'country_id':
-
-            identity = cleaned_data.get('identity')
-            confirm_identity = cleaned_data.get('confirm_identity')
-
-            if len(identity) != 9:
+            if len(cleaned_data.get('identity')) != 9:
                 msg = {'identity':
                        'Country identity provided should contain 9 values. '
                        'Please correct.'}
                 self._errors.update(msg)
                 raise ValidationError(msg)
-
-            if identity[4] != '2' and identity[4] != '1':
+            gender = cleaned_data.get('gender')
+            if gender == FEMALE and cleaned_data.get('identity')[4] != '2':
                 msg = {'identity':
-                       'This is not a Botswana Identity number'}
+                       'Participant gender is Female. Please correct identity number.'}
                 self._errors.update(msg)
                 raise ValidationError(msg)
-
-            if identity != confirm_identity:
+            elif gender == MALE and cleaned_data.get('identity')[4] != '1':
                 msg = {'identity':
-                       'Identity number and confirm identity number '
-                       'should be the same'}
+                       'Participant is Male. Please correct identity number.'}
                 self._errors.update(msg)
                 raise ValidationError(msg)
-
-    def validate_personal_fields(self, clinician_call_value=None, field=None):
-
-        field_value = self.cleaned_data.get(field)
-
-        if clinician_call_value != field_value:
-            message = {field:
-                       f'The {field} provided does not match the {field} '
-                       f'provided in the Clinician Call Enrollment '
-                       f' form. Expected \'{clinician_call_value}\' '
-                       f'got \'{field_value}\''}
-            self._errors.update(message)
-            raise ValidationError(message)
