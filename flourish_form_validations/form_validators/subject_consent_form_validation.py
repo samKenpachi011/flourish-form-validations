@@ -132,6 +132,11 @@ class SubjectConsentFormValidator(FormValidator):
             raise forms.ValidationError('Initials do not match fullname.')
 
     def validate_identity_number(self, cleaned_data=None):
+        identity = cleaned_data.get('identity')
+        if not re.match('[0-9]+$', identity):
+            message = {'identity': 'Identity number must be digits.'}
+            self._errors.update(message)
+            raise ValidationError(message)
         if cleaned_data.get('identity') != cleaned_data.get('confirm_identity'):
             msg = {'identity':
                    '\'Identity\' must match \'confirm identity\'.'}
