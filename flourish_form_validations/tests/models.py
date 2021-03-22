@@ -154,25 +154,6 @@ class RegisteredSubject(BaseUuidModel):
     gender = models.CharField(max_length=1, choices=GENDER)
 
 
-class SubjectScreening(BaseUuidModel):
-
-    subject_identifier = models.CharField(
-        max_length=50)
-
-    report_datetime = models.DateTimeField(
-        null=True,
-        blank=True)
-
-    screening_identifier = models.CharField(
-        max_length=36,
-        unique=True,
-        editable=False)
-
-    has_omang = models.CharField(max_length=3)
-
-    age_in_years = age_in_years = models.IntegerField()
-
-
 class UltraSound(models.Model):
 
     maternal_visit = models.OneToOneField(MaternalVisit, on_delete=PROTECT)
