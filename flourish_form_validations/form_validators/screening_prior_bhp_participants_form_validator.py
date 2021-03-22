@@ -19,15 +19,35 @@ class ScreeningPriorBhpParticipantsFormValidator(FormValidator):
         flourish_interest = cleaned_data.get('flourish_interest')
         flourish_participation = cleaned_data.get('flourish_participation')
         if mother_alive:
+            self.applicable_only(
+                *[NO, UNKNOWN],
+                field='mother_alive',
+                field_applicable='flourish_interest')
+
             if mother_alive in [NO, UNKNOWN] and flourish_interest == NO:
-                if cleaned_data.get('flourish_participation') != NOT_APPLICABLE:
+                if flourish_participation != NOT_APPLICABLE:
                     message = {'flourish_participation':
                                'This field is not applicable'}
                     self._errors.update(message)
                     raise ValidationError(message)
-            if YES in mother_alive and flourish_participation == NOT_APPLICABLE:
+            if mother_alive in [NO, UNKNOWN] and flourish_interest == YES:
+                if flourish_participation == 'interested':
+                    message = {'flourish_participation':
+                               'The mother from the previous study is not alive, '
+                               'Please correct interest for `another caregiver`. '}
+                    self._errors.update(message)
+                    raise ValidationError(message)
+            if mother_alive == YES:
+                if flourish_participation == NOT_APPLICABLE:
                     message = {'flourish_participation':
                                'This field is applicable'}
+                    self._errors.update(message)
+                    raise ValidationError(message)
+                if (flourish_interest in [NO, NOT_APPLICABLE]) and (
+                     flourish_participation == 'another_caregiver_interested'):
+                    message = {'flourish_participation':
+                               'The mother from the previous study is alive, '
+                               'Please correct interest. '}
                     self._errors.update(message)
                     raise ValidationError(message)
 
@@ -37,10 +57,13 @@ class ScreeningPriorBhpParticipantsFormValidator(FormValidator):
             field='child_alive',
             field_applicable='mother_alive')
 
-        self.not_applicable_only(
-            NO,
-            field='child_alive',
-            field_applicable='flourish_participation')
+        fields = ['flourish_interest', 'flourish_participation']
+
+        for field in fields:
+            self.not_applicable_only(
+                NO,
+                field='child_alive',
+                field_applicable=field)
 
     def not_applicable_only(self, *responses, field=None, field_applicable=None):
         cleaned_data = self.cleaned_data
