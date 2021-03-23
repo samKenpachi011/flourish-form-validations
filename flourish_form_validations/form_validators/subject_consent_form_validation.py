@@ -3,19 +3,19 @@ from django import forms
 from django.apps import apps as django_apps
 from django.core.exceptions import ValidationError
 from edc_base.utils import relativedelta
-from edc_constants.constants import FEMALE, MALE, NO
+from edc_constants.constants import FEMALE, MALE, NO, YES
 from edc_form_validators import FormValidator
 
+from .consents_form_validator_mixin import ConsentsFormValidatorMixin
 
-class SubjectConsentFormValidator(FormValidator):
+
+class SubjectConsentFormValidator(ConsentsFormValidatorMixin, FormValidator):
 
     prior_screening_model = 'flourish_caregiver.screeningpriorbhpparticipants'
 
     subject_consent_model = 'flourish_caregiver.subjectconsent'
 
-    maternal_dataset_model = 'flourish_caregiver.maternaldataset'
-
-    child_dataset_model = 'flourish_child.childdataset'
+    caregiver_locator_model = 'flourish_caregiver.caregiverlocator'
 
     @property
     def bhp_prior_screening_cls(self):
@@ -26,12 +26,8 @@ class SubjectConsentFormValidator(FormValidator):
         return django_apps.get_model(self.subject_consent_model)
 
     @property
-    def maternal_dataset_cls(self):
-        return django_apps.get_model(self.maternal_dataset_model)
-
-    @property
-    def child_dataset_cls(self):
-        return django_apps.get_model(self.child_dataset_model)
+    def caregiver_locator_cls(self):
+        return django_apps.get_model(self.caregiver_locator_model)
 
     def clean(self):
         cleaned_data = self.cleaned_data
@@ -40,6 +36,7 @@ class SubjectConsentFormValidator(FormValidator):
         super().clean()
 
         self.clean_full_name_syntax()
+        self.validate_prior_participant_names()
         self.clean_initials_with_full_name()
         self.validate_recruit_source()
         self.validate_recruitment_clinic()
@@ -47,8 +44,7 @@ class SubjectConsentFormValidator(FormValidator):
         self.validate_dob(cleaned_data=self.cleaned_data)
         self.validate_citizenship()
         self.validate_identity_number(cleaned_data=self.cleaned_data)
-        self.validate_child_dob(cleaned_data=self.cleaned_data)
-        self.validate_consent_for_child(cleaned_data=self.cleaned_data)
+        self.validate_breastfeed_intent()
         self.validate_reconsent()
 
     def validate_reconsent(self):
@@ -131,6 +127,44 @@ class SubjectConsentFormValidator(FormValidator):
         except (IndexError, TypeError):
             raise forms.ValidationError('Initials do not match fullname.')
 
+    def validate_prior_participant_names(self):
+        if self.bhp_prior_screening:
+            prior_screening = self.bhp_prior_screening
+            if (prior_screening.mother_alive == YES and
+                    prior_screening.flourish_participation == 'interested'):
+                first_name = self.cleaned_data.get('first_name')
+                last_name = self.cleaned_data.get('last_name')
+                gender = self.cleaned_data.get('gender')
+                if self.caregiver_locator:
+                    prev_fname = self.caregiver_locator.first_name.upper()
+                    prev_lname = self.caregiver_locator.last_name.upper()
+                    if first_name != prev_fname:
+                        message = {'first_name':
+                                   'Participant is the biological mother, first '
+                                   f'name should match {prev_fname}. '}
+                        self._errors.update(message)
+                        raise ValidationError(message)
+                    if last_name != prev_lname:
+                        message = {'last_name':
+                                   'Participant is the biological mother, last '
+                                   f'name should match {prev_lname}. '}
+                        self._errors.update(message)
+                        raise ValidationError(message)
+                if gender != FEMALE:
+                    message = {'gender':
+                               'Participant is the biological mother, gender '
+                               'should be FEMALE. '}
+                    self._errors.update(message)
+                    raise ValidationError(message)
+
+    def validate_breastfeed_intent(self):
+        if self.bhp_prior_screening:
+            prior_screening = self.bhp_prior_screening
+            self.required_if_true(
+                (prior_screening.mother_alive == YES and
+                 prior_screening.flourish_participation == 'interested'),
+                field_required='breastfeed_intent',)
+
     def validate_identity_number(self, cleaned_data=None):
         identity = cleaned_data.get('identity')
         if not re.match('[0-9]+$', identity):
@@ -189,40 +223,6 @@ class SubjectConsentFormValidator(FormValidator):
                 self._errors.update(message)
                 raise ValidationError(message)
 
-    def validate_child_dob(self, cleaned_data=None):
-        child_dob = cleaned_data.get('child_dob')
-        if child_dob and self.maternal_dataset:
-            if child_dob != self.maternal_dataset.delivdt:
-                msg = {'child_dob':
-                       'Child date of birth does not match with dob '
-                       f'({self.maternal_dataset.delivdt}) from the dataset.'}
-                self._errors.update(msg)
-                raise ValidationError(msg)
-
-    def validate_consent_for_child(self, cleaned_data=None):
-        consent_datetime = cleaned_data.get('consent_datetime')
-        fields = ['child_test', 'child_remain_in_study', ]
-        for field in fields:
-            self.applicable_if_true(
-                self.maternal_dataset is not None,
-                field_applicable=field)
-        if self.maternal_dataset:
-            child_dataset = self.child_dataset(
-                study_maternal_identifier=self.maternal_dataset.study_maternal_identifier)
-            if child_dataset:
-                self.applicable_if_true(
-                    child_dataset.infant_sex[:1] == FEMALE,
-                    field_applicable='child_preg_test',
-                    applicable_msg=('Child\'s gender is female from the dataset '
-                                    'This field is applicable.'))
-            child_age_in_years = relativedelta(
-                consent_datetime.date(), self.maternal_dataset.delivdt).years
-            self.applicable_if_true(
-                child_age_in_years >= 16,
-                field_applicable='child_knows_status',
-                applicable_msg=(f'Age derived from the child DOB is {child_age_in_years} '
-                                'This field is applicable.'))
-
     def validate_recruit_source(self):
         self.validate_other_specify(
             field='recruit_source',
@@ -257,20 +257,21 @@ class SubjectConsentFormValidator(FormValidator):
             raise ValidationError(msg)
 
     @property
-    def maternal_dataset(self):
+    def bhp_prior_screening(self):
         try:
-            maternal_dataset = self.maternal_dataset_cls.objects.get(
+            bhp_prior_screening = self.bhp_prior_screening_cls.objects.get(
                 screening_identifier=self.screening_identifier)
-        except self.maternal_dataset_cls.DoesNotExist:
+        except self.bhp_prior_screening_cls.DoesNotExist:
             return None
         else:
-            return maternal_dataset
+            return bhp_prior_screening
 
-    def child_dataset(self, study_maternal_identifier=None):
+    @property
+    def caregiver_locator(self):
         try:
-            child_dataset = self.child_dataset_cls.objects.get(
-                study_maternal_identifier=study_maternal_identifier)
-        except self.child_dataset_cls.DoesNotExist:
+            caregiver_locator = self.caregiver_locator_cls.objects.get(
+                screening_identifier=self.screening_identifier)
+        except self.caregiver_locator_cls.DoesNotExist:
             return None
         else:
-            return child_dataset
+            return caregiver_locator
