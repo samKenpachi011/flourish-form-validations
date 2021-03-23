@@ -10,12 +10,9 @@ class MaternalDiagnosesFormValidator(FormValidator):
     def clean(self):
         subject_status = self.maternal_status_helper.hiv_status
 
-        self.subject_identifier = self.cleaned_data.get(
-            'maternal_visit').subject_identifier
+        # self.subject_identifier = self.cleaned_data.get(
+        #     'maternal_visit').subject_identifier
         super().clean()
-
-        self.m2m_required(
-            m2m_field='who')
 
         self.applicable_if_true(subject_status == POS,
                                 field_applicable='has_who_dx')
