@@ -44,7 +44,6 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin,
         self.validate_recruitment_clinic()
         self.validate_is_literate()
         self.validate_dob(cleaned_data=self.cleaned_data)
-        self.validate_citizenship()
         self.validate_identity_number(cleaned_data=self.cleaned_data)
         self.validate_breastfeed_intent()
         self.validate_child_consent()
@@ -250,14 +249,6 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin,
             field='is_literate',
             field_required='witness_name',
             required_msg='Participant is illiterate please provide witness\'s name(s).')
-
-    def validate_citizenship(self):
-        cleaned_data = self.cleaned_data
-        if cleaned_data.get('citizen') == NO:
-            msg = {'citizen':
-                   'Participant MUST be a botswana citizen.'}
-            self._errors.update(msg)
-            raise ValidationError(msg)
 
     def validate_child_consent(self):
         cleaned_data = self.cleaned_data
