@@ -19,6 +19,8 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin,
 
     caregiver_locator_model = 'flourish_caregiver.caregiverlocator'
 
+    preg_women_screening_model = 'flourish_caregiver.screeningpregwomen'
+
     @property
     def bhp_prior_screening_cls(self):
         return django_apps.get_model(self.prior_screening_model)
@@ -30,6 +32,10 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin,
     @property
     def caregiver_locator_cls(self):
         return django_apps.get_model(self.caregiver_locator_model)
+
+    @property
+    def preg_women_screening_cls(self):
+        return django_apps.get_model(self.preg_women_screening_model)
 
     def clean(self):
         cleaned_data = self.cleaned_data
@@ -160,12 +166,11 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin,
                     raise ValidationError(message)
 
     def validate_breastfeed_intent(self):
-        if self.bhp_prior_screening:
-            prior_screening = self.bhp_prior_screening
+        fields = ['breastfeed_intent', 'hiv_testing']
+        for field in fields:
             self.required_if_true(
-                (prior_screening.mother_alive == YES and
-                 prior_screening.flourish_participation == 'interested'),
-                field_required='breastfeed_intent',)
+                self.preg_women_screening is not None,
+                field_required=field,)
 
     def validate_identity_number(self, cleaned_data=None):
         identity = cleaned_data.get('identity')
@@ -255,8 +260,8 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin,
         subject_eligibie = self.subject_eligible(cleaned_data=cleaned_data)
         if not subject_eligibie and cleaned_data.get('child_consent') != NOT_APPLICABLE:
             message = {'child_consent':
-                       'Caregiver is not eligible for participation, CANNOT '
-                       'complete consent on behalf of child.'}
+                       'Caregiver is not eligible for participation, this field '
+                       'is not applicable.'}
             self._errors.update(message)
             raise ValidationError(message)
 
@@ -279,3 +284,13 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin,
             return None
         else:
             return caregiver_locator
+
+    @property
+    def preg_women_screening(self):
+        try:
+            preg_women_screening = self.preg_women_screening_cls.objects.get(
+                screening_identifier=self.screening_identifier)
+        except self.preg_women_screening_cls.DoesNotExist:
+            return None
+        else:
+            return preg_women_screening

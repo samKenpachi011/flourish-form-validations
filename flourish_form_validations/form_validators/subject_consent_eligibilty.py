@@ -11,6 +11,7 @@ class SubjectConsentEligibility:
             cleaned_data.get('study_questions') == NO or
             cleaned_data.get('assessment_score') == NO or
             cleaned_data.get('consent_signature') == NO or
-                cleaned_data.get('consent_copy') == NO):
+            cleaned_data.get('consent_copy') == NO or
+                cleaned_data.get('citizen') == NO):
                 return False
         return True
