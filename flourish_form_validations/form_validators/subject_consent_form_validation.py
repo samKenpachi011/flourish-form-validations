@@ -3,13 +3,15 @@ from django import forms
 from django.apps import apps as django_apps
 from django.core.exceptions import ValidationError
 from edc_base.utils import relativedelta
-from edc_constants.constants import FEMALE, MALE, NO, YES
+from edc_constants.constants import FEMALE, MALE, NO, YES, NOT_APPLICABLE
 from edc_form_validators import FormValidator
 
 from .consents_form_validator_mixin import ConsentsFormValidatorMixin
+from .subject_consent_eligibilty import SubjectConsentEligibility
 
 
-class SubjectConsentFormValidator(ConsentsFormValidatorMixin, FormValidator):
+class SubjectConsentFormValidator(ConsentsFormValidatorMixin,
+                                  SubjectConsentEligibility, FormValidator):
 
     prior_screening_model = 'flourish_caregiver.screeningpriorbhpparticipants'
 
@@ -45,6 +47,7 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin, FormValidator):
         self.validate_citizenship()
         self.validate_identity_number(cleaned_data=self.cleaned_data)
         self.validate_breastfeed_intent()
+        self.validate_child_consent()
         self.validate_reconsent()
 
     def validate_reconsent(self):
@@ -255,6 +258,16 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin, FormValidator):
                    'Participant MUST be a botswana citizen.'}
             self._errors.update(msg)
             raise ValidationError(msg)
+
+    def validate_child_consent(self):
+        cleaned_data = self.cleaned_data
+        subject_eligibie = self.subject_eligible(cleaned_data=cleaned_data)
+        if not subject_eligibie and cleaned_data.get('child_consent') != NOT_APPLICABLE:
+            message = {'child_consent':
+                       'Caregiver is not eligible for participation, CANNOT '
+                       'complete consent on behalf of child.'}
+            self._errors.update(message)
+            raise ValidationError(message)
 
     @property
     def bhp_prior_screening(self):
