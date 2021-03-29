@@ -3,19 +3,23 @@ from django import forms
 from django.apps import apps as django_apps
 from django.core.exceptions import ValidationError
 from edc_base.utils import relativedelta
-from edc_constants.constants import FEMALE, MALE, NO, YES
+from edc_constants.constants import FEMALE, MALE, NO, YES, NOT_APPLICABLE
 from edc_form_validators import FormValidator
 
 from .consents_form_validator_mixin import ConsentsFormValidatorMixin
+from .subject_consent_eligibilty import SubjectConsentEligibility
 
 
-class SubjectConsentFormValidator(ConsentsFormValidatorMixin, FormValidator):
+class SubjectConsentFormValidator(ConsentsFormValidatorMixin,
+                                  SubjectConsentEligibility, FormValidator):
 
     prior_screening_model = 'flourish_caregiver.screeningpriorbhpparticipants'
 
     subject_consent_model = 'flourish_caregiver.subjectconsent'
 
     caregiver_locator_model = 'flourish_caregiver.caregiverlocator'
+
+    preg_women_screening_model = 'flourish_caregiver.screeningpregwomen'
 
     @property
     def bhp_prior_screening_cls(self):
@@ -28,6 +32,10 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin, FormValidator):
     @property
     def caregiver_locator_cls(self):
         return django_apps.get_model(self.caregiver_locator_model)
+
+    @property
+    def preg_women_screening_cls(self):
+        return django_apps.get_model(self.preg_women_screening_model)
 
     def clean(self):
         cleaned_data = self.cleaned_data
@@ -42,9 +50,9 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin, FormValidator):
         self.validate_recruitment_clinic()
         self.validate_is_literate()
         self.validate_dob(cleaned_data=self.cleaned_data)
-        self.validate_citizenship()
         self.validate_identity_number(cleaned_data=self.cleaned_data)
         self.validate_breastfeed_intent()
+        self.validate_child_consent()
         self.validate_reconsent()
 
     def validate_reconsent(self):
@@ -158,12 +166,11 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin, FormValidator):
                     raise ValidationError(message)
 
     def validate_breastfeed_intent(self):
-        if self.bhp_prior_screening:
-            prior_screening = self.bhp_prior_screening
+        fields = ['breastfeed_intent', 'hiv_testing']
+        for field in fields:
             self.required_if_true(
-                (prior_screening.mother_alive == YES and
-                 prior_screening.flourish_participation == 'interested'),
-                field_required='breastfeed_intent',)
+                self.preg_women_screening is not None,
+                field_required=field,)
 
     def validate_identity_number(self, cleaned_data=None):
         identity = cleaned_data.get('identity')
@@ -248,13 +255,15 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin, FormValidator):
             field_required='witness_name',
             required_msg='Participant is illiterate please provide witness\'s name(s).')
 
-    def validate_citizenship(self):
+    def validate_child_consent(self):
         cleaned_data = self.cleaned_data
-        if cleaned_data.get('citizen') == NO:
-            msg = {'citizen':
-                   'Participant MUST be a botswana citizen.'}
-            self._errors.update(msg)
-            raise ValidationError(msg)
+        subject_eligibie = self.subject_eligible(cleaned_data=cleaned_data)
+        if not subject_eligibie and cleaned_data.get('child_consent') != NOT_APPLICABLE:
+            message = {'child_consent':
+                       'Caregiver is not eligible for participation, this field '
+                       'is not applicable.'}
+            self._errors.update(message)
+            raise ValidationError(message)
 
     @property
     def bhp_prior_screening(self):
@@ -275,3 +284,13 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin, FormValidator):
             return None
         else:
             return caregiver_locator
+
+    @property
+    def preg_women_screening(self):
+        try:
+            preg_women_screening = self.preg_women_screening_cls.objects.get(
+                screening_identifier=self.screening_identifier)
+        except self.preg_women_screening_cls.DoesNotExist:
+            return None
+        else:
+            return preg_women_screening

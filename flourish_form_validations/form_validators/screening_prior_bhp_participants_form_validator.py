@@ -50,6 +50,12 @@ class ScreeningPriorBhpParticipantsFormValidator(FormValidator):
                                'Please correct interest. '}
                     self._errors.update(message)
                     raise ValidationError(message)
+                if flourish_interest == YES and flourish_participation == 'interested':
+                    message = {'flourish_participation':
+                               'The caregiver is interested in participating in the '
+                               'FLOURISH study. Please correct interest. '}
+                    self._errors.update(message)
+                    raise ValidationError(message)
 
     def validate_child_alive(self):
         self.not_applicable_if(
