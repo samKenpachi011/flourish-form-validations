@@ -268,10 +268,11 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin, FormValidator):
 
     @property
     def caregiver_locator(self):
-        try:
-            caregiver_locator = self.caregiver_locator_cls.objects.get(
-                screening_identifier=self.screening_identifier)
-        except self.caregiver_locator_cls.DoesNotExist:
-            return None
-        else:
-            return caregiver_locator
+        if self.caregiver_locator_cls:
+            try:
+                caregiver_locator = self.caregiver_locator_cls.objects.get(
+                    screening_identifier=self.screening_identifier)
+            except self.caregiver_locator_cls.DoesNotExist:
+                return None
+            else:
+                return caregiver_locator
