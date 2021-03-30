@@ -168,9 +168,9 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin,
     def validate_breastfeed_intent(self):
         fields = ['breastfeed_intent', 'hiv_testing']
         for field in fields:
-            self.required_if_true(
+            self.applicable_if_true(
                 self.preg_women_screening is not None,
-                field_required=field,)
+                field_applicable=field)
 
     def validate_identity_number(self, cleaned_data=None):
         identity = cleaned_data.get('identity')
