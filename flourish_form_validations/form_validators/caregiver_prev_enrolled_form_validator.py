@@ -32,8 +32,6 @@ class CaregiverPrevEnrolledFormValidator(FormValidator):
 
     def validate_caregiver_previously_enrolled(self, cleaned_data=None):
         maternal_prev_enroll = cleaned_data.get('maternal_prev_enroll')
-        import pdb;
-        pdb.set_trace()
         if (maternal_prev_enroll == YES and
                 self.maternal_dataset_obj.mom_hivstatus ==
                 'HIV-uninfected'):
