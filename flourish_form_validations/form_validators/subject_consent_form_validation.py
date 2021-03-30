@@ -264,6 +264,13 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin,
                        'is not applicable.'}
             self._errors.update(message)
             raise ValidationError(message)
+        elif subject_eligibie and self.bhp_prior_screening:
+            if cleaned_data.get('child_consent') == NOT_APPLICABLE:
+                message = {'child_consent':
+                           'Caregiver is eligible for participation, this '
+                           'field is applicable.'}
+                self._errors.update(message)
+                raise ValidationError(message)
 
     @property
     def bhp_prior_screening(self):
