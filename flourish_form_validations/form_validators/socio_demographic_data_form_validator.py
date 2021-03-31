@@ -12,13 +12,11 @@ class SocioDemographicDataFormValidator(CRFFormValidator, FormValidator):
         other_specify_fields = ['marital_status', 'ethnicity',
                                 'current_occupation', 'provides_money',
                                 'money_earned', 'toilet_facility']
-
         for field in other_specify_fields:
             self.validate_other_specify(field=field)
 
         required_fields = ['own_phone', 'water_source', 'house_electrified',
                            'house_fridge', 'cooking_method', 'toilet_facility', ]
-
         for field in required_fields:
             self.required_if(
                 YES,
