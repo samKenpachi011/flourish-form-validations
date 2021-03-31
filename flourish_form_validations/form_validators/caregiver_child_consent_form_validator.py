@@ -23,27 +23,29 @@ class CaregiverChildConsentFormValidator(FormValidator):
         first_name = cleaned_data.get("first_name")
         last_name = cleaned_data.get("last_name")
 
-        if not re.match(r'^[A-Z]+$|^([A-Z]+[ ][A-Z]+)$', first_name):
-            message = {'first_name': 'Ensure first name is letters (A-Z) in '
-                       'upper case, no special characters, except spaces.'}
-            self._errors.update(message)
-            raise ValidationError(message)
-
-        if not re.match(r'^[A-Z-]+$', last_name):
-            message = {'last_name': 'Ensure last name is letters (A-Z) in '
-                       'upper case, no special characters, except hyphens.'}
-            self._errors.update(message)
-            raise ValidationError(message)
-
-        if first_name and last_name:
-            if first_name != first_name.upper():
-                message = {'first_name': 'First name must be in CAPS.'}
+        if first_name:
+            if not re.match(r'^[A-Z]+$|^([A-Z]+[ ][A-Z]+)$', first_name):
+                message = {'first_name': 'Ensure first name is letters (A-Z) in '
+                           'upper case, no special characters, except spaces.'}
                 self._errors.update(message)
                 raise ValidationError(message)
-            elif last_name != last_name.upper():
-                message = {'last_name': 'Last name must be in CAPS.'}
+
+        if last_name:
+            if not re.match(r'^[A-Z-]+$', last_name):
+                message = {'last_name': 'Ensure last name is letters (A-Z) in '
+                           'upper case, no special characters, except hyphens.'}
                 self._errors.update(message)
                 raise ValidationError(message)
+
+            if first_name and last_name:
+                if first_name != first_name.upper():
+                    message = {'first_name': 'First name must be in CAPS.'}
+                    self._errors.update(message)
+                    raise ValidationError(message)
+                elif last_name != last_name.upper():
+                    message = {'last_name': 'Last name must be in CAPS.'}
+                    self._errors.update(message)
+                    raise ValidationError(message)
 
     def validate_identity_number(self, cleaned_data=None):
         if cleaned_data.get('identity') != cleaned_data.get(
