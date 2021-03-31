@@ -1,8 +1,8 @@
 import re
-import datetime
 from django.core.exceptions import ValidationError
 
 from edc_constants.choices import FEMALE, MALE, YES, NO, NOT_APPLICABLE
+from edc_base.utils import age, get_utcnow
 from edc_form_validators import FormValidator
 
 
@@ -87,11 +87,8 @@ class CaregiverChildConsentFormValidator(FormValidator):
             raise ValidationError(msg)
 
     def validate_child_knows_status(self, cleaned_data):
-        today = datetime.date.today()
         child_dob = cleaned_data.get('child_dob')
-        child_age = (today.year - child_dob.year -
-                     ((today.month, today.day) <
-                      (child_dob.month, child_dob.day)))
+        child_age = age(child_dob, get_utcnow()).years
         if child_age < 16 and cleaned_data.get(
                 'child_knows_status') in [YES, NO]:
             msg = {'child_knows_status':
