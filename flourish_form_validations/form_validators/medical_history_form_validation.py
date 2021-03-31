@@ -2,7 +2,7 @@ from django.apps import apps as django_apps
 from django.core.exceptions import ValidationError
 from edc_constants.constants import YES, NO, NOT_APPLICABLE, NEG, POS, OTHER, NONE
 from edc_form_validators import FormValidator
-from flourish_caregiver.helper_classes import MaternalStatusHelper
+# from flourish_caregiver.helper_classes import MaternalStatusHelper
 
 from .crf_form_validator import CRFFormValidator
 
@@ -131,9 +131,3 @@ class MedicalHistoryFormValidator(CRFFormValidator, FormValidator):
             OTHER,
             m2m_field='caregiver_medications',
             field_other='caregiver_medications_other')
-
-    # @property
-    # def maternal_status_helper(self):
-        # cleaned_data = self.cleaned_data
-        # status_helper = MaternalStatusHelper(cleaned_data.get('maternal_visit'))
-        # return status_helper
