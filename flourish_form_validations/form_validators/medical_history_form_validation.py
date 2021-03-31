@@ -1,6 +1,6 @@
 from django.apps import apps as django_apps
 from django.core.exceptions import ValidationError
-from edc_constants.constants import YES, NO, NOT_APPLICABLE, NEG, POS, OTHER
+from edc_constants.constants import YES, NO, NOT_APPLICABLE, NEG, POS, OTHER, NONE
 from edc_form_validators import FormValidator
 from flourish_caregiver.helper_classes import MaternalStatusHelper
 
@@ -118,7 +118,7 @@ class MedicalHistoryFormValidator(CRFFormValidator, FormValidator):
             field_other='caregiver_chronic_other')
 
     def validate_caregiver_medications_multiple_selections(self):
-        selections = [NOT_APPLICABLE]
+        selections = [NOT_APPLICABLE, NONE]
         self.m2m_single_selection_if(
             *selections,
             m2m_field='caregiver_medications')
