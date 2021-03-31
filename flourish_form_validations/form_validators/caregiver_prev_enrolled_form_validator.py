@@ -52,7 +52,6 @@ class CaregiverPrevEnrolledFormValidator(FormValidator):
                 field='last_test_date',
                 field_required='is_date_estimated')
 
-
     @property
     def maternal_dataset_obj(self):
         try:
