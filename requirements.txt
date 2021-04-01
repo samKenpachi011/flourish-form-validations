@@ -7,3 +7,4 @@ git+https://github.com/botswana-harvard/edc-model-wrapper.git@develop#egg=edc_mo
 git+https://github.com/botswana-harvard/edc-prn.git@develop#egg=edc_prn
 git+https://github.com/botswana-harvard/edc-protocol.git@develop#egg=edc_protocol
 git+https://github.com/botswana-harvard/edc-timepoint.git@develop#egg=edc_timepoint
+git+https://github.com/botswana-harvard/edc-visit-tracking.git@develop#egg=edc_visit_tracking
