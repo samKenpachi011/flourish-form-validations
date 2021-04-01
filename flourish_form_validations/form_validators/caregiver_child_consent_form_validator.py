@@ -106,7 +106,6 @@ class CaregiverChildConsentFormValidator(FormValidator):
             raise ValidationError(msg)
 
     def validate_child_years_more_tha_12yrs_at_jun_2025(self, cleaned_data):
-        import pdb; pdb.set_trace()
         child_dob = cleaned_data.get('child_dob')
         date_jun_2025 = datetime.datetime.strptime("2025-01-30", "%Y-%m-%d").date()
         child_age_at_2025 = age(child_dob, date_jun_2025).years
