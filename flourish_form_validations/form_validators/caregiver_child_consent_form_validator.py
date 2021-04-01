@@ -1,4 +1,5 @@
 import re
+import datetime
 from django.core.exceptions import ValidationError
 
 from edc_constants.choices import FEMALE, MALE, YES, NO, NOT_APPLICABLE
@@ -14,9 +15,11 @@ class CaregiverChildConsentFormValidator(FormValidator):
         super().clean()
 
         self.clean_full_name_syntax()
-        self.validate_identity_number(cleaned_data=self.cleaned_data)
         self.validate_child_knows_status(cleaned_data=self.cleaned_data)
         self.validate_child_preg_test(cleaned_data=self.cleaned_data)
+        self.validate_child_years_more_tha_12yrs_at_jun_2025(
+            cleaned_data=self.cleaned_data)
+        self.validate_identity_number(cleaned_data=self.cleaned_data)
 
     def clean_full_name_syntax(self):
         cleaned_data = self.cleaned_data
@@ -99,5 +102,17 @@ class CaregiverChildConsentFormValidator(FormValidator):
                 'child_knows_status') == NOT_APPLICABLE:
             msg = {'child_knows_status':
                    'This field is applicable'}
+            self._errors.update(msg)
+            raise ValidationError(msg)
+
+    def validate_child_years_more_tha_12yrs_at_jun_2025(self, cleaned_data):
+        import pdb; pdb.set_trace()
+        child_dob = cleaned_data.get('child_dob')
+        date_jun_2025 = datetime.datetime.strptime("2025-01-30", "%Y-%m-%d").date()
+        child_age_at_2025 = age(child_dob, date_jun_2025).years
+        if cleaned_data.get('gender') == 'F' and child_age_at_2025 < 12:
+            msg = {'child_preg_test':
+                   'Child will not be 12 years old by 2025, This field is not '
+                   'applicable'}
             self._errors.update(msg)
             raise ValidationError(msg)
