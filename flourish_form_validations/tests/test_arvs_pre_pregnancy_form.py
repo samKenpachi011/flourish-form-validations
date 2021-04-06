@@ -7,7 +7,6 @@ from edc_constants.constants import (
 
 from ..form_validators import ArvsPrePregnancyFormValidator
 from .models import AntenatalEnrollment
-from .models import SubjectScreening
 from .models import SubjectConsent, Appointment, MaternalVisit
 
 
@@ -22,11 +21,6 @@ class TestArvsPrePregnancyForm(TestCase):
 
         ArvsPrePregnancyFormValidator.subject_screening_model = \
             'flourish_form_validations.subjectscreening'
-
-        self.subject_screening = SubjectScreening.objects.create(
-            subject_identifier='11111111',
-            screening_identifier='12345',
-            age_in_years=24)
 
         self.subject_consent = SubjectConsent.objects.create(
             subject_identifier='11111111',

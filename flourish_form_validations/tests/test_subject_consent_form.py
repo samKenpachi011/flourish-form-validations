@@ -1,13 +1,12 @@
 from django.core.exceptions import ValidationError
 from django.test import TestCase, tag
 from edc_base.utils import get_utcnow, relativedelta
-from edc_constants.constants import YES, OTHER, NOT_APPLICABLE
+from edc_constants.constants import YES, OTHER
 
 from ..form_validators import SubjectConsentFormValidator
-from .models import SubjectConsent, MaternalDataset, ChildDataset
+from .models import SubjectConsent
 
 
-@tag('consent')
 class TestSubjectConsentForm(TestCase):
 
     def setUp(self):
@@ -31,8 +30,9 @@ class TestSubjectConsentForm(TestCase):
             'first_name': 'TEST ONE',
             'last_name': 'TEST',
             'initials': 'TOT',
-            'citizen': YES,
-            'child_dob': (get_utcnow() - relativedelta(years=2)).date()}
+            'identity': '123425678',
+            'confirm_identity': '123425678',
+            'citizen': YES}
 
     def test_consent_dob_mismatch_consent_dob_years(self):
         SubjectConsent.objects.create(
@@ -41,7 +41,6 @@ class TestSubjectConsentForm(TestCase):
             consent_datetime=get_utcnow() - relativedelta(years=2),
             dob=get_utcnow() - relativedelta(years=20),
             version='1',
-            child_dob=(get_utcnow() - relativedelta(years=2)).date()
         )
         form_validator = SubjectConsentFormValidator(
             cleaned_data=self.consent_options)
@@ -55,7 +54,6 @@ class TestSubjectConsentForm(TestCase):
             consent_datetime=get_utcnow() - relativedelta(years=2),
             dob=get_utcnow() - relativedelta(years=25),
             version='1',
-            child_dob=(get_utcnow() - relativedelta(years=2)).date()
         )
         form_validator = SubjectConsentFormValidator(
             cleaned_data=self.consent_options)
@@ -70,128 +68,6 @@ class TestSubjectConsentForm(TestCase):
             cleaned_data=self.consent_options)
         self.assertRaises(ValidationError, form_validator.validate)
         self.assertIn('dob', form_validator._errors)
-
-    def test_child_dob_mismatch_dataset(self):
-        MaternalDataset.objects.create(
-            screening_identifier=self.screening_identifier,
-            study_child_identifier=self.study_child_identifier,
-            delivdt=(get_utcnow() - relativedelta(years=1)).date())
-        form_validator = SubjectConsentFormValidator(
-            cleaned_data=self.consent_options)
-        self.assertRaises(ValidationError, form_validator.validate)
-        self.assertIn('child_dob', form_validator._errors)
-
-    def test_child_dob_match_dataset(self):
-        MaternalDataset.objects.create(
-            screening_identifier=self.screening_identifier,
-            study_child_identifier=self.study_child_identifier,
-            delivdt=(get_utcnow() - relativedelta(years=2)).date())
-        form_validator = SubjectConsentFormValidator(
-            cleaned_data=self.consent_options)
-        try:
-            form_validator.validate()
-        except ValidationError as e:
-            self.fail(f'ValidationError unexpectedly raised. Got{e}')
-
-    def test_consent_for_child_applicable(self):
-        MaternalDataset.objects.create(
-            screening_identifier=self.screening_identifier,
-            study_child_identifier=self.study_child_identifier,
-            delivdt=(get_utcnow() - relativedelta(years=2)).date())
-        self.consent_options.update(
-            {'child_test': NOT_APPLICABLE,
-             'child_remain_in_study': NOT_APPLICABLE})
-        form_validator = SubjectConsentFormValidator(
-            cleaned_data=self.consent_options)
-        self.assertRaises(ValidationError, form_validator.validate)
-        self.assertIn('child_test', form_validator._errors)
-
-    def test_child_preg_test_na_if_male(self):
-        MaternalDataset.objects.create(
-            screening_identifier=self.screening_identifier,
-            study_child_identifier=self.study_child_identifier,
-            delivdt=(get_utcnow() - relativedelta(years=2)).date())
-
-        ChildDataset.objects.create(
-            study_child_identifier=self.study_child_identifier,
-            infant_sex='Male',)
-
-        self.consent_options.update(
-            {'child_test': YES,
-             'child_remain_in_study': YES,
-             'child_preg_test': NOT_APPLICABLE})
-
-        form_validator = SubjectConsentFormValidator(
-            cleaned_data=self.consent_options)
-        try:
-            form_validator.validate()
-        except ValidationError as e:
-            self.fail(f'ValidationError unexpectedly raised. Got{e}')
-
-    def test_child_preg_test_na_if_female_fails(self):
-        MaternalDataset.objects.create(
-            screening_identifier=self.screening_identifier,
-            study_child_identifier=self.study_child_identifier,
-            delivdt=(get_utcnow() - relativedelta(years=2)).date())
-
-        ChildDataset.objects.create(
-            study_child_identifier=self.study_child_identifier,
-            infant_sex='Female',)
-
-        self.consent_options.update(
-            {'child_test': YES,
-             'child_remain_in_study': YES,
-             'child_preg_test': NOT_APPLICABLE})
-
-        form_validator = SubjectConsentFormValidator(
-            cleaned_data=self.consent_options)
-        self.assertRaises(ValidationError, form_validator.validate)
-        self.assertIn('child_preg_test', form_validator._errors)
-
-    def test_child_knows_status_na_if_less_than_16years(self):
-        MaternalDataset.objects.create(
-            screening_identifier=self.screening_identifier,
-            study_child_identifier=self.study_child_identifier,
-            delivdt=(get_utcnow() - relativedelta(years=2)).date())
-
-        ChildDataset.objects.create(
-            study_child_identifier=self.study_child_identifier,
-            infant_sex='Female',)
-
-        self.consent_options.update(
-            {'child_test': YES,
-             'child_remain_in_study': YES,
-             'child_preg_test': YES,
-             'child_knows_status': NOT_APPLICABLE})
-
-        form_validator = SubjectConsentFormValidator(
-            cleaned_data=self.consent_options)
-        try:
-            form_validator.validate()
-        except ValidationError as e:
-            self.fail(f'ValidationError unexpectedly raised. Got{e}')
-
-    def test_child_knows_status_na_if_more_than_16years_fails(self):
-        MaternalDataset.objects.create(
-            screening_identifier=self.screening_identifier,
-            study_child_identifier=self.study_child_identifier,
-            delivdt=(get_utcnow() - relativedelta(years=17)).date())
-
-        ChildDataset.objects.create(
-            study_child_identifier=self.study_child_identifier,
-            infant_sex='Female',)
-
-        self.consent_options.update(
-            {'child_dob': (get_utcnow() - relativedelta(years=17)).date(),
-             'child_test': YES,
-             'child_remain_in_study': YES,
-             'child_preg_test': YES,
-             'child_knows_status': NOT_APPLICABLE})
-
-        form_validator = SubjectConsentFormValidator(
-            cleaned_data=self.consent_options)
-        self.assertRaises(ValidationError, form_validator.validate)
-        self.assertIn('child_knows_status', form_validator._errors)
 
     def test_recruit_source_OTHER_source_other_required(self):
         self.consent_options.update(
