@@ -1,4 +1,5 @@
 from django.apps import apps as django_apps
+from django.core.exceptions import ValidationError
 
 from edc_constants.constants import YES, NO
 from edc_form_validators.form_validator import FormValidator
@@ -10,6 +11,8 @@ class CaregiverPrevEnrolledFormValidator(FormValidator):
 
     subject_consent_model = 'flourish_caregiver.subjectconsent'
 
+    bhp_prior_screening_model = 'flourish_caregiver.screeningpriorbhpparticipants'
+
     @property
     def maternal_dataset_model_cls(self):
         return django_apps.get_model(self.maternal_dataset_model)
@@ -17,6 +20,10 @@ class CaregiverPrevEnrolledFormValidator(FormValidator):
     @property
     def subject_consent_model_cls(self):
         return django_apps.get_model(self.subject_consent_model)
+
+    @property
+    def bhp_prior_screening_model_cls(self):
+        return django_apps.get_model(self.bhp_prior_screening_model)
 
     def clean(self):
 
@@ -28,7 +35,15 @@ class CaregiverPrevEnrolledFormValidator(FormValidator):
                 field_required=field_required)
 
         self.validate_other_specify(field='relation_to_child')
-        self.validate_caregiver_previously_enrolled(cleaned_data=self.cleaned_data)
+
+        if (self.cleaned_data.get('maternal_prev_enroll') == YES and
+                self.bhp_prior_screening_obj is None):
+            message = {'maternal_prev_enroll':
+                       'Participant is not from any bhp prior studies'}
+            self._errors.update(message)
+            raise ValidationError(message)
+        else:
+            self.validate_caregiver_previously_enrolled(cleaned_data=self.cleaned_data)
 
     def validate_caregiver_previously_enrolled(self, cleaned_data=None):
         maternal_prev_enroll = cleaned_data.get('maternal_prev_enroll')
@@ -51,6 +66,27 @@ class CaregiverPrevEnrolledFormValidator(FormValidator):
                 YES,
                 field='last_test_date',
                 field_required='is_date_estimated')
+        elif (maternal_prev_enroll == YES and
+                self.maternal_dataset_obj.mom_hivstatus ==
+                'HIV-infected'):
+            not_required_fields = ['current_hiv_status', 'last_test_date',
+                                   'test_date', 'is_date_estimated', 'sex',
+                                   'relation_to_child',
+                                   'relation_to_child_other']
+            for field in not_required_fields:
+                self.not_required_if(
+                    YES, field='maternal_prev_enroll', field_required=field)
+
+    @property
+    def bhp_prior_screening_obj(self):
+        try:
+            bhp_prior_screening = self.bhp_prior_screening_model_cls.objects.get(
+                screening_identifier=
+                self.subject_consent_obj.screening_identifier)
+        except self.bhp_prior_screening_model_cls.DoesNotExist:
+            return None
+        else:
+            return bhp_prior_screening
 
     @property
     def maternal_dataset_obj(self):
