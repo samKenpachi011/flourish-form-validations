@@ -82,12 +82,6 @@ class CaregiverChildConsentFormValidator(FormValidator):
                    'Can only be answered as Not applicable since child is Male'}
             self._errors.update(msg)
             raise ValidationError(msg)
-        elif cleaned_data.get('gender') == 'F' and cleaned_data.get(
-                'child_preg_test') == NOT_APPLICABLE:
-            msg = {'child_preg_test':
-                   'Child is Female. This field is applicable'}
-            self._errors.update(msg)
-            raise ValidationError(msg)
 
     def validate_child_knows_status(self, cleaned_data):
         child_dob = cleaned_data.get('child_dob')
@@ -109,9 +103,17 @@ class CaregiverChildConsentFormValidator(FormValidator):
         child_dob = cleaned_data.get('child_dob')
         date_jun_2025 = datetime.datetime.strptime("2025-01-30", "%Y-%m-%d").date()
         child_age_at_2025 = age(child_dob, date_jun_2025).years
-        if cleaned_data.get('gender') == 'F' and child_age_at_2025 < 12:
-            msg = {'child_preg_test':
-                   'Child will not be 12 years old by 2025, This field is not '
-                   'applicable'}
-            self._errors.update(msg)
-            raise ValidationError(msg)
+        if cleaned_data.get('gender') == 'F':
+            if (child_age_at_2025 < 12
+                    and cleaned_data.get('child_preg_test') != NOT_APPLICABLE):
+                msg = {'child_preg_test':
+                       'Child will not be 12 years old by 2025, This field is'
+                       'not applicable'}
+                self._errors.update(msg)
+                raise ValidationError(msg)
+            elif (child_age_at_2025 >= 12
+                    and cleaned_data.get('child_preg_test') == NOT_APPLICABLE):
+                msg = {'child_preg_test':
+                       'Child is Female. This field is applicable'}
+                self._errors.update(msg)
+                raise ValidationError(msg)
