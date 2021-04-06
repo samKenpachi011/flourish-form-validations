@@ -5,8 +5,7 @@ from edc_base.utils import get_utcnow
 from edc_constants.constants import POS, NEG, YES, NO
 
 from ..form_validators import AntenatalEnrollmentFormValidator
-from .models import (AntenatalEnrollment, SubjectScreening,
-                     SubjectConsent)
+from .models import AntenatalEnrollment, SubjectConsent
 
 
 class TestAntenatalEnrollmentForm(TestCase):
@@ -18,11 +17,6 @@ class TestAntenatalEnrollmentForm(TestCase):
             'flourish_form_validations.subjectscreening'
 
         self.subject_identifier = '11111111'
-
-        self.subject_screening = SubjectScreening.objects.create(
-            subject_identifier='11111111',
-            screening_identifier='ABC12345',
-            age_in_years=22)
 
         self.subject_consent = SubjectConsent.objects.create(
             subject_identifier='11111111', screening_identifier='ABC12345',
@@ -39,7 +33,8 @@ class TestAntenatalEnrollmentForm(TestCase):
             'last_period_date': get_utcnow().date() - relativedelta(weeks=3),
             'rapid_test_done': YES,
             'rapid_test_result': NEG,
-            'rapid_test_date': get_utcnow().date()
+            'rapid_test_date': get_utcnow().date(),
+            'current_hiv_status': NEG
         }
         form_validator = AntenatalEnrollmentFormValidator(
             cleaned_data=cleaned_data)
@@ -56,6 +51,8 @@ class TestAntenatalEnrollmentForm(TestCase):
             'last_period_date': get_utcnow().date() - relativedelta(weeks=22),
             'rapid_test_done': YES,
             'rapid_test_result': NEG,
+            'current_hiv_status': NEG,
+            'week32_result': NEG,
             'week32_test_date': get_utcnow().date(),
             'rapid_test_date': get_utcnow().date()
         }
@@ -76,7 +73,8 @@ class TestAntenatalEnrollmentForm(TestCase):
             'last_period_date': get_utcnow().date() - relativedelta(weeks=29),
             'rapid_test_done': YES,
             'rapid_test_result': NEG,
-            'rapid_test_date': get_utcnow().date()
+            'rapid_test_date': get_utcnow().date(),
+            'current_hiv_status': NEG
         }
         form_validator = AntenatalEnrollmentFormValidator(
             cleaned_data=cleaned_data)
@@ -95,7 +93,9 @@ class TestAntenatalEnrollmentForm(TestCase):
             'rapid_test_done': YES,
             'rapid_test_result': NEG,
             'rapid_test_date': get_utcnow().date(),
-            'week32_test_date': get_utcnow().date()
+            'week32_result': NEG,
+            'week32_test_date': get_utcnow().date(),
+            'current_hiv_status': NEG
         }
         form_validator = AntenatalEnrollmentFormValidator(
             cleaned_data=cleaned_data)
@@ -132,7 +132,9 @@ class TestAntenatalEnrollmentForm(TestCase):
             'rapid_test_done': YES,
             'rapid_test_date': get_utcnow().date(),
             'rapid_test_result': NEG,
-            'week32_test_date': get_utcnow().date()
+            'week32_result': NEG,
+            'week32_test_date': get_utcnow().date(),
+            'current_hiv_status': NEG
         }
         form_validator = AntenatalEnrollmentFormValidator(
             cleaned_data=cleaned_data)
@@ -151,7 +153,9 @@ class TestAntenatalEnrollmentForm(TestCase):
             'rapid_test_date': get_utcnow().date() - relativedelta(days=3),
             'rapid_test_done': YES,
             'rapid_test_result': NEG,
-            'week32_test_date': get_utcnow().date() - relativedelta(days=3)}
+            'week32_result': NEG,
+            'week32_test_date': get_utcnow().date() - relativedelta(days=3),
+            'current_hiv_status': NEG}
         form_validator = AntenatalEnrollmentFormValidator(
             cleaned_data=cleaned_data)
         try:

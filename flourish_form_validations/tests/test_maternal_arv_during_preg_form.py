@@ -5,7 +5,7 @@ from edc_base.utils import get_utcnow
 from edc_constants.constants import YES, NO, NOT_APPLICABLE
 from ..form_validators import MaternalArvDuringPregFormValidator
 from .models import MaternalVisit, Appointment
-from .models import ArvsPrePregnancy, SubjectScreening, SubjectConsent
+from .models import ArvsPrePregnancy, SubjectConsent
 
 
 class TestMaternalArvDuringPregForm(TestCase):
@@ -19,11 +19,6 @@ class TestMaternalArvDuringPregForm(TestCase):
             'flourish_form_validations.arvsprepregnancy'
 
         self.subject_identifier = '11111111'
-
-        self.subject_screening = SubjectScreening.objects.create(
-            subject_identifier='11111111',
-            screening_identifier='ABC12345',
-            age_in_years=22)
 
         self.subject_consent = SubjectConsent.objects.create(
             subject_identifier='11111111', screening_identifier='ABC12345',

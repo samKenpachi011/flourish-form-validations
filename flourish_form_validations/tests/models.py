@@ -35,16 +35,6 @@ class SubjectConsent(UpdatesOrCreatesRegistrationModelMixin, BaseUuidModel):
         max_length=10,
         editable=False)
 
-    child_dob = models.DateField(blank=True, null=True)
-
-    child_test = models.CharField(max_length=5)
-
-    child_remain_in_study = models.CharField(max_length=5)
-
-    child_preg_test = models.CharField(max_length=5)
-
-    child_knows_status = models.CharField(max_length=5)
-
 
 class AntenatalEnrollment(BaseUuidModel):
 
