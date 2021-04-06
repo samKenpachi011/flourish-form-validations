@@ -19,7 +19,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
-# AUTO_CREATE_KEYS = True
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'n22k*)mq*&(-*(gzbv5$xv%9d*u&ah7m*4e&af7w41g4j7pven'
 
@@ -53,14 +53,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_crypto_fields.apps.AppConfig',
-    'edc_action_item.apps.AppConfig',
-    'edc_appointment.apps.AppConfig',
+    # 'edc_action_item.apps.AppConfig',
+    # 'edc_appointment.apps.AppConfig',
     'edc_device.apps.AppConfig',
-    'edc_timepoint.apps.AppConfig',
+    # 'edc_timepoint.apps.AppConfig',
     'edc_protocol.apps.AppConfig',
-    'flourish_form_validations.apps.EdcVisitTrackingAppConfig',
-    'flourish_caregiver.apps.AppConfig',
-    'flourish_child.apps.AppConfig',
+    # 'flourish_form_validations.apps.EdcVisitTrackingAppConfig',
+    # 'flourish_caregiver.apps.AppConfig',
+    # 'flourish_child.apps.AppConfig',
     'flourish_form_validations.apps.AppConfig',
 ]
 

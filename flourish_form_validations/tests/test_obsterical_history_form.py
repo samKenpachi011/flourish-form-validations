@@ -1,6 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
-from django.test import TestCase
+from django.test import TestCase, tag
 from edc_base.utils import get_utcnow
 
 from ..form_validators import ObstericalHistoryFormValidator
@@ -8,6 +8,7 @@ from .models import UltraSound
 from .models import SubjectConsent, Appointment, MaternalVisit
 
 
+@tag('obh')
 class TestObstericalHistoryForm(TestCase):
 
     def setUp(self):
@@ -26,11 +27,19 @@ class TestObstericalHistoryForm(TestCase):
         self.ultrasound_model = 'flourish_form_validations.ultrasound'
         ObstericalHistoryFormValidator.ultrasound_model = self.ultrasound_model
 
-    def test_ultrasound_not_blank_valid(self):
+    def test_ultrasound_prev_preg_valid(self):
         '''Tests if cleaned data validates or fails tests if exception
         is raised unexpectedly.'''
         cleaned_data = {
-            'maternal_visit': self.maternal_visit}
+            'maternal_visit': self.maternal_visit,
+            'prev_pregnancies': 1,
+            'pregs_24wks_or_more': 1,
+            'lost_before_24wks': 0,
+            'lost_after_24wks': 0,
+            'live_children': 1,
+            'children_died_b4_5yrs': 0,
+            'children_deliv_before_37wks': 0,
+            'children_deliv_aftr_37wks': 1}
         form_validator = ObstericalHistoryFormValidator(
             cleaned_data=cleaned_data)
         try:
@@ -38,7 +47,7 @@ class TestObstericalHistoryForm(TestCase):
         except ValidationError as e:
             self.fail(f'ValidationError unexpectedly raised. Got{e}')
 
-    def test_prev_preg_one_pregs_24wks_or_more_not_one_lost(self):
+    def test_lost_after_24wks_valid(self):
         '''Asserts raises exception if previous pregnancies is 1
         and and the value of pregnancies 24 weeks or more is not 0.'''
 
@@ -56,6 +65,7 @@ class TestObstericalHistoryForm(TestCase):
         except ValidationError as e:
             self.fail(f'ValidationError unexpectedly raised. Got{e}')
 
+    @tag('prev')
     def test_prev_preg_one_pregs_24wks_or_more_not_zero(self):
         '''Asserts raises exception if previous pregnancies is 1
         and and the value of pregnancies 24 weeks or more is not 0.'''
