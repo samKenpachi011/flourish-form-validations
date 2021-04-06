@@ -6,7 +6,6 @@ from edc_constants.constants import YES, NO, POS, NEG, NOT_APPLICABLE
 from ..form_validators import MaternalDeliveryFormValidator
 from .models import MaternalArv, MaternalVisit, UltraSound
 from .models import SubjectConsent, Appointment, MaternalArvDuringPreg
-from .models import SubjectScreening
 
 
 class MaternalStatusHelper:
@@ -37,10 +36,6 @@ class TestMaternalDeliverylForm(TestCase):
             subject_identifier='11111111', screening_identifier='ABC12345',
             gender='M', dob=(get_utcnow() - relativedelta(years=25)).date(),
             consent_datetime=get_utcnow(), version='1')
-
-        self.subjectscreening = SubjectScreening.objects.create(
-            subject_identifier=self.subject_consent.subject_identifier,
-            screening_identifier='ABC12345', age_in_years=22)
 
         appointment = Appointment.objects.create(
             subject_identifier=self.subject_consent.subject_identifier,

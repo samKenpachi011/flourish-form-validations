@@ -6,7 +6,7 @@ from edc_constants.constants import YES, NO
 
 from ..form_validators import MaternalIterimIdccFormValidator
 from .models import MaternalVisit, Appointment
-from .models import SubjectScreening, SubjectConsent
+from .models import SubjectConsent
 
 
 class TestMaternalInterimIdccFormValidator(TestCase):
@@ -18,11 +18,6 @@ class TestMaternalInterimIdccFormValidator(TestCase):
             'flourish_caregiver.subjectscreening'
 
         self.subject_identifier = '11111111'
-
-        self.subject_screening = SubjectScreening.objects.create(
-            subject_identifier='11111111',
-            screening_identifier='ABC12345',
-            age_in_years=22)
 
         self.subject_consent = SubjectConsent.objects.create(
             subject_identifier='11111111', screening_identifier='ABC12345',

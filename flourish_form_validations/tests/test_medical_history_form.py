@@ -68,7 +68,8 @@ class TestMedicalHistoryForm(TestCase):
         MedicalHistoryFormValidator.maternal_status_helper = maternal_status
         self.cleaned_data.update(
             chronic_since=YES,
-            who_diagnosis=NO
+            who_diagnosis=NO,
+            caregiver_chronic=ChronicConditions.objects.filter(name=YES)
         )
         form_validator = MedicalHistoryFormValidator(
             cleaned_data=self.cleaned_data)
