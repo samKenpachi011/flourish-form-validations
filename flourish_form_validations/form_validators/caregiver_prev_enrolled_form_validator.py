@@ -28,19 +28,22 @@ class CaregiverPrevEnrolledFormValidator(FormValidator):
     def clean(self):
 
         if (self.cleaned_data.get('maternal_prev_enroll') == YES and
-                self.bhp_prior_screening_obj is None):
+                self.bhp_prior_screening_obj.flourish_participation ==
+                'another_caregiver_interested'):
             message = {'maternal_prev_enroll':
                        'Participant is not from any bhp prior studies'}
             self._errors.update(message)
             raise ValidationError(message)
         elif (self.cleaned_data.get('maternal_prev_enroll') == NO and
-              self.bhp_prior_screening_obj):
+              self.bhp_prior_screening_obj.flourish_participation ==
+              'interested'):
             message = {'maternal_prev_enroll':
                        'Participant is from a prior bhp study'}
             self._errors.update(message)
             raise ValidationError(message)
-        else:
-            self.validate_caregiver_previously_enrolled(cleaned_data=self.cleaned_data)
+
+        self.validate_caregiver_previously_enrolled(
+            cleaned_data=self.cleaned_data)
 
         fields_required = ['sex', 'relation_to_child', ]
         for field_required in fields_required:
@@ -54,34 +57,33 @@ class CaregiverPrevEnrolledFormValidator(FormValidator):
     def validate_caregiver_previously_enrolled(self, cleaned_data=None):
         maternal_prev_enroll = cleaned_data.get('maternal_prev_enroll')
         if (maternal_prev_enroll == YES and
-                self.maternal_dataset_obj.mom_hivstatus ==
-                'HIV-uninfected'):
-            fields_required = ['current_hiv_status', 'last_test_date', ]
-            for field_required in fields_required:
+                self.bhp_prior_screening_obj.flourish_participation ==
+                'interested'):
+            if self.maternal_dataset_obj.mom_hivstatus == 'HIV-uninfected':
+                fields_required = ['current_hiv_status', 'last_test_date', ]
+                for field_required in fields_required:
+                    self.required_if(
+                        YES,
+                        field='maternal_prev_enroll',
+                        field_required=field_required)
+
                 self.required_if(
                     YES,
-                    field='maternal_prev_enroll',
-                    field_required=field_required)
+                    field='last_test_date',
+                    field_required='test_date')
 
-            self.required_if(
-                YES,
-                field='last_test_date',
-                field_required='test_date')
-
-            self.required_if(
-                YES,
-                field='last_test_date',
-                field_required='is_date_estimated')
-        elif (maternal_prev_enroll == YES and
-                self.maternal_dataset_obj.mom_hivstatus ==
-                'HIV-infected'):
-            not_required_fields = ['current_hiv_status', 'last_test_date',
-                                   'test_date', 'is_date_estimated', 'sex',
-                                   'relation_to_child',
-                                   'relation_to_child_other']
-            for field in not_required_fields:
-                self.not_required_if(
-                    YES, field='maternal_prev_enroll', field_required=field)
+                self.required_if(
+                    YES,
+                    field='last_test_date',
+                    field_required='is_date_estimated')
+            elif self.maternal_dataset_obj.mom_hivstatus == 'HIV-infected':
+                not_required_fields = ['current_hiv_status', 'last_test_date',
+                                       'test_date', 'is_date_estimated', 'sex',
+                                       'relation_to_child',
+                                       'relation_to_child_other']
+                for field in not_required_fields:
+                    self.not_required_if(
+                        YES, field='maternal_prev_enroll', field_required=field)
 
     @property
     def bhp_prior_screening_obj(self):
