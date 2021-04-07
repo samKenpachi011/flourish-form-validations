@@ -32,9 +32,11 @@ class ObstericalHistoryFormValidator(CRFFormValidator, FormValidator):
             sum_lost_24_wks = (cleaned_data.get('lost_before_24wks') +
                                cleaned_data.get('lost_after_24wks'))
             total_children = cleaned_data.get('prev_pregnancies') - sum_lost_24_wks
-            if (cleaned_data.get('prev_pregnancies') and sum_deliv_37_wks != total_children):
-                raise ValidationError('The sum of Q9 and Q10 must be equal to  '
-                                      '(Q3 - Q5 + Q6). Please correct.')
+            if (cleaned_data.get('prev_pregnancies')
+                    and (sum_deliv_37_wks not in [total_children, total_children - 1])):
+                raise ValidationError('The sum of Q9 and Q10 must be equal to (Q3 - (Q5 + Q6))'
+                                      ' or (Q3-1 - (Q5 + Q6)) if currently pregnant. Please '
+                                      'correct.')
 
     def validate_prev_pregnancies(self, cleaned_data=None):
 
