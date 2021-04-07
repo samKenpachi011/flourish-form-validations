@@ -27,6 +27,21 @@ class CaregiverPrevEnrolledFormValidator(FormValidator):
 
     def clean(self):
 
+        if (self.cleaned_data.get('maternal_prev_enroll') == YES and
+                self.bhp_prior_screening_obj is None):
+            message = {'maternal_prev_enroll':
+                       'Participant is not from any bhp prior studies'}
+            self._errors.update(message)
+            raise ValidationError(message)
+        elif (self.cleaned_data.get('maternal_prev_enroll') == NO and
+              self.bhp_prior_screening_obj):
+            message = {'maternal_prev_enroll':
+                       'Participant is from a prior bhp study'}
+            self._errors.update(message)
+            raise ValidationError(message)
+        else:
+            self.validate_caregiver_previously_enrolled(cleaned_data=self.cleaned_data)
+
         fields_required = ['sex', 'relation_to_child', ]
         for field_required in fields_required:
             self.required_if(
@@ -35,15 +50,6 @@ class CaregiverPrevEnrolledFormValidator(FormValidator):
                 field_required=field_required)
 
         self.validate_other_specify(field='relation_to_child')
-
-        if (self.cleaned_data.get('maternal_prev_enroll') == YES and
-                self.bhp_prior_screening_obj is None):
-            message = {'maternal_prev_enroll':
-                       'Participant is not from any bhp prior studies'}
-            self._errors.update(message)
-            raise ValidationError(message)
-        else:
-            self.validate_caregiver_previously_enrolled(cleaned_data=self.cleaned_data)
 
     def validate_caregiver_previously_enrolled(self, cleaned_data=None):
         maternal_prev_enroll = cleaned_data.get('maternal_prev_enroll')
