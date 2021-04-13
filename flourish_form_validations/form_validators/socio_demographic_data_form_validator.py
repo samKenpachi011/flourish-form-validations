@@ -1,3 +1,5 @@
+from django.core.exceptions import ValidationError
+
 from edc_constants.constants import YES
 from edc_form_validators import FormValidator
 
@@ -22,3 +24,18 @@ class SocioDemographicDataFormValidator(CRFFormValidator, FormValidator):
                 YES,
                 field='stay_with_child',
                 field_required=field)
+        self.validate_number_of_people_living_in_the_household(
+            cleaned_data=self.cleaned_data)
+
+    def validate_number_of_people_living_in_the_household(self,
+                                                          cleaned_data=None):
+        house_members_18older = cleaned_data.get('house_members_18older')
+        house_people_number = cleaned_data.get('house_people_number')
+        if house_members_18older > house_people_number:
+            msg = {'house_members_18older':
+                   f'Number of people ({house_members_18older}) who are older '
+                   f'than 18 and live in the household cannot be more than the'
+                   f' total number ({house_people_number}) of people living in'
+                   f' the household'}
+            self._errors.update(msg)
+            raise ValidationError(msg)
