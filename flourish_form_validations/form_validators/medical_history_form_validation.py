@@ -24,19 +24,44 @@ class MedicalHistoryFormValidator(CRFFormValidator, FormValidator):
             'maternal_visit').subject_identifier
         super().clean()
 
-        self.applicable_if_true(
-            self.subject_status == POS,
-            field_applicable='know_hiv_status',)
+        med_history_changed = self.cleaned_data.get('med_history_changed')
+        self.validate_med_history_changed(med_history_changed)
+        if not med_history_changed or med_history_changed == YES:
+            self.applicable_if_true(
+                self.subject_status == POS,
+                field_applicable='know_hiv_status',)
 
-        self.validate_caregiver_chronic_multiple_selection(
-            cleaned_data=self.cleaned_data)
-        self.validate_chronic_since_who_diagnosis_neg(
-            cleaned_data=self.cleaned_data)
-        self.validate_who_diagnosis_who_chronic_list(
-            cleaned_data=self.cleaned_data)
-        self.validate_other_caregiver()
-        self.validate_caregiver_medications_multiple_selections()
-        self.validate_other_caregiver_medications()
+            self.validate_caregiver_chronic_multiple_selection(
+                cleaned_data=self.cleaned_data)
+            self.validate_chronic_since_who_diagnosis_neg(
+                cleaned_data=self.cleaned_data)
+            self.validate_who_diagnosis_who_chronic_list(
+                cleaned_data=self.cleaned_data)
+            self.validate_other_caregiver()
+            self.validate_caregiver_medications_multiple_selections()
+            self.validate_other_caregiver_medications()
+
+    def validate_med_history_changed(self, med_history_changed):
+        if med_history_changed:
+            if med_history_changed == NOT_APPLICABLE:
+                msg = {'med_history_changed': 'This field is applicable.'}
+                self._errors.update(msg)
+                raise ValidationError(msg)
+            fields = ['chronic_since', 'who_diagnosis', 'know_hiv_status']
+            for field in fields:
+                self.not_applicable_if(
+                    NO,
+                    field='med_history_changed',
+                    field_applicable=field)
+            self.not_required_if(
+                NO,
+                field='med_history_changed',
+                field_required='caregiver_chronic_other',
+                inverse=False)
+            if med_history_changed == NO:
+                m2m_fields = ['caregiver_chronic', 'who', 'caregiver_medications']
+                for field in m2m_fields:
+                    self.validate_m2m_na(field)
 
     def validate_chronic_since_who_diagnosis_neg(self, cleaned_data=None):
 
@@ -76,19 +101,10 @@ class MedicalHistoryFormValidator(CRFFormValidator, FormValidator):
                     self._errors.update(msg)
                     raise ValidationError(msg)
         elif cleaned_data.get('who_diagnosis') != YES:
-            qs = self.cleaned_data.get('who')
-            if qs and qs.count() > 0:
-                selected = {obj.short_name: obj.name for obj in qs}
-                if NOT_APPLICABLE not in selected:
-                    msg = {'who':
-                           'Participant did not indicate that they have WHO stage'
-                           ' III and IV, list of diagnosis must be N/A'}
-                    self._errors.update(msg)
-                    raise ValidationError(msg)
-
-            self.m2m_single_selection_if(
-                NOT_APPLICABLE,
-                m2m_field='who')
+            m2m = 'who'
+            message = ('Participant did not indicate that they have WHO stage'
+                       ' III and IV, list of diagnosis must be N/A')
+            self.validate_m2m_na(m2m, message)
 
     def validate_caregiver_chronic_multiple_selection(self, cleaned_data=None):
         selected = {}
@@ -105,7 +121,7 @@ class MedicalHistoryFormValidator(CRFFormValidator, FormValidator):
         elif cleaned_data.get('chronic_since') == NO:
             if NOT_APPLICABLE not in selected:
                 msg = {'caregiver_chronic':
-                       'Participant indicated that they had no chronic'
+                       'Participant indicated that they had no chronic '
                        'conditions list of diagnosis should be N/A'}
                 self._errors.update(msg)
                 raise ValidationError(msg)
@@ -131,3 +147,17 @@ class MedicalHistoryFormValidator(CRFFormValidator, FormValidator):
             OTHER,
             m2m_field='caregiver_medications',
             field_other='caregiver_medications_other')
+
+    def validate_m2m_na(self, m2m_field, message=None):
+        qs = self.cleaned_data.get(m2m_field)
+        message = message or 'This field is not applicable.'
+        if qs and qs.count() > 0:
+            selected = {obj.short_name: obj.name for obj in qs}
+            if NOT_APPLICABLE not in selected:
+                msg = {m2m_field: message}
+                self._errors.update(msg)
+                raise ValidationError(msg)
+
+            self.m2m_single_selection_if(
+                NOT_APPLICABLE,
+                m2m_field=m2m_field)
