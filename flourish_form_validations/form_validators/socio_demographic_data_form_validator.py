@@ -31,7 +31,8 @@ class SocioDemographicDataFormValidator(CRFFormValidator, FormValidator):
                                                           cleaned_data=None):
         house_members_18older = cleaned_data.get('house_members_18older')
         house_people_number = cleaned_data.get('house_people_number')
-        if house_members_18older > house_people_number:
+        if house_members_18older and (house_members_18older >
+                                      house_people_number):
             msg = {'house_members_18older':
                    f'Number of people ({house_members_18older}) who are older '
                    f'than 18 and live in the household cannot be more than the'
