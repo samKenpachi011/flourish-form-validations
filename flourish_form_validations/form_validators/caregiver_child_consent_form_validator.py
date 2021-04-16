@@ -91,20 +91,29 @@ class CaregiverChildConsentFormValidator(FormValidator):
             raise ValidationError(msg)
 
     def validate_child_knows_status(self, cleaned_data):
+
         child_dob = cleaned_data.get('child_dob')
-        child_age = age(child_dob, get_utcnow()).years
-        if child_age < 16 and cleaned_data.get(
-                'child_knows_status') in [YES, NO]:
-            msg = {'child_knows_status':
-                   'Child is less than 16 years'}
-            self._errors.update(msg)
-            raise ValidationError(msg)
-        elif child_age >= 16 and cleaned_data.get(
-                'child_knows_status') == NOT_APPLICABLE:
-            msg = {'child_knows_status':
-                   'This field is applicable'}
-            self._errors.update(msg)
-            raise ValidationError(msg)
+
+        if not child_dob:
+            message = {'child_dob':
+                       'Please Enter a valid Date. '
+                       f'{child_dob} is not a valid date'}
+            self._errors.update(message)
+            raise ValidationError(message)
+        else:
+            child_age = age(child_dob, get_utcnow()).years
+            if child_age < 16 and cleaned_data.get(
+                    'child_knows_status') in [YES, NO]:
+                msg = {'child_knows_status':
+                       'Child is less than 16 years'}
+                self._errors.update(msg)
+                raise ValidationError(msg)
+            elif child_age >= 16 and cleaned_data.get(
+                    'child_knows_status') == NOT_APPLICABLE:
+                msg = {'child_knows_status':
+                       'This field is applicable'}
+                self._errors.update(msg)
+                raise ValidationError(msg)
 
     def validate_child_years_more_tha_12yrs_at_jun_2025(self, cleaned_data):
         child_dob = cleaned_data.get('child_dob')
