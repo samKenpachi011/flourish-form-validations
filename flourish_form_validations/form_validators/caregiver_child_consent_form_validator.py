@@ -107,7 +107,7 @@ class CaregiverChildConsentFormValidator(FormValidator):
             if (child_age_at_2025 < 12
                     and cleaned_data.get('child_preg_test') != NOT_APPLICABLE):
                 msg = {'child_preg_test':
-                       'Child will not be 12 years old by 2025, This field is'
+                       'Child will not be 12 years old by 2025, This field is '
                        'not applicable'}
                 self._errors.update(msg)
                 raise ValidationError(msg)
