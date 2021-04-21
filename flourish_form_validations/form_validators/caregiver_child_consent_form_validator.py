@@ -51,12 +51,18 @@ class CaregiverChildConsentFormValidator(FormValidator):
                     raise ValidationError(message)
 
     def validate_identity_number(self, cleaned_data=None):
-        if cleaned_data.get('identity') != cleaned_data.get(
-                'confirm_identity'):
-            msg = {'identity': '\'Identity\' must match \'confirm identity\'.'}
+        identity = cleaned_data.get('identity')
+        if not re.match('[0-9]+$', identity):
+            message = {'identity': 'Identity number must be digits.'}
+            self._errors.update(message)
+            raise ValidationError(message)
+        if cleaned_data.get('identity') != cleaned_data.get('confirm_identity'):
+            msg = {'identity':
+                   '\'Identity\' must match \'confirm identity\'.'}
             self._errors.update(msg)
             raise ValidationError(msg)
-        if cleaned_data.get('identity_type') == 'country_id':
+        if cleaned_data.get('identity_type') in ['country_id',
+                                                 'birth_cert']:
             if len(cleaned_data.get('identity')) != 9:
                 msg = {'identity':
                        'Country identity provided should contain 9 values. '
@@ -66,12 +72,13 @@ class CaregiverChildConsentFormValidator(FormValidator):
             gender = cleaned_data.get('gender')
             if gender == FEMALE and cleaned_data.get('identity')[4] != '2':
                 msg = {'identity':
-                       'Child gender is Female. Please correct identity number.'}
+                       'Participant gender is Female. Please correct identity'
+                       ' number.'}
                 self._errors.update(msg)
                 raise ValidationError(msg)
             elif gender == MALE and cleaned_data.get('identity')[4] != '1':
                 msg = {'identity':
-                       'Child is Male. Please correct identity number.'}
+                       'Participant is Male. Please correct identity number.'}
                 self._errors.update(msg)
                 raise ValidationError(msg)
 
@@ -84,20 +91,29 @@ class CaregiverChildConsentFormValidator(FormValidator):
             raise ValidationError(msg)
 
     def validate_child_knows_status(self, cleaned_data):
+
         child_dob = cleaned_data.get('child_dob')
-        child_age = age(child_dob, get_utcnow()).years
-        if child_age < 16 and cleaned_data.get(
-                'child_knows_status') in [YES, NO]:
-            msg = {'child_knows_status':
-                   'Child is less than 16 years'}
-            self._errors.update(msg)
-            raise ValidationError(msg)
-        elif child_age >= 16 and cleaned_data.get(
-                'child_knows_status') == NOT_APPLICABLE:
-            msg = {'child_knows_status':
-                   'This field is applicable'}
-            self._errors.update(msg)
-            raise ValidationError(msg)
+
+        if not child_dob:
+            message = {'child_dob':
+                       'Please Enter a valid Date. '
+                       f'{child_dob} is not a valid date'}
+            self._errors.update(message)
+            raise ValidationError(message)
+        else:
+            child_age = age(child_dob, get_utcnow()).years
+            if child_age < 16 and cleaned_data.get(
+                    'child_knows_status') in [YES, NO]:
+                msg = {'child_knows_status':
+                       'Child is less than 16 years'}
+                self._errors.update(msg)
+                raise ValidationError(msg)
+            elif child_age >= 16 and cleaned_data.get(
+                    'child_knows_status') == NOT_APPLICABLE:
+                msg = {'child_knows_status':
+                       'This field is applicable'}
+                self._errors.update(msg)
+                raise ValidationError(msg)
 
     def validate_child_years_more_tha_12yrs_at_jun_2025(self, cleaned_data):
         child_dob = cleaned_data.get('child_dob')

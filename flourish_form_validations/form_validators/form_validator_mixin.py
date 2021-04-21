@@ -7,7 +7,6 @@ class FlourishFormValidatorMixin:
 
     antenatal_enrollment_model = 'flourish_caregiver.antenatalenrollment'
     caregiver_consent_model = 'flourish_caregiver.subjectconsent'
-    subject_screening_model = 'flourish_caregiver.subjectscreening'
 
     @property
     def antenatal_enrollment_cls(self):
@@ -16,10 +15,6 @@ class FlourishFormValidatorMixin:
     @property
     def caregiver_consent_cls(self):
         return django_apps.get_model(self.caregiver_consent_model)
-
-    @property
-    def subject_screening_cls(self):
-        return django_apps.get_model(self.subject_screening_model)
 
     def validate_against_consent_datetime(self, report_datetime, id=None):
         """Returns an instance of the current maternal consent or
@@ -36,18 +31,11 @@ class FlourishFormValidatorMixin:
         raises an exception if not found."""
         try:
             consent = self.caregiver_consent_cls.objects.get(
-                subject_identifier=self.subject_identifier)
+                subject_identifier=self.subject_identifier,
+                version='1')
         except self.caregiver_consent_cls.DoesNotExist:
                 raise ValidationError(
                     'Please complete Caregiver Consent form '
                     f'before proceeding.')
         else:
             return consent
-
-    @property
-    def subject_screening(self):
-        try:
-            return self.subject_screening_cls.objects.get(
-                subject_identifier=self.subject_identifier)
-        except self.subject_screening_cls.DoesNotExist:
-            return None
