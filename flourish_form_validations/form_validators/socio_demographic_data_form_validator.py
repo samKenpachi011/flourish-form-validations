@@ -13,8 +13,21 @@ class SocioDemographicDataFormValidator(CRFFormValidator, FormValidator):
 
         socio_demographic_changed = self.cleaned_data.get(
             'socio_demographic_changed')
+
         self.validate_socio_demographic_changed(
             socio_demographic_changed=socio_demographic_changed)
+        
+        fields = ['marital_status', 'ethnicity', 'highest_education',
+                  'current_occupation', 'provides_money', 'money_earned',
+                  'stay_with_child']
+        for field in fields:
+            field_applicable = self.cleaned_data.get(field)
+            if field_applicable == NOT_APPLICABLE and not socio_demographic_changed:
+                msg = {field:
+                       'This field is applicable'}
+                self._errors.update(msg)
+                raise ValidationError(msg)
+
         other_specify_fields = ['marital_status', 'ethnicity',
                                 'current_occupation', 'provides_money',
                                 'money_earned', 'toilet_facility']
@@ -66,15 +79,6 @@ class SocioDemographicDataFormValidator(CRFFormValidator, FormValidator):
                         field='socio_demographic_changed',
                         field_required=field, inverse=False)
 
-            # elif socio_demographic_changed == YES:
-
-
-
-
-            # if socio_demographic_changed == NO:
-            #     m2m_fields = ['caregiver_chronic', 'who', 'caregiver_medications']
-            #     for field in m2m_fields:
-            #         self.validate_m2m_na(field)
 
     def validate_number_of_people_living_in_the_household(self,
                                                           cleaned_data=None):
