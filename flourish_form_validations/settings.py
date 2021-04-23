@@ -53,14 +53,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_crypto_fields.apps.AppConfig',
-    # 'edc_action_item.apps.AppConfig',
-    # 'edc_appointment.apps.AppConfig',
     'edc_device.apps.AppConfig',
-    # 'edc_timepoint.apps.AppConfig',
     'edc_protocol.apps.AppConfig',
-    # 'flourish_form_validations.apps.EdcVisitTrackingAppConfig',
-    # 'flourish_caregiver.apps.AppConfig',
-    # 'flourish_child.apps.AppConfig',
     'flourish_form_validations.apps.AppConfig',
 ]
 
