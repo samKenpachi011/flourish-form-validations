@@ -144,20 +144,21 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin,
                 last_name = self.cleaned_data.get('last_name')
                 gender = self.cleaned_data.get('gender')
                 if self.caregiver_locator:
-                    prev_fname = self.caregiver_locator.first_name.upper()
-                    prev_lname = self.caregiver_locator.last_name.upper()
-                    if first_name != prev_fname:
-                        message = {'first_name':
-                                   'Participant is the biological mother, first '
-                                   f'name should match {prev_fname}. '}
-                        self._errors.update(message)
-                        raise ValidationError(message)
-                    if last_name != prev_lname:
-                        message = {'last_name':
-                                   'Participant is the biological mother, last '
-                                   f'name should match {prev_lname}. '}
-                        self._errors.update(message)
-                        raise ValidationError(message)
+                    prev_fname = self.caregiver_locator.first_name
+                    prev_lname = self.caregiver_locator.last_name
+                    if prev_fname and prev_lname:
+                        if first_name != prev_fname.upper():
+                            message = {'first_name':
+                                       'Participant is the biological mother, first '
+                                       f'name should match {prev_fname}. '}
+                            self._errors.update(message)
+                            raise ValidationError(message)
+                        if last_name != prev_lname.upper():
+                            message = {'last_name':
+                                       'Participant is the biological mother, last '
+                                       f'name should match {prev_lname}. '}
+                            self._errors.update(message)
+                            raise ValidationError(message)
                 if gender != FEMALE:
                     message = {'gender':
                                'Participant is the biological mother, gender '
