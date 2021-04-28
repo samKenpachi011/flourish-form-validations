@@ -181,33 +181,37 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin,
 
     def validate_identity_number(self, cleaned_data=None):
         identity = cleaned_data.get('identity')
-        if not re.match('[0-9]+$', identity):
-            message = {'identity': 'Identity number must be digits.'}
-            self._errors.update(message)
-            raise ValidationError(message)
-        if cleaned_data.get('identity') != cleaned_data.get('confirm_identity'):
-            msg = {'identity':
-                   '\'Identity\' must match \'confirm identity\'.'}
-            self._errors.update(msg)
-            raise ValidationError(msg)
-        if cleaned_data.get('identity_type') == 'country_id':
-            if len(cleaned_data.get('identity')) != 9:
+        if identity:
+            if not re.match('[0-9]+$', identity):
+                message = {'identity': 'Identity number must be digits.'}
+                self._errors.update(message)
+                raise ValidationError(message)
+            if cleaned_data.get('identity') != cleaned_data.get(
+                    'confirm_identity'):
                 msg = {'identity':
-                       'Country identity provided should contain 9 values. '
-                       'Please correct.'}
+                       '\'Identity\' must match \'confirm identity\'.'}
                 self._errors.update(msg)
                 raise ValidationError(msg)
-            gender = cleaned_data.get('gender')
-            if gender == FEMALE and cleaned_data.get('identity')[4] != '2':
-                msg = {'identity':
-                       'Participant gender is Female. Please correct identity number.'}
-                self._errors.update(msg)
-                raise ValidationError(msg)
-            elif gender == MALE and cleaned_data.get('identity')[4] != '1':
-                msg = {'identity':
-                       'Participant is Male. Please correct identity number.'}
-                self._errors.update(msg)
-                raise ValidationError(msg)
+            if cleaned_data.get('identity_type') == 'country_id':
+                if len(cleaned_data.get('identity')) != 9:
+                    msg = {'identity':
+                           'Country identity provided should contain 9 values.'
+                           ' Please correct.'}
+                    self._errors.update(msg)
+                    raise ValidationError(msg)
+                gender = cleaned_data.get('gender')
+                if gender == FEMALE and cleaned_data.get('identity')[4] != '2':
+                    msg = {'identity':
+                           'Participant gender is Female. Please correct '
+                           'identity number.'}
+                    self._errors.update(msg)
+                    raise ValidationError(msg)
+                elif gender == MALE and cleaned_data.get('identity')[4] != '1':
+                    msg = {'identity':
+                           'Participant is Male. Please correct identity '
+                           'number.'}
+                    self._errors.update(msg)
+                    raise ValidationError(msg)
 
     def validate_dob(self, cleaned_data=None):
         consent_datetime = cleaned_data.get('consent_datetime')
