@@ -21,6 +21,8 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin,
 
     preg_women_screening_model = 'flourish_caregiver.screeningpregwomen'
 
+    delivery_model = 'flourish_caregiver.maternaldelivery'
+
     @property
     def bhp_prior_screening_cls(self):
         return django_apps.get_model(self.prior_screening_model)
@@ -36,6 +38,10 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin,
     @property
     def preg_women_screening_cls(self):
         return django_apps.get_model(self.preg_women_screening_model)
+
+    @property
+    def delivery_cls(self):
+        return django_apps.get_model(self.delivery_model)
 
     def clean(self):
         cleaned_data = self.cleaned_data
@@ -302,3 +308,15 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin,
             return None
         else:
             return preg_women_screening
+
+    @property
+    def preg_delivery(self):
+        if self.subject_identifier:
+            try:
+                self.delivery_cls.objects.get(
+                    subject_identifier=self.subject_identifier)
+            except self.delivery_cls.DoesNotExist:
+                return False
+            else:
+                return True
+        return False

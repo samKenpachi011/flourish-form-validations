@@ -7,6 +7,7 @@ from ..form_validators import SubjectConsentFormValidator
 from .models import SubjectConsent
 
 
+@tag('sc')
 class TestSubjectConsentForm(TestCase):
 
     def setUp(self):
@@ -18,6 +19,18 @@ class TestSubjectConsentForm(TestCase):
 
         child_dataset_model = 'flourish_form_validations.childdataset'
         SubjectConsentFormValidator.child_dataset_model = child_dataset_model
+
+        prior_screening_model = 'flourish_form_validations.subjectscreening'
+        SubjectConsentFormValidator.prior_screening_model = prior_screening_model
+
+        caregiver_locator_model = 'flourish_form_validations.subjectconsent'
+        SubjectConsentFormValidator.prior_screening_model = caregiver_locator_model
+
+        preg_women_screening_model = 'flourish_form_validations.subjectscreening'
+        SubjectConsentFormValidator.preg_women_screening_model = preg_women_screening_model
+
+        delivery_model = 'flourish_form_validations.maternaldelivery'
+        SubjectConsentFormValidator.delivery_model = delivery_model
 
         self.screening_identifier = 'ABC12345'
         self.study_child_identifier = '1234DCD'
