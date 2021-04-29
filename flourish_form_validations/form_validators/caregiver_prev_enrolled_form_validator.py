@@ -85,6 +85,15 @@ class CaregiverPrevEnrolledFormValidator(FormValidator):
                     self.not_required_if(
                         YES, field='maternal_prev_enroll', field_required=field)
 
+        fields_not_required = ['current_hiv_status', 'last_test_date',
+                               'test_date', 'is_date_estimated', ]
+        for field in fields_not_required:
+            self.not_required_if(
+                NO,
+                field='maternal_prev_enroll',
+                field_required=field,
+                inverse=False)
+
     @property
     def bhp_prior_screening_obj(self):
         try:
