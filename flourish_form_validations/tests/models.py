@@ -36,6 +36,18 @@ class SubjectConsent(UpdatesOrCreatesRegistrationModelMixin, BaseUuidModel):
         editable=False)
 
 
+class SubjectScreening(UpdatesOrCreatesRegistrationModelMixin, BaseUuidModel):
+
+    screening_identifier = models.CharField(max_length=50)
+
+    mother_alive = models.CharField(max_length=50)
+
+
+class MaternalDelivery(UpdatesOrCreatesRegistrationModelMixin, BaseUuidModel):
+
+    screening_identifier = models.CharField(max_length=50)
+
+
 class AntenatalEnrollment(BaseUuidModel):
 
     subject_identifier = models.CharField(max_length=50)
@@ -57,6 +69,8 @@ class AntenatalEnrollment(BaseUuidModel):
         blank=True)
 
     enrollment_hiv_status = models.CharField(max_length=15)
+
+    evidence_hiv_status = models.CharField(max_length=15)
 
     week32_result = models.CharField(max_length=15)
 

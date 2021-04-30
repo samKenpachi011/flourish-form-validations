@@ -25,7 +25,8 @@ class TestArvsPrePregnancyForm(TestCase):
         self.subject_consent = SubjectConsent.objects.create(
             subject_identifier='11111111',
             gender='M', dob=(get_utcnow() - relativedelta(years=25)).date(),
-            consent_datetime=get_utcnow())
+            consent_datetime=get_utcnow(),
+            version='1')
 
         self.antenatal_enrollment = AntenatalEnrollment.objects.create(
             subject_identifier='11111111',

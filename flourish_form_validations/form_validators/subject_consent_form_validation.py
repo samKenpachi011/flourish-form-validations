@@ -21,6 +21,8 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin,
 
     preg_women_screening_model = 'flourish_caregiver.screeningpregwomen'
 
+    delivery_model = 'flourish_caregiver.maternaldelivery'
+
     @property
     def bhp_prior_screening_cls(self):
         return django_apps.get_model(self.prior_screening_model)
@@ -36,6 +38,10 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin,
     @property
     def preg_women_screening_cls(self):
         return django_apps.get_model(self.preg_women_screening_model)
+
+    @property
+    def delivery_cls(self):
+        return django_apps.get_model(self.delivery_model)
 
     def clean(self):
         cleaned_data = self.cleaned_data
@@ -144,20 +150,21 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin,
                 last_name = self.cleaned_data.get('last_name')
                 gender = self.cleaned_data.get('gender')
                 if self.caregiver_locator:
-                    prev_fname = self.caregiver_locator.first_name.upper()
-                    prev_lname = self.caregiver_locator.last_name.upper()
-                    if first_name != prev_fname:
-                        message = {'first_name':
-                                   'Participant is the biological mother, first '
-                                   f'name should match {prev_fname}. '}
-                        self._errors.update(message)
-                        raise ValidationError(message)
-                    if last_name != prev_lname:
-                        message = {'last_name':
-                                   'Participant is the biological mother, last '
-                                   f'name should match {prev_lname}. '}
-                        self._errors.update(message)
-                        raise ValidationError(message)
+                    prev_fname = self.caregiver_locator.first_name
+                    prev_lname = self.caregiver_locator.last_name
+                    if prev_fname and prev_lname:
+                        if first_name != prev_fname.upper():
+                            message = {'first_name':
+                                       'Participant is the biological mother, first '
+                                       f'name should match {prev_fname}. '}
+                            self._errors.update(message)
+                            raise ValidationError(message)
+                        if last_name != prev_lname.upper():
+                            message = {'last_name':
+                                       'Participant is the biological mother, last '
+                                       f'name should match {prev_lname}. '}
+                            self._errors.update(message)
+                            raise ValidationError(message)
                 if gender != FEMALE:
                     message = {'gender':
                                'Participant is the biological mother, gender '
@@ -306,3 +313,15 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin,
             return None
         else:
             return preg_women_screening
+
+    @property
+    def preg_delivery(self):
+        if self.subject_identifier:
+            try:
+                self.delivery_cls.objects.get(
+                    subject_identifier=self.subject_identifier)
+            except self.delivery_cls.DoesNotExist:
+                return False
+            else:
+                return True
+        return False
