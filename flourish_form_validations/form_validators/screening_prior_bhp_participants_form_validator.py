@@ -13,21 +13,13 @@ class ScreeningPriorBhpParticipantsFormValidator(FormValidator):
         cleaned_data = self.cleaned_data
         mother_alive = cleaned_data.get('mother_alive')
         flourish_participation = cleaned_data.get('flourish_participation')
-        if mother_alive:
-            if mother_alive in [NO, UNKNOWN]:
-                if flourish_participation == 'interested':
-                    message = {'flourish_participation':
-                               'The mother from the previous study is not alive, '
-                               'Please correct interest for `another caregiver`. '}
-                    self._errors.update(message)
-                    raise ValidationError(message)
-            if mother_alive == YES:
-                if flourish_participation == 'another_caregiver_interested':
-                    message = {'flourish_participation':
-                               'The mother from the previous study is alive, '
-                               'Please correct interest. '}
-                    self._errors.update(message)
-                    raise ValidationError(message)
+        if mother_alive and mother_alive in [NO, UNKNOWN]:
+            if flourish_participation == 'interested':
+                message = {'flourish_participation':
+                           'The mother from the previous study is not alive, '
+                           'Please correct interest for `another caregiver`. '}
+                self._errors.update(message)
+                raise ValidationError(message)
 
     def validate_child_alive(self):
         self.not_applicable_if(
