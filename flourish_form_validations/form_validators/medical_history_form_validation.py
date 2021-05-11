@@ -27,10 +27,10 @@ class MedicalHistoryFormValidator(CRFFormValidator, FormValidator):
         med_history_changed = self.cleaned_data.get('med_history_changed')
         self.validate_med_history_changed(med_history_changed)
         if not med_history_changed or med_history_changed == YES:
-            self.applicable_if_true(
-                self.subject_status == POS,
-                field_applicable='know_hiv_status',)
-
+            if self.cleaned_data.get('chronic_since') == NOT_APPLICABLE:
+                message = {'chronic_since': 'This field is applicable'}
+                self._errors.update(message)
+                raise ValidationError(message)
             self.validate_caregiver_chronic_multiple_selection(
                 cleaned_data=self.cleaned_data)
             self.validate_chronic_since_who_diagnosis_neg(
@@ -40,6 +40,9 @@ class MedicalHistoryFormValidator(CRFFormValidator, FormValidator):
             self.validate_other_caregiver()
             self.validate_caregiver_medications_multiple_selections()
             self.validate_other_caregiver_medications()
+            self.applicable_if_true(
+                self.subject_status == POS,
+                field_applicable='know_hiv_status',)
 
     def validate_med_history_changed(self, med_history_changed):
         if med_history_changed:
@@ -65,17 +68,13 @@ class MedicalHistoryFormValidator(CRFFormValidator, FormValidator):
 
     def validate_chronic_since_who_diagnosis_neg(self, cleaned_data=None):
 
-        if self.subject_status == NEG and cleaned_data.get('chronic_since') == YES:
-            msg = {'chronic_since':
-                   'The caregiver is HIV negative. Chronic_since should be NO'}
-            self._errors.update(msg)
-            raise ValidationError(msg)
-
         self.applicable_if_true(
             self.subject_status == POS,
             field_applicable='who_diagnosis',
-            not_applicable_msg=('The caregiver is HIV negative. Who Diagnosis '
-                                'should be Not Applicable')
+            applicable_msg=('The caregiver is HIV positive. WHO Diagnosis is '
+                            'applicable.'),
+            not_applicable_msg=('The caregiver is HIV negative. WHO Diagnosis '
+                                'is Not Applicable')
         )
 
         if self.subject_status == POS and cleaned_data.get('chronic_since') == NO:
