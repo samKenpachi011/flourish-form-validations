@@ -72,11 +72,11 @@ class TestSubjectConsentForm(TestModeMixin, TestCase):
             screening_identifier=self.screening_identifier)
 
         self.consent_options.update(
-            {'recruit_source': 'Prior'})
+            {'recruitment_clinic': 'Prior'})
         form_validator = SubjectConsentFormValidator(
             cleaned_data=self.consent_options)
         self.assertRaises(ValidationError, form_validator.validate)
-        self.assertIn('recruit_source', form_validator._errors)
+        self.assertIn('recruitment_clinic', form_validator._errors)
 
     def test_recruit_source_OTHER_source_other_required(self):
         self.consent_options.update(
