@@ -260,6 +260,13 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin,
                           'provided. Please specify source.'),
         )
 
+        if (self.preg_women_screening
+                and self.cleaned_data.get('recruit_source') == 'Prior'):
+            message = {'recruit_source':
+                       'Participant is pregnant, cannot be from prior BHP Study.'}
+            self._errors.update(message)
+            raise ValidationError(message)
+
     def validate_recruitment_clinic(self):
         clinic = self.cleaned_data.get('recruitment_clinic')
         self.validate_other_specify(
@@ -295,6 +302,7 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin,
 
     @property
     def bhp_prior_screening(self):
+
         try:
             bhp_prior_screening = self.bhp_prior_screening_cls.objects.get(
                 screening_identifier=self.screening_identifier)

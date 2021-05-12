@@ -1,20 +1,20 @@
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_base.utils import get_utcnow
 from edc_constants.constants import POS, NEG, YES, NO
 
 from ..form_validators import AntenatalEnrollmentFormValidator
 from .models import AntenatalEnrollment, SubjectConsent
+from .test_model_mixin import TestModeMixin
 
 
-class TestAntenatalEnrollmentForm(TestCase):
+class TestAntenatalEnrollmentForm(TestModeMixin, TestCase):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(AntenatalEnrollmentFormValidator, *args, **kwargs)
 
     def setUp(self):
-        AntenatalEnrollmentFormValidator.caregiver_consent_model = \
-            'flourish_form_validations.subjectconsent'
-        AntenatalEnrollmentFormValidator.antenatal_enrollment_model = \
-            'flourish_form_validations.antenatalenrollment'
 
         self.subject_identifier = '11111111'
 

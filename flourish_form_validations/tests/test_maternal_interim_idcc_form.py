@@ -7,15 +7,15 @@ from edc_constants.constants import YES, NO
 from ..form_validators import MaternalIterimIdccFormValidator
 from .models import MaternalVisit, Appointment
 from .models import SubjectConsent
+from .test_model_mixin import TestModeMixin
 
 
-class TestMaternalInterimIdccFormValidator(TestCase):
+class TestMaternalInterimIdccFormValidator(TestModeMixin, TestCase):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(MaternalIterimIdccFormValidator, *args, **kwargs)
 
     def setUp(self):
-        MaternalIterimIdccFormValidator.maternal_consent_model = \
-            'flourish_caregiver.subjectconsent'
-        MaternalIterimIdccFormValidator.subject_screening_model = \
-            'flourish_caregiver.subjectscreening'
 
         self.subject_identifier = '11111111'
 

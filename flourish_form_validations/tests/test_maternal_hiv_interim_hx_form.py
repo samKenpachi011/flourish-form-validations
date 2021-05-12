@@ -7,15 +7,15 @@ from edc_constants.constants import YES, NO, NOT_APPLICABLE
 from ..form_validators import MaternalHivInterimHxFormValidator
 from .models import MaternalVisit, Appointment
 from .models import SubjectConsent
+from .test_model_mixin import TestModeMixin
 
 
-class TestMaternalHivInterimHxForm(TestCase):
+class TestMaternalHivInterimHxForm(TestModeMixin, TestCase):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(MaternalHivInterimHxFormValidator, *args, **kwargs)
 
     def setUp(self):
-        MaternalHivInterimHxFormValidator.maternal_consent_model = \
-            'flourish_form_validations.subjectconsent'
-        MaternalHivInterimHxFormValidator.subject_screening_model = \
-            'flourish_form_validations.subjectscreening'
 
         self.subject_identifier = '11111111'
 

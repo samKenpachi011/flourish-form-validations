@@ -6,6 +6,7 @@ from edc_constants.constants import YES, NO, POS, NEG, NOT_APPLICABLE
 from ..form_validators import MaternalDeliveryFormValidator
 from .models import MaternalArv, MaternalVisit, UltraSound
 from .models import SubjectConsent, Appointment, MaternalArvDuringPreg
+from .test_model_mixin import TestModeMixin
 
 
 class MaternalStatusHelper:
@@ -18,19 +19,12 @@ class MaternalStatusHelper:
         return self.status
 
 
-class TestMaternalDeliverylForm(TestCase):
+class TestMaternalDeliverylForm(TestModeMixin, TestCase):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(MaternalDeliveryFormValidator, *args, **kwargs)
 
     def setUp(self):
-        MaternalDeliveryFormValidator.caregiver_consent_model = \
-            'flourish_form_validations.subjectconsent'
-        MaternalDeliveryFormValidator.subject_screening_model = \
-            'flourish_form_validations.subjectscreening'
-        MaternalDeliveryFormValidator.maternal_visit_model = \
-            'flourish_form_validations.maternalvisit'
-        MaternalDeliveryFormValidator.maternal_arv_model = \
-            'flourish_form_validations.maternalarv'
-        MaternalDeliveryFormValidator.ultrasound_model = \
-            'flourish_form_validations.ultrasound'
 
         self.subject_consent = SubjectConsent.objects.create(
             subject_identifier='11111111', screening_identifier='ABC12345',
