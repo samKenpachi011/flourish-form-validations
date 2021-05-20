@@ -53,6 +53,11 @@ class CaregiverChildConsentFormValidator(FormValidator):
 
     def validate_identity_number(self, cleaned_data=None):
         identity = cleaned_data.get('identity')
+        required_fields = ['identity_type', 'confirm_identity', ]
+        for required in required_fields:
+            self.required_if_true(
+                identity is not None and identity != '',
+                field_required=required)
         if identity:
             if not re.match('[0-9]+$', identity):
                 message = {'identity': 'Identity number must be digits.'}
