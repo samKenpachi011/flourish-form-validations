@@ -8,19 +8,15 @@ from edc_constants.constants import (
 from ..form_validators import ArvsPrePregnancyFormValidator
 from .models import AntenatalEnrollment
 from .models import SubjectConsent, Appointment, MaternalVisit
+from .test_model_mixin import TestModeMixin
 
 
-class TestArvsPrePregnancyForm(TestCase):
+class TestArvsPrePregnancyForm(TestModeMixin, TestCase):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(ArvsPrePregnancyFormValidator, *args, **kwargs)
 
     def setUp(self):
-        ArvsPrePregnancyFormValidator.caregiver_consent_model = \
-            'flourish_form_validations.subjectconsent'
-
-        ArvsPrePregnancyFormValidator.antenatal_enrollment_model = \
-            'flourish_form_validations.antenatalenrollment'
-
-        ArvsPrePregnancyFormValidator.subject_screening_model = \
-            'flourish_form_validations.subjectscreening'
 
         self.subject_consent = SubjectConsent.objects.create(
             subject_identifier='11111111',

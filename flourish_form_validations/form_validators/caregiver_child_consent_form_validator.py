@@ -29,7 +29,8 @@ class CaregiverChildConsentFormValidator(FormValidator):
         if first_name:
             if not re.match(r'^[A-Z]+$|^([A-Z]+[ ][A-Z]+)$', first_name):
                 message = {'first_name': 'Ensure first name is letters (A-Z) in '
-                           'upper case, no special characters, except spaces.'}
+                           'upper case, no special characters, except spaces. Maximum 2 first '
+                           'names allowed.'}
                 self._errors.update(message)
                 raise ValidationError(message)
 
@@ -52,6 +53,11 @@ class CaregiverChildConsentFormValidator(FormValidator):
 
     def validate_identity_number(self, cleaned_data=None):
         identity = cleaned_data.get('identity')
+        required_fields = ['identity_type', 'confirm_identity', ]
+        for required in required_fields:
+            self.required_if_true(
+                identity is not None and identity != '',
+                field_required=required)
         if identity:
             if not re.match('[0-9]+$', identity):
                 message = {'identity': 'Identity number must be digits.'}

@@ -6,17 +6,15 @@ from edc_constants.constants import YES, NO, NOT_APPLICABLE
 from ..form_validators import MaternalArvDuringPregFormValidator
 from .models import MaternalVisit, Appointment
 from .models import ArvsPrePregnancy, SubjectConsent
+from .test_model_mixin import TestModeMixin
 
 
-class TestMaternalArvDuringPregForm(TestCase):
+class TestMaternalArvDuringPregForm(TestModeMixin, TestCase):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(MaternalArvDuringPregFormValidator, *args, **kwargs)
 
     def setUp(self):
-        MaternalArvDuringPregFormValidator.maternal_consent_model = \
-            'flourish_form_validations.subjectconsent'
-        MaternalArvDuringPregFormValidator.subject_screening_model = \
-            'flourish_form_validations.subjectscreening'
-        MaternalArvDuringPregFormValidator.arvs_pre_preg_model = \
-            'flourish_form_validations.arvsprepregnancy'
 
         self.subject_identifier = '11111111'
 

@@ -1,16 +1,12 @@
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
-from django.test import TestCase
+from django.test import TestCase, tag
 from edc_base.utils import get_utcnow
 from edc_constants.constants import POS, NOT_APPLICABLE, MALE, YES, NO, NEG
 
-from flourish_caregiver.models.list_models import (
-    ChronicConditions,CaregiverMedications, WcsDxAdult)
-
 from ..form_validators import MedicalHistoryFormValidator
-from .models import (
-    SubjectConsent, Appointment, MaternalVisit,
-    RegisteredSubject, ListModel, AntenatalEnrollment)
+from .models import SubjectConsent, Appointment, MaternalVisit
+from .models import RegisteredSubject, ListModel, AntenatalEnrollment
 
 
 class MaternalStatusHelper:
@@ -23,6 +19,7 @@ class MaternalStatusHelper:
         return self.status
 
 
+@tag('mh')
 class TestMedicalHistoryForm(TestCase):
 
     def setUp(self):
@@ -45,21 +42,18 @@ class TestMedicalHistoryForm(TestCase):
 
         self.subject_identifier = '12345ABC'
 
-        ChronicConditions.objects.create(name=NOT_APPLICABLE, short_name='N/A')
-        ChronicConditions.objects.create(name=YES, short_name='y')
-        CaregiverMedications.objects.create(
-            name=NOT_APPLICABLE, short_name='N/A')
+        ListModel.objects.create(name=NOT_APPLICABLE, short_name='N/A')
+        ListModel.objects.create(name=YES, short_name='y')
 
         AntenatalEnrollment.objects.create(
             week32_test_date=get_utcnow().date(),
             subject_identifier=self.subject_consent.subject_identifier)
-        WcsDxAdult.objects.create(name=NOT_APPLICABLE, short_name='N/A')
 
         self.cleaned_data = {
             'maternal_visit': self.maternal_visit,
-            'caregiver_chronic': ChronicConditions.objects.filter(name=NOT_APPLICABLE),
-            'caregiver_medications': CaregiverMedications.objects.all(),
-            'who': WcsDxAdult.objects.all()}
+            'caregiver_chronic': ListModel.objects.filter(name=NOT_APPLICABLE),
+            'caregiver_medications': ListModel.objects.all(),
+            'who': ListModel.objects.all()}
 
     def test_subject_status_neg_chronic_since_invalid(self):
         '''True if chronic_since is yes and who_diagnosis is no.
@@ -69,7 +63,7 @@ class TestMedicalHistoryForm(TestCase):
         self.cleaned_data.update(
             chronic_since=YES,
             who_diagnosis=NO,
-            caregiver_chronic=ChronicConditions.objects.filter(name=YES)
+            caregiver_chronic=ListModel.objects.filter(name=YES)
         )
         form_validator = MedicalHistoryFormValidator(
             cleaned_data=self.cleaned_data)

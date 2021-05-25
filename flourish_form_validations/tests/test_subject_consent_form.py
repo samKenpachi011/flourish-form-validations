@@ -4,33 +4,17 @@ from edc_base.utils import get_utcnow, relativedelta
 from edc_constants.constants import YES, OTHER
 
 from ..form_validators import SubjectConsentFormValidator
-from .models import SubjectConsent
+from .models import SubjectConsent, SubjectScreening
+from .test_model_mixin import TestModeMixin
 
 
 @tag('sc')
-class TestSubjectConsentForm(TestCase):
+class TestSubjectConsentForm(TestModeMixin, TestCase):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(SubjectConsentFormValidator, *args, **kwargs)
 
     def setUp(self):
-        subject_consent_model = 'flourish_form_validations.subjectconsent'
-        SubjectConsentFormValidator.subject_consent_model = subject_consent_model
-
-        maternal_dataset_model = 'flourish_form_validations.maternaldataset'
-        SubjectConsentFormValidator.maternal_dataset_model = maternal_dataset_model
-
-        child_dataset_model = 'flourish_form_validations.childdataset'
-        SubjectConsentFormValidator.child_dataset_model = child_dataset_model
-
-        prior_screening_model = 'flourish_form_validations.subjectscreening'
-        SubjectConsentFormValidator.prior_screening_model = prior_screening_model
-
-        caregiver_locator_model = 'flourish_form_validations.subjectconsent'
-        SubjectConsentFormValidator.prior_screening_model = caregiver_locator_model
-
-        preg_women_screening_model = 'flourish_form_validations.subjectscreening'
-        SubjectConsentFormValidator.preg_women_screening_model = preg_women_screening_model
-
-        delivery_model = 'flourish_form_validations.maternaldelivery'
-        SubjectConsentFormValidator.delivery_model = delivery_model
 
         self.screening_identifier = 'ABC12345'
         self.study_child_identifier = '1234DCD'
@@ -81,6 +65,18 @@ class TestSubjectConsentForm(TestCase):
             cleaned_data=self.consent_options)
         self.assertRaises(ValidationError, form_validator.validate)
         self.assertIn('dob', form_validator._errors)
+
+    @tag('sc1')
+    def test_recruit_source_prior_preg_not_required(self):
+        SubjectScreening.objects.create(
+            screening_identifier=self.screening_identifier)
+
+        self.consent_options.update(
+            {'recruitment_clinic': 'Prior'})
+        form_validator = SubjectConsentFormValidator(
+            cleaned_data=self.consent_options)
+        self.assertRaises(ValidationError, form_validator.validate)
+        self.assertIn('recruitment_clinic', form_validator._errors)
 
     def test_recruit_source_OTHER_source_other_required(self):
         self.consent_options.update(

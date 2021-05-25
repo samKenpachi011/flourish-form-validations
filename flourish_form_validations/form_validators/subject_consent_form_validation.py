@@ -49,6 +49,7 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin,
         self.screening_identifier = cleaned_data.get('screening_identifier')
         super().clean()
 
+        self.clean_gender()
         self.clean_full_name_syntax()
         self.validate_prior_participant_names()
         self.clean_initials_with_full_name()
@@ -90,7 +91,8 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin,
 
         if first_name and not re.match(r'^[A-Z]+$|^([A-Z]+[ ][A-Z]+)$', first_name):
             message = {'first_name': 'Ensure first name is letters (A-Z) in '
-                       'upper case, no special characters, except spaces.'}
+                       'upper case, no special characters, except spaces. Maximum 2 first '
+                       'names allowed.'}
             self._errors.update(message)
             raise ValidationError(message)
 
@@ -106,6 +108,14 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin,
             raise ValidationError(message)
         if last_name and last_name != last_name.upper():
             message = {'last_name': 'Last name must be in CAPS.'}
+            self._errors.update(message)
+            raise ValidationError(message)
+
+    def clean_gender(self):
+
+        if self.preg_women_screening and self.cleaned_data.get('gender') == MALE:
+            message = {'gender': 'Participant is indicated to be pregnant, '
+                       'cannot be male.'}
             self._errors.update(message)
             raise ValidationError(message)
 
@@ -259,6 +269,13 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin,
                           f'recruited from as you already indicated {clinic}')
         )
 
+        if (self.preg_women_screening
+                and self.cleaned_data.get('recruitment_clinic') == 'Prior'):
+            message = {'recruitment_clinic':
+                       'Participant is pregnant, cannot be from prior BHP Study.'}
+            self._errors.update(message)
+            raise ValidationError(message)
+
     def validate_is_literate(self):
         self.required_if(
             NO,
@@ -285,6 +302,7 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin,
 
     @property
     def bhp_prior_screening(self):
+
         try:
             bhp_prior_screening = self.bhp_prior_screening_cls.objects.get(
                 screening_identifier=self.screening_identifier)
