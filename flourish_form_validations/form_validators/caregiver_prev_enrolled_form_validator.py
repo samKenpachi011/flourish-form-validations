@@ -1,6 +1,8 @@
+from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
 from django.core.exceptions import ValidationError
 
+from edc_base.utils import get_utcnow
 from edc_constants.constants import YES, NO
 from edc_form_validators.form_validator import FormValidator
 
@@ -71,6 +73,15 @@ class CaregiverPrevEnrolledFormValidator(FormValidator):
                     YES,
                     field='last_test_date',
                     field_required='test_date')
+
+                test_date = self.cleaned_data.get('test_date', None)
+                if test_date:
+                    difference = get_utcnow().date() - relativedelta(months=3)
+                    if test_date < difference:
+                        msg = {'test_date':
+                               'HIV test date should not be older than 3months'}
+                        self._errors.update(msg)
+                        raise ValidationError(msg)
 
                 self.required_if(
                     YES,
