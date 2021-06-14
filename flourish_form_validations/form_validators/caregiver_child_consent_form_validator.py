@@ -1,13 +1,19 @@
 import re
 import datetime
+from django.apps import apps as django_apps
 from django.core.exceptions import ValidationError
-
 from edc_constants.choices import FEMALE, MALE, YES, NO, NOT_APPLICABLE
 from edc_base.utils import age, get_utcnow
 from edc_form_validators import FormValidator
 
 
 class CaregiverChildConsentFormValidator(FormValidator):
+
+    child_dataset_model = 'flourish_child.childdataset'
+
+    @property
+    def child_dataset_cls(self):
+        return django_apps.get_model(self.child_dataset_model)
 
     def clean(self):
 
@@ -20,6 +26,23 @@ class CaregiverChildConsentFormValidator(FormValidator):
         self.validate_child_years_more_tha_12yrs_at_jun_2025(
             cleaned_data=self.cleaned_data)
         self.validate_identity_number(cleaned_data=self.cleaned_data)
+        self.validate_previously_enrolled(cleaned_data=self.cleaned_data)
+
+    def validate_previously_enrolled(self, cleaned_data):
+        if cleaned_data.get('study_child_identifier'):
+            gender_dict = {FEMALE: 'Female',
+                           MALE: 'Male'}
+            gender = gender_dict.get(cleaned_data.get('gender'))
+            try:
+                self.child_dataset_cls.objects.get(
+                    study_child_identifier=cleaned_data.get('study_child_identifier'),
+                    infant_sex=gender,
+                    dob=cleaned_data.get('child_dob'))
+            except self.child_dataset_cls.DoesNotExist:
+                message = {'study_child_identifier': 'No child dataset exists for the '
+                           'specified child identifier, gender and dob.'}
+                self._errors.update(message)
+                raise ValidationError(message)
 
     def clean_full_name_syntax(self):
         cleaned_data = self.cleaned_data
