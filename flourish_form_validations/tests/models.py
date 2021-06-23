@@ -180,4 +180,8 @@ class ChildDataset(BaseUuidModel):
 
     study_child_identifier = models.CharField(max_length=36)
 
+    dob = models.DateField(
+        null=True,
+        blank=True)
+
     infant_sex = models.CharField(max_length=7)
