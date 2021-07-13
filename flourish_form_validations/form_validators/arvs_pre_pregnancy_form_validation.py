@@ -28,21 +28,16 @@ class ArvsPrePregnancyFormValidator(CRFFormValidator, FlourishFormValidatorMixin
             'maternal_visit').subject_identifier
         super().clean()
 
-        self.validate_prev_preg_art()
+        self.validate_prev_preg_art(cleaned_data=self.cleaned_data)
         self.validate_prior_preg(cleaned_data=self.cleaned_data)
         self.validate_maternal_consent(cleaned_data=self.cleaned_data)
         self.validate_hiv_test_date_antenatal_enrollment()
         self.validate_other_mother()
 
-    def validate_prev_preg_art(self):
-        self.required_if(
-            YES,
-            field='prev_preg_art',
-            field_required='art_start_date')
-
-        self.applicable_if(
-            YES,
-            field='prev_preg_art',
+    def validate_prev_preg_art(self, cleaned_data={}):
+        art_start_date = cleaned_data.get('art_start_date')
+        self.applicable_if_true(
+            art_start_date is not None,
             field_applicable='is_date_estimated')
 
     def validate_prior_preg(self, cleaned_data=None):
