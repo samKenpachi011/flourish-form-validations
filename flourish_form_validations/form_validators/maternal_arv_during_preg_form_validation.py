@@ -22,6 +22,11 @@ class MaternalArvDuringPregFormValidator(CRFFormValidator, FormValidator):
 
         self.applicable_if(
             YES,
+            field='took_arv',
+            field_applicable='is_interrupt')
+
+        self.applicable_if(
+            YES,
             field='is_interrupt',
             field_applicable='interrupt',
         )
