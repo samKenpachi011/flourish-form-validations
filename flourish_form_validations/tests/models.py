@@ -11,6 +11,23 @@ class ListModel(ListModelMixin, BaseUuidModel):
     pass
 
 
+class CaregiverLocator(BaseUuidModel):
+
+    subject_identifier = models.CharField(max_length=50)
+
+    screening_identifier = models.CharField(max_length=50)
+
+    report_datetime = models.DateTimeField(
+        null=True,
+        blank=True)
+
+    may_call = models.CharField(
+        max_length=3)
+
+    may_visit_home = models.CharField(
+        max_length=3)
+
+
 class SubjectConsent(UpdatesOrCreatesRegistrationModelMixin, BaseUuidModel):
 
     subject_identifier = models.CharField(max_length=25)
