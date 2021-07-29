@@ -28,10 +28,17 @@ class ArvsPrePregnancyFormValidator(CRFFormValidator, FlourishFormValidatorMixin
             'maternal_visit').subject_identifier
         super().clean()
 
+        self.validate_prev_preg_art(cleaned_data=self.cleaned_data)
         self.validate_prior_preg(cleaned_data=self.cleaned_data)
         self.validate_maternal_consent(cleaned_data=self.cleaned_data)
         self.validate_hiv_test_date_antenatal_enrollment()
         self.validate_other_mother()
+
+    def validate_prev_preg_art(self, cleaned_data={}):
+        art_start_date = cleaned_data.get('art_start_date')
+        self.applicable_if_true(
+            art_start_date is not None,
+            field_applicable='is_date_estimated')
 
     def validate_prior_preg(self, cleaned_data=None):
         responses = (CONTINUOUS, RESTARTED)
@@ -72,7 +79,7 @@ class ArvsPrePregnancyFormValidator(CRFFormValidator, FlourishFormValidatorMixin
             *selections,
             m2m_field='prior_arv')
         self.m2m_other_specify(
-            OTHER,
+            'Other, specify',
             m2m_field='prior_arv',
             field_other='prior_arv_other')
 
@@ -98,7 +105,7 @@ class ArvsPrePregnancyFormValidator(CRFFormValidator, FlourishFormValidatorMixin
                 raise ValidationError('Maternal Consent does not exist.')
 
         self.applicable_if_true(
-            cleaned_data.get('art_start_date') != None,
+            cleaned_data.get('art_start_date') is not None,
             field_applicable='is_date_estimated')
 
     def validate_hiv_test_date_antenatal_enrollment(self):
