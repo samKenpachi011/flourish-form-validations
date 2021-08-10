@@ -1,6 +1,7 @@
-from edc_constants.constants import YES
+from edc_constants.constants import YES, NO
 from edc_form_validators import FormValidator
 from .crf_form_validator import CRFFormValidator
+from django.core.exceptions import ValidationError
 
 
 class MaternalHivInterimHxFormValidator(CRFFormValidator,
@@ -46,3 +47,14 @@ class MaternalHivInterimHxFormValidator(CRFFormValidator,
             not_required_msg=('You indicated that the VL was NOT detectable. '
                               'you cannot provide a result.')
         )
+
+        vl_detectable = self.cleaned_data.get('vl_detectable')
+        vl_result = self.cleaned_data.get('vl_result')
+
+        if vl_detectable == YES:
+            if int(vl_result) < 400:
+                raise ValidationError('Viral load should be more than 400')
+        else:
+            if int(vl_result) > 400:
+                raise ValidationError('Viral load should be less than 400')
+

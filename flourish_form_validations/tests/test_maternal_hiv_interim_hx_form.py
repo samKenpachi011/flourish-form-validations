@@ -167,6 +167,7 @@ class TestMaternalHivInterimHxForm(TestModeMixin, TestCase):
         self.assertIn('vl_detectable', form_validator._errors)
 
     def test_has_vl_YES_vl_detectable_provided(self):
+
         cleaned_data = {
             'maternal_visit': self.maternal_visit,
             'has_vl': YES,
@@ -179,6 +180,22 @@ class TestMaternalHivInterimHxForm(TestModeMixin, TestCase):
             form_validator.validate()
         except ValidationError as e:
             self.fail(f'ValidationError unexpectedly raised. Got{e}')
+
+    def test_has_vl_YES_vl_result_more_than_400(self):
+
+        cleaned_data = {
+            'maternal_visit': self.maternal_visit,
+            'has_vl': YES,
+            'vl_date': get_utcnow().date(),
+            'vl_detectable': YES,
+            'vl_result': '600'}
+        form_validator = MaternalHivInterimHxFormValidator(
+            cleaned_data=cleaned_data)
+        try:
+            form_validator.validate()
+        except ValidationError as e:
+            self.fail(f'ValidationError unexpectedly raised. Got{e}')
+
 
     def test_has_vl_NO_vl_date_valid(self):
         cleaned_data = {
