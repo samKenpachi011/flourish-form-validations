@@ -52,7 +52,7 @@ class MaternalHivInterimHxFormValidator(CRFFormValidator,
         vl_result = self.cleaned_data.get('vl_result')
 
         if vl_detectable == YES:
-            if int(vl_result) < 400:
+            if int(vl_result) < 401:
                 raise ValidationError('Viral load should be more than 400')
         # else:
         #     if int(vl_result) >= 400:
