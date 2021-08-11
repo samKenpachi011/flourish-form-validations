@@ -48,14 +48,19 @@ class MaternalHivInterimHxFormValidator(CRFFormValidator,
                               'you cannot provide a result.')
         )
 
-        vl_detectable = self.cleaned_data.get('vl_detectable')
-        vl_result = self.cleaned_data.get('vl_result')
+        self._validate_vl_result()
 
-        if vl_detectable == YES:
-            if int(vl_result) < 401:
-                raise ValidationError('Viral load should be more than 400')
-        # else:
-        #     if int(vl_result) >= 400:
-        #         raise ValidationError('Viral load should be more than 400')
+    def _validate_vl_result(self):
+        """
+        Used to validate vl_result based on vl_detectable
+        """
 
+        # Get data fro the form and convert to on integer
+        vl_detectable = int(self.cleaned_data.get('vl_detectable'))
+        vl_result = int(self.cleaned_data.get('vl_result'))
 
+        # This is the original required condition, Superposed for readability
+        if not (vl_detectable == YES and vl_result > 400):
+            raise ValidationError('Viral load should be more than 400')
+        elif not (vl_detectable == NO and vl_result <= 400):
+            raise ValidationError('Viral load should be less than 400')
