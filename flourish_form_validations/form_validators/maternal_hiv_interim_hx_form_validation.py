@@ -54,13 +54,12 @@ class MaternalHivInterimHxFormValidator(CRFFormValidator,
         """
         Used to validate vl_result based on vl_detectable
         """
-
         # Get data fro the form and convert to on integer
-        vl_detectable = int(self.cleaned_data.get('vl_detectable'))
+        vl_detectable = self.cleaned_data.get('vl_detectable')
         vl_result = int(self.cleaned_data.get('vl_result'))
 
         # This is the original required condition, Superposed for readability
-        if not (vl_detectable == YES and vl_result > 400):
+        if vl_detectable == YES and not (vl_result > 400):
             raise ValidationError('Viral load should be more than 400')
-        elif not (vl_detectable == NO and vl_result <= 400):
+        elif vl_detectable == NO and not (vl_result <= 400):
             raise ValidationError('Viral load should be less than 400')
