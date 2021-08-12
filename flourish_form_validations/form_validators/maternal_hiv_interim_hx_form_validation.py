@@ -38,15 +38,6 @@ class MaternalHivInterimHxFormValidator(CRFFormValidator,
             field='has_vl',
             field_applicable='vl_detectable'
         )
-        self.required_if(
-            YES,
-            field='vl_detectable',
-            field_required='vl_result',
-            required_msg=('You indicated that the VL was detectable. '
-                          'Provide provide VL result.'),
-            not_required_msg=('You indicated that the VL was NOT detectable. '
-                              'you cannot provide a result.')
-        )
 
         self._validate_vl_result()
 
