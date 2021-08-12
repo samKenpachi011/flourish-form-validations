@@ -51,6 +51,8 @@ class MaternalHivInterimHxFormValidator(CRFFormValidator,
 
         # This is the original required condition, Superposed for readability
         if vl_detectable == YES and not (vl_result > 400):
-            raise ValidationError({'vl_result': 'Viral load should be more than 400'})
+            raise ValidationError({'vl_result': 'Viral load should be more than 400 if it is'
+                                   ' detectable'})
         elif vl_detectable == NO and not (vl_result <= 400):
-            raise ValidationError({'vl_result': 'Viral load should be less than 400'})
+            raise ValidationError({'vl_result': 'Viral load should be 400 or less if it is'
+                                   ' not detectable'})
