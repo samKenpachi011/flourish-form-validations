@@ -1,4 +1,4 @@
-from edc_constants.constants import YES, NO
+from edc_constants.constants import YES, NO, NOT_APPLICABLE
 from edc_form_validators import FormValidator
 from .crf_form_validator import CRFFormValidator
 from django.core.exceptions import ValidationError
@@ -12,7 +12,7 @@ class MaternalHivInterimHxFormValidator(CRFFormValidator,
             'maternal_visit').subject_identifier
         super().clean()
 
-        required_fields = ('cd4_date', 'cd4_result')
+        required_fields = ('cd4_date', 'cd4_result',)
         for required in required_fields:
             self.required_if(
                 YES,
@@ -24,6 +24,7 @@ class MaternalHivInterimHxFormValidator(CRFFormValidator,
                                   f'performed, yet provided a {required} '
                                   'CD4 was performed. Please correct.')
             )
+
         self.required_if(
             YES,
             field='has_vl',
@@ -39,11 +40,11 @@ class MaternalHivInterimHxFormValidator(CRFFormValidator,
             field_applicable='vl_detectable'
         )
 
-        # vl_result required if vl_detectable is both a YES or NO
-        self.required_if(YES, field='vl_detectable',
-                         field_required="vl_result")
-        self.required_if(NO, field='vl_detectable',
-                         field_required="vl_result")
+        self.not_required_if(
+            NOT_APPLICABLE,
+            field='vl_detectable',
+            field_required= 'vl_result'
+        )
 
         self._validate_vl_result()
 
@@ -55,13 +56,10 @@ class MaternalHivInterimHxFormValidator(CRFFormValidator,
         vl_detectable = self.cleaned_data.get('vl_detectable')
         vl_result = self.cleaned_data.get('vl_result')
 
-        # if not null, then convert vl_resut to int through reassignment
-        vl_result = int(vl_result)
-
-        # This is the original required condition, Superposed for readability
-        if vl_detectable == YES and not (vl_result > 400):
-            raise ValidationError({'vl_result': 'Viral load should be more than 400 if it is'
-                                   ' detectable'})
-        elif vl_detectable == NO and not (vl_result <= 400):
-            raise ValidationError({'vl_result': 'Viral load should be 400 or less if it is'
-                                   ' not detectable'})
+        if vl_result:
+            if vl_detectable == YES and not (int(vl_result) > 400):
+                raise ValidationError({'vl_result': 'Viral load should be more than 400 if it is'
+                                                    ' detectable'})
+            elif vl_detectable == NO and not (int(vl_result) <= 400):
+                raise ValidationError({'vl_result': 'Viral load should be 400 or less if it is'
+                                                    ' not detectable'})

@@ -293,41 +293,52 @@ class TestMaternalHivInterimHxForm(TestModeMixin, TestCase):
             self.fail(f'ValidationError unexpectedly raised. Got{e}')
 
     # Validation
-    def test_vl_result_if_vl_detectable_no_required(self):
+    def test_yes_vl_result_required(self):
+        cleaned_data = {
+            'maternal_visit': self.maternal_visit,
+            'has_vl': YES,
+            'vl_date': get_utcnow().date(),
+            'vl_detectable': YES,
+            'vl_result': '700'}
+
+        form_validator = MaternalHivInterimHxFormValidator(
+            cleaned_data=cleaned_data)
+        form_validator.validate()
+
+        try:
+            form_validator.validate()
+        except ValidationError:
+            self.fail("Failed to validate")
+
+    def test_no_vl_result_required(self):
         cleaned_data = {
             'maternal_visit': self.maternal_visit,
             'has_vl': YES,
             'vl_date': get_utcnow().date(),
             'vl_detectable': NO,
+            'vl_result': '400'}
+
+        form_validator = MaternalHivInterimHxFormValidator(
+            cleaned_data=cleaned_data)
+        form_validator.validate()
+
+        try:
+            form_validator.validate()
+        except ValidationError:
+            self.fail("Failed to validate")
+
+    def test_na_vl_result_required(self):
+        cleaned_data = {
+            'maternal_visit': self.maternal_visit,
+            'has_vl': NOT_APPLICABLE,
+            'vl_detectable': NOT_APPLICABLE,
             'vl_result': None}
 
         form_validator = MaternalHivInterimHxFormValidator(
             cleaned_data=cleaned_data)
-        self.assertRaises(ValidationError, form_validator.validate)
-        self.assertIn('vl_result', form_validator._errors)
+        form_validator.validate()
 
-    def test_vl_result_if_vl_detectable_yes_required(self):
-        cleaned_data = {
-            'maternal_visit': self.maternal_visit,
-            'has_vl': YES,
-            'vl_date': get_utcnow().date(),
-            'vl_detectable': YES,
-            'vl_result': None}
-
-        form_validator = MaternalHivInterimHxFormValidator(
-            cleaned_data=cleaned_data)
-        self.assertRaises(ValidationError, form_validator.validate)
-        self.assertIn('vl_result', form_validator._errors)
-
-    def test_vl_result_300_required(self):
-        cleaned_data = {
-            'maternal_visit': self.maternal_visit,
-            'has_vl': YES,
-            'vl_date': get_utcnow().date(),
-            'vl_detectable': YES,
-            'vl_result': 300}
-
-        form_validator = MaternalHivInterimHxFormValidator(
-            cleaned_data=cleaned_data)
-        self.assertRaises(ValidationError, form_validator.validate)
-        self.assertIn('vl_result', form_validator._errors)
+        try:
+            form_validator.validate()
+        except ValidationError:
+            self.fail("Failed to validate")
