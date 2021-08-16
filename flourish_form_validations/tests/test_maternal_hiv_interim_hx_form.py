@@ -196,7 +196,6 @@ class TestMaternalHivInterimHxForm(TestModeMixin, TestCase):
         except ValidationError as e:
             self.fail(f'ValidationError unexpectedly raised. Got{e}')
 
-
     def test_has_vl_NO_vl_date_valid(self):
         cleaned_data = {
             'maternal_visit': self.maternal_visit,
@@ -292,3 +291,54 @@ class TestMaternalHivInterimHxForm(TestModeMixin, TestCase):
             form_validator.validate()
         except ValidationError as e:
             self.fail(f'ValidationError unexpectedly raised. Got{e}')
+
+    # Validation
+    def test_yes_vl_result_required(self):
+        cleaned_data = {
+            'maternal_visit': self.maternal_visit,
+            'has_vl': YES,
+            'vl_date': get_utcnow().date(),
+            'vl_detectable': YES,
+            'vl_result': '700'}
+
+        form_validator = MaternalHivInterimHxFormValidator(
+            cleaned_data=cleaned_data)
+        form_validator.validate()
+
+        try:
+            form_validator.validate()
+        except ValidationError:
+            self.fail("Failed to validate")
+
+    def test_no_vl_result_required(self):
+        cleaned_data = {
+            'maternal_visit': self.maternal_visit,
+            'has_vl': YES,
+            'vl_date': get_utcnow().date(),
+            'vl_detectable': NO,
+            'vl_result': '400'}
+
+        form_validator = MaternalHivInterimHxFormValidator(
+            cleaned_data=cleaned_data)
+        form_validator.validate()
+
+        try:
+            form_validator.validate()
+        except ValidationError:
+            self.fail("Failed to validate")
+
+    def test_na_vl_result_required(self):
+        cleaned_data = {
+            'maternal_visit': self.maternal_visit,
+            'has_vl': NOT_APPLICABLE,
+            'vl_detectable': NOT_APPLICABLE,
+            'vl_result': None}
+
+        form_validator = MaternalHivInterimHxFormValidator(
+            cleaned_data=cleaned_data)
+        form_validator.validate()
+
+        try:
+            form_validator.validate()
+        except ValidationError:
+            self.fail("Failed to validate")
