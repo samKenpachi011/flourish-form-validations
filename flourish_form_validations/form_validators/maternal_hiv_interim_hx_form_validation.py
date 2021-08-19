@@ -57,16 +57,26 @@ class MaternalHivInterimHxFormValidator(CRFFormValidator,
         vl_result: str = self.cleaned_data.get('vl_result')
 
         if vl_result:
-            if vl_result == NO and ('<' in vl_result):
+            if vl_detectable == NO and ('<' in vl_result):
                 vl_result = vl_result[1:]
                 if vl_detectable == NO and not (int(vl_result) <= 400):
                     raise ValidationError({'vl_result': 'Viral load should be 400 or less if it is'
                                                         ' not detectable'})
+            elif vl_detectable == NO and ('>' in vl_result):
+                raise ValidationError({'vl_result': 'Cannot be >'})
             else:
                 if vl_detectable == NO and not (int(vl_result) <= 400):
                     raise ValidationError({'vl_result': 'Viral load should be 400 or less if it is'
                                                         ' not detectable'})
 
-            if vl_detectable == YES and not (int(vl_result) > 400):
-                raise ValidationError({'vl_result': 'Viral load should be more than 400 if it is'
-                                                    ' detectable'})
+            if vl_detectable == YES and ('>' in vl_result):
+                vl_result = vl_result[1:]
+                if vl_detectable == YES and not (int(vl_result) > 400):
+                    raise ValidationError({'vl_result': 'Viral load should be more than 400 if it is'
+                                                        ' detectable'})
+            elif vl_detectable == YES and ('<' in vl_result):
+                raise ValidationError({'vl_result': 'Cannot be <'})
+            else:
+                if vl_detectable == YES and not (int(vl_result) > 400):
+                    raise ValidationError({'vl_result': 'Viral load should be more than 400 if it is'
+                                                        ' detectable'})
