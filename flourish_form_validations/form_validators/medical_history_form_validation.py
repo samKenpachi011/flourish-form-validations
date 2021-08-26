@@ -48,13 +48,6 @@ class MedicalHistoryFormValidator(CRFFormValidator, FormValidator):
                                 'is Not Applicable')
         )
 
-        if self.subject_status == POS and cleaned_data.get('chronic_since') == NO:
-            if cleaned_data.get('who_diagnosis') != NO:
-                msg = {'who_diagnosis':
-                       'The caregiver is HIV positive, because chronic since is '
-                       'NO and Who Diagnosis should also be NO'}
-                self._errors.update(msg)
-                raise ValidationError(msg)
 
     def validate_who_diagnosis_who_chronic_list(self, cleaned_data=None):
 
