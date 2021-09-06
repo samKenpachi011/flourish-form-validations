@@ -8,7 +8,6 @@ from .crf_form_validator import CRFFormValidator
 
 
 class MedicalHistoryFormValidator(CRFFormValidator, FormValidator):
-
     antenatal_enrollment_model = 'flourish_caregiver.antenatalenrollment'
 
     @property
@@ -48,7 +47,6 @@ class MedicalHistoryFormValidator(CRFFormValidator, FormValidator):
                                 'is Not Applicable')
         )
 
-
     def validate_who_diagnosis_who_chronic_list(self, cleaned_data=None):
 
         # subject_status = self.maternal_status_helper.hiv_status
@@ -59,8 +57,8 @@ class MedicalHistoryFormValidator(CRFFormValidator, FormValidator):
                 selected = {obj.short_name: obj.name for obj in qs}
                 if NOT_APPLICABLE in selected:
                     msg = {'who':
-                           'Participant indicated that they had WHO stage III '
-                           'and IV, list of diagnosis cannot be N/A'}
+                               'Participant indicated that they had WHO stage III '
+                               'and IV, list of diagnosis cannot be N/A'}
                     self._errors.update(msg)
                     raise ValidationError(msg)
         elif cleaned_data.get('who_diagnosis') != YES:
@@ -77,15 +75,15 @@ class MedicalHistoryFormValidator(CRFFormValidator, FormValidator):
         if cleaned_data.get('chronic_since') == YES:
             if NOT_APPLICABLE in selected:
                 msg = {'caregiver_chronic':
-                       'Participant indicated that they had chronic'
-                       ' conditions list of diagnosis cannot be N/A'}
+                           'Participant indicated that they had chronic'
+                           ' conditions list of diagnosis cannot be N/A'}
                 self._errors.update(msg)
                 raise ValidationError(msg)
         elif cleaned_data.get('chronic_since') == NO:
             if NOT_APPLICABLE not in selected:
                 msg = {'caregiver_chronic':
-                       'Participant indicated that they had no chronic '
-                       'conditions list of diagnosis should be N/A'}
+                           'Participant indicated that they had no chronic '
+                           'conditions list of diagnosis should be N/A'}
                 self._errors.update(msg)
                 raise ValidationError(msg)
         self.m2m_single_selection_if(
