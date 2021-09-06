@@ -26,12 +26,16 @@ class SocioDemographicDataFormValidator(CRFFormValidator, FormValidator):
 
         is_woman_preg = self.antenatal_enrollment_cls.objects.filter(subject_identifier=subject_identifier)
 
-        if is_woman_preg and not self.cleaned_data['number_of_household_members']:
-            raise ValidationError({
-                'number_of_household_members': 'The participant is pregnant, hence this question needs to be answered'
-            })
+        if is_woman_preg:
+            if not self.cleaned_data['number_of_household_members']:
+                raise ValidationError({
+                    'number_of_household_members': 'The participant is pregnant, hence this question needs to be '
+                                                   'answered '
+                })
 
-        elif not is_woman_preg:
-            raise ValidationError({
-                'number_of_household_members': 'The participant is not pregnant, hence this question is not required'
-            })
+        else:
+            if self.cleaned_data['number_of_household_members']:
+                raise ValidationError({
+                    'number_of_household_members': 'The participant is not pregnant, hence this question needs to be '
+                                                   'answered '
+                })
