@@ -36,6 +36,5 @@ class SocioDemographicDataFormValidator(CRFFormValidator, FormValidator):
         else:
             if self.cleaned_data['number_of_household_members']:
                 raise ValidationError({
-                    'number_of_household_members': 'The participant is not pregnant, hence this question needs to be '
-                                                   'answered '
+                    'number_of_household_members': 'The participant is not pregnant, hence should be left blank'
                 })
