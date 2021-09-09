@@ -43,7 +43,7 @@ class MaternalHivInterimHxFormValidator(CRFFormValidator,
         self.not_required_if(
             NOT_APPLICABLE,
             field='vl_detectable',
-            field_required= 'vl_result'
+            field_required='vl_result'
         )
 
         self._validate_vl_result()
@@ -53,13 +53,31 @@ class MaternalHivInterimHxFormValidator(CRFFormValidator,
         Used to validate vl_result based on vl_detectable
         """
         # Get data fro the form and convert to on integer
-        vl_detectable = self.cleaned_data.get('vl_detectable')
-        vl_result = self.cleaned_data.get('vl_result')
+        vl_detectable: str = self.cleaned_data.get('vl_detectable')
+        vl_result: str = self.cleaned_data.get('vl_result')
 
         if vl_result:
-            if vl_detectable == YES and not (int(vl_result) > 400):
-                raise ValidationError({'vl_result': 'Viral load should be more than 400 if it is'
-                                                    ' detectable'})
-            elif vl_detectable == NO and not (int(vl_result) <= 400):
-                raise ValidationError({'vl_result': 'Viral load should be 400 or less if it is'
-                                                    ' not detectable'})
+            if vl_detectable == NO:
+                if '<' in vl_result:
+                    vl_result = vl_result[1:]
+                    if not (int(vl_result) <= 400):
+                        raise ValidationError({'vl_result': 'Viral load should be 400 or less if it is'
+                                                            ' not detectable'})
+                elif '>' in vl_result:
+                    raise ValidationError({'vl_result': 'Cannot be >'})
+                else:
+                    if not (int(vl_result) <= 400):
+                        raise ValidationError({'vl_result': 'Viral load should be 400 or less if it is'
+                                                            ' not detectable'})
+            if vl_detectable == YES:
+                if '>' in vl_result:
+                    vl_result = vl_result[1:]
+                    if not (int(vl_result) > 400):
+                        raise ValidationError({'vl_result': 'Viral load should be more than 400 if it is'
+                                                            ' detectable'})
+                elif '<' in vl_result:
+                    raise ValidationError({'vl_result': 'Cannot be <'})
+                else:
+                    if not (int(vl_result) > 400):
+                        raise ValidationError({'vl_result': 'Viral load should be more than 400 if it is'
+                                                            ' detectable'})
