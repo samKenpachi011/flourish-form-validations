@@ -62,7 +62,8 @@ class AntenatalEnrollmentFormValidator(CRFFormValidator,
             id=id)
 
         self.validate_current_hiv_status()
-        self.validate_week32_date()
+        # self.validate_week32_date()
+        # Ticket 5360 requested the validation should be removed
         self.validate_week32_result()
 
         enrollment_helper = EnrollmentHelper(
