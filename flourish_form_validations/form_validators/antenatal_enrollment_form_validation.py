@@ -62,8 +62,6 @@ class AntenatalEnrollmentFormValidator(CRFFormValidator,
             id=id)
 
         self.validate_current_hiv_status()
-        # self.validate_week32_date()
-        # Ticket 5360 requested the validation should be removed
         self.validate_week32_result()
 
         enrollment_helper = EnrollmentHelper(
@@ -78,15 +76,6 @@ class AntenatalEnrollmentFormValidator(CRFFormValidator,
                 'Unable to determine maternal hiv status at enrollment.')
 
         enrollment_helper.raise_validation_error_for_rapidtest()
-
-    def validate_week32_date(self):
-        if self.cleaned_data.get('rapid_test_done') == YES:
-            if (self.cleaned_data.get('week32_test_date') !=
-                    self.cleaned_data.get('rapid_test_date')):
-                message = {'week32_test_date':
-                           'Date of HIV test must match rapid test date.'}
-                self._errors.update(message)
-                raise ValidationError(message)
 
     def validate_week32_result(self):
         if (self.cleaned_data.get('rapid_test_done') == NO and
