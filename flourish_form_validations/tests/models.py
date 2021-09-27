@@ -62,7 +62,7 @@ class SubjectScreening(UpdatesOrCreatesRegistrationModelMixin, BaseUuidModel):
 
 class MaternalDelivery(UpdatesOrCreatesRegistrationModelMixin, BaseUuidModel):
 
-    screening_identifier = models.CharField(max_length=50)
+    subject_identifier = models.CharField(max_length=25)
 
 
 class AntenatalEnrollment(BaseUuidModel):
