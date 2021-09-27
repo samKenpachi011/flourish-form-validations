@@ -156,7 +156,7 @@ class CaregiverChildConsentFormValidator(FormValidator):
                        f'{child_dob} is not a valid date'}
             self._errors.update(message)
             raise ValidationError(message)
-        else:
+        elif child_dob:
             child_age = age(child_dob, get_utcnow()).years
             if child_age < 16 and cleaned_data.get(
                     'child_knows_status') in [YES, NO]:
