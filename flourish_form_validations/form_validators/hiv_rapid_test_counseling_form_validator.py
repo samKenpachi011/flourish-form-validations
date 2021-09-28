@@ -1,6 +1,5 @@
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
-from edc_base.utils import get_utcnow
 from edc_constants.constants import YES
 from edc_form_validators import FormValidator
 
@@ -37,8 +36,10 @@ class HIVRapidTestCounselingFormValidator(CRFFormValidator, FormValidator):
         self.validate_test_date(self.cleaned_data.get('result_date'))
 
     def validate_test_date(self, test_date=None):
+        maternal_visit = self.cleaned_data.get('maternal_visit')
 
-        if test_date and relativedelta(get_utcnow().date(), test_date).months >= 3:
+        if test_date and relativedelta(
+                maternal_visit.report_datetime.date(), test_date).months >= 3:
             message = {'result_date': 'The date provided is more than 3 months old.'}
             self._errors.update(message)
             raise ValidationError(message)

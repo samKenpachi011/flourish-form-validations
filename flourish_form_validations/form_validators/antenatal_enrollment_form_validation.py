@@ -35,24 +35,6 @@ class AntenatalEnrollmentFormValidator(CRFFormValidator,
             field_required='rapid_test_result'
         )
 
-        # self.applicable_if(
-        #     POS,
-        #     field='week32_result',
-        #     field_applicable='will_get_arvs'
-        # )
-        #
-        # self.required_if(
-        #     YES,
-        #     field='week32_test',
-        #     field_required='week32_result'
-        # )
-
-        # self.applicable_if(
-        #     YES,
-        #     field='week32_test',
-        #     field_applicable='evidence_32wk_hiv_status'
-        # )
-
         self.validate_last_period_date(cleaned_data=self.cleaned_data)
 
         id = self.instance.id if self.instance else None
