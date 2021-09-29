@@ -29,3 +29,4 @@ from .tb_presence_household_members_form_validator import TbPresenceHouseholdMem
 from .tb_routine_health_screen_form_validator import TbRoutineHealthScreenFormValidator
 from .tb_screen_preg_form_validator import TbScreenPregFormValidator
 from .ultrasound_form_validator import UltrasoundFormValidator
+from .covid_form_validation import Covid9FormValidator
