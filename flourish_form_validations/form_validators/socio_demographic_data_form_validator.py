@@ -3,6 +3,7 @@ from edc_form_validators import FormValidator
 from .crf_form_validator import CRFFormValidator
 from django.apps import apps as django_apps
 from django.core.exceptions import ValidationError
+from  edc_constants.constants import NOT_APPLICABLE
 
 
 class SocioDemographicDataFormValidator(CRFFormValidator, FormValidator):
@@ -27,6 +28,12 @@ class SocioDemographicDataFormValidator(CRFFormValidator, FormValidator):
         is_woman_preg = self.antenatal_enrollment_cls.objects.filter(subject_identifier=subject_identifier)
 
         if is_woman_preg:
+            stay_with_child = self.cleaned_data['stay_with_child']
+            if not stay_with_child == NOT_APPLICABLE:
+                raise ValidationError({
+                    'stay_with_child': 'The participant is currently pregnant'
+                })
+
             if not self.cleaned_data['number_of_household_members']:
                 raise ValidationError({
                     'number_of_household_members': 'The participant is pregnant, hence this question needs to be '
