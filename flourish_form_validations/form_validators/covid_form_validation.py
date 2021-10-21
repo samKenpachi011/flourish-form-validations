@@ -1,5 +1,5 @@
 from django.core.exceptions import ValidationError
-from edc_constants.constants import YES, OTHER
+from edc_constants.constants import YES, OTHER, NOT_APPLICABLE
 from edc_form_validators import FormValidator
 
 
@@ -10,6 +10,8 @@ class Covid9FormValidator(FormValidator):
             'date_of_test', 'is_test_estimated', 'reason_for_testing', 'result_of_test',
             'isolation_location', 'isolations_symptoms'
         ]
+
+
 
         for field in required_fields:
 
@@ -33,6 +35,8 @@ class Covid9FormValidator(FormValidator):
             self.required_if(YES,
                              field='has_tested_positive',
                              field_required=field)
+
+        self.m2m_single_selection_if(NOT_APPLICABLE, m2m_field='symptoms_for_past_14days')
 
         self._validations_if_fully_vaccinated()
 
