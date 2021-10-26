@@ -28,7 +28,7 @@ class Covid9FormValidator(FormValidator):
         self.validate_other_specify(field='isolation_location',
                                     other_specify_field='other_isolation_location')
 
-        required_fields = ['date_of_test_member', 'is_test_estimated', 'close_contact']
+        required_fields = ['date_of_test_member', 'close_contact']
 
         for field in required_fields:
 
