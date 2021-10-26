@@ -36,7 +36,10 @@ class Covid9FormValidator(FormValidator):
                              field='has_tested_positive',
                              field_required=field)
 
-        self.m2m_single_selection_if('no_symptoms', m2m_field='symptoms_for_past_14days')
+        single_selection_fields = ['isolations_symptoms', 'symptoms_for_past_14days']
+
+        for field in single_selection_fields:
+            self.m2m_single_selection_if('no_symptoms', m2m_field=field)
 
         self._validations_if_fully_vaccinated()
 
