@@ -8,27 +8,29 @@ class Covid9FormValidator(FormValidator):
 
         required_fields = [
             'date_of_test', 'is_test_estimated', 'reason_for_testing', 'result_of_test'
-            , 'isolations_symptoms'
         ]
 
         for field in required_fields:
+            self.required_if(YES,
+                             field='test_for_covid',
+                             field_required=field)
 
-            if field == 'isolations_symptoms':
-                self.m2m_required_if(YES,
-                                     field='test_for_covid',
-                                     m2m_field='isolations_symptoms')
-                continue
+        self.m2m_required_if(YES,
+                             field='test_for_covid',
+                             m2m_field='isolations_symptoms')
 
-            self.required_if(YES, field='test_for_covid', field_required=field)
-
-        self.required_if(POS, field='result_of_test', field_required='isolation_location')
+        self.required_if(POS,
+                         field='result_of_test',
+                         field_required='isolation_location')
 
         self.validate_other_specify(field='reason_for_testing',
                                     other_specify_field='other_reason_for_testing')
         self.validate_other_specify(field='isolation_location',
                                     other_specify_field='other_isolation_location')
 
-        self.required_if(YES, field='has_tested_positive', field_required='date_of_test_member')
+        self.required_if(YES,
+                         field='has_tested_positive',
+                         field_required='date_of_test_member')
 
         single_selection_fields = ['isolations_symptoms', 'symptoms_for_past_14days']
 
