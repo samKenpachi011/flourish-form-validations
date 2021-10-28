@@ -70,3 +70,5 @@ class Covid9FormValidator(FormValidator):
 
         self.validate_other_specify(field='vaccination_type',
                                     other_specify_field='other_vaccination_type')
+
+        self.not_required_if('partially_jab', field='fully_vaccinated', field_required='second_dose')
