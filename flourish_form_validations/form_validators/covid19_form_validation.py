@@ -58,19 +58,19 @@ class Covid19FormValidator(FormValidator):
                     'second_dose': 'Dates cannot be equal',
                 })
 
-        elif self.cleaned_data.get('fully_vaccinated') == 'partially_jab':
+        elif self.cleaned_data.get('fully_vaccinated') == 'partially_jab_or_one_jab':
 
             required_fields = ['vaccination_type', 'first_dose']
 
             for field in required_fields:
-                self.required_if('partially_jab',
+                self.required_if('partially_jab_or_one_jab',
                                  field='fully_vaccinated',
                                  field_required=field)
 
             self.validate_other_specify(field='vaccination_type',
                                         other_specify_field='other_vaccination_type')
 
-            self.not_required_if('partially_jab',
+            self.not_required_if('partially_jab_or_one_jab',
                                  field='fully_vaccinated',
                                  field_required='second_dose')
 
@@ -81,4 +81,4 @@ class Covid19FormValidator(FormValidator):
                                      field='fully_vaccinated',
                                      field_required=field)
 
-        return super(Covid9FormValidator, self).clean()
+        return super(Covid19FormValidator, self).clean()
