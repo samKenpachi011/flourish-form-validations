@@ -6,6 +6,7 @@ from django.core.exceptions import ValidationError
 from edc_base.utils import age, get_utcnow
 from edc_constants.choices import FEMALE, MALE, YES, NO, NOT_APPLICABLE
 from edc_form_validators import FormValidator
+from edc_form_validators.base_form_validator import NOT_APPLICABLE_ERROR
 
 
 class CaregiverChildConsentFormValidator(FormValidator):
@@ -42,12 +43,25 @@ class CaregiverChildConsentFormValidator(FormValidator):
                                   inverse=False)
 
         self.clean_full_name_syntax()
+        self.preg_not_required()
         self.validate_child_knows_status(cleaned_data=self.cleaned_data)
         self.validate_child_preg_test(cleaned_data=self.cleaned_data)
         self.validate_child_years_more_tha_12yrs_at_jun_2025(
             cleaned_data=self.cleaned_data)
         self.validate_identity_number(cleaned_data=self.cleaned_data)
         self.validate_previously_enrolled(cleaned_data=self.cleaned_data)
+
+    def preg_not_required(self):
+
+        not_preg_fields = ['child_preg_test', 'child_knows_status']
+
+        for field in not_preg_fields:
+
+            if not self.is_not_pregnant and self.cleaned_data.get(field) != NOT_APPLICABLE:
+                message = {field: 'This field is not applicable'}
+                self._errors.update(message)
+                self._error_codes.append(NOT_APPLICABLE_ERROR)
+                raise ValidationError(message, code=NOT_APPLICABLE_ERROR)
 
     def validate_previously_enrolled(self, cleaned_data):
         if cleaned_data.get('study_child_identifier'):
