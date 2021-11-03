@@ -17,8 +17,8 @@ class Covid19FormValidator(FormValidator):
                              field='test_for_covid',
                              field_required=field)
 
-        self.m2m_required_if(YES,
-                             field='test_for_covid',
+        self.m2m_required_if(POS,
+                             field='result_of_test',
                              m2m_field='isolations_symptoms')
 
         self.required_if(POS,
@@ -81,4 +81,4 @@ class Covid19FormValidator(FormValidator):
                                      field='fully_vaccinated',
                                      field_required=field)
 
-        return super(Covid19FormValidator, self).clean()
+        return super().clean()
