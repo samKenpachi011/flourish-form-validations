@@ -12,8 +12,12 @@ class CaregiverLocatorFormValidator(FormValidator):
     def maternal_dataset_model_cls(self):
         return django_apps.get_model(self.maternal_dataset_model)
 
+    @property
+    def caregiver_child_consent_model_cls(self):
+        return django_apps.get_model(self.caregiver_child_consent_model)
+
     def clean(self):
-        self.validate_names_against_dataset()
+        #self.validate_names_against_dataset()
         self.required_if(
             YES,
             field='may_visit_home',
