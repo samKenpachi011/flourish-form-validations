@@ -5,19 +5,26 @@ from django.core.exceptions import ValidationError
 from edc_base.utils import get_utcnow
 from edc_constants.constants import YES, NO
 from edc_form_validators.form_validator import FormValidator
+from flourish_child.models import ChildAssent
+from flourish_caregiver.models import SubjectConsent
 
 
 class CaregiverPrevEnrolledFormValidator(FormValidator):
-
     maternal_dataset_model = 'flourish_caregiver.maternaldataset'
 
     subject_consent_model = 'flourish_caregiver.subjectconsent'
 
     bhp_prior_screening_model = 'flourish_caregiver.screeningpriorbhpparticipants'
 
+    child_assent_model = 'flourish_child.childassent'
+
     @property
     def maternal_dataset_model_cls(self):
         return django_apps.get_model(self.maternal_dataset_model)
+
+    @property
+    def child_assent_cls(self):
+        return django_apps.get_model(self.child_assent_model)
 
     @property
     def subject_consent_model_cls(self):
@@ -29,18 +36,22 @@ class CaregiverPrevEnrolledFormValidator(FormValidator):
 
     def clean(self):
 
+        self.subject_identifier = self.cleaned_data.get('subject_identifier')
+
+        self.check_child_assent(self.subject_identifier)
+
         if (self.cleaned_data.get('maternal_prev_enroll') == YES and
                 self.bhp_prior_screening_obj.flourish_participation ==
                 'another_caregiver_interested'):
             message = {'maternal_prev_enroll':
-                       'Participant is not from any bhp prior studies'}
+                           'Participant is not from any bhp prior studies'}
             self._errors.update(message)
             raise ValidationError(message)
         elif (self.cleaned_data.get('maternal_prev_enroll') == NO and
               self.bhp_prior_screening_obj.flourish_participation ==
               'interested'):
             message = {'maternal_prev_enroll':
-                       'Participant is from a prior bhp study'}
+                           'Participant is from a prior bhp study'}
             self._errors.update(message)
             raise ValidationError(message)
 
@@ -79,7 +90,7 @@ class CaregiverPrevEnrolledFormValidator(FormValidator):
                     difference = get_utcnow().date() - relativedelta(months=3)
                     if test_date < difference:
                         msg = {'test_date':
-                               'HIV test date should not be older than 3months'}
+                                   'HIV test date should not be older than 3months'}
                         self._errors.update(msg)
                         raise ValidationError(msg)
 
@@ -137,3 +148,23 @@ class CaregiverPrevEnrolledFormValidator(FormValidator):
             return None
         else:
             return subject_consent
+
+    def check_child_assent(self, subject_identifier):
+
+        child_assents_exists = []
+
+        child_consents = self.subject_consent_model_cls.objects.get(
+            subject_identifier=subject_identifier).caregiverchildconsent_set \
+            .only('child_age_at_enrollment', 'is_eligible') \
+            .filter(is_eligible=True, child_age_at_enrollment__gte=7)
+        if child_consents.exists():
+
+            for child_consent in child_consents:
+                exists = self.child_assent_cls.objects.filter(
+                    subject_identifier=child_consent.subject_identifier).exists()
+                child_assents_exists.append(exists)
+
+            child_assents_exists = all(child_assents_exists)
+
+            if not child_assents_exists:
+                raise ValidationError('Please fill the child assent(s) form(s) first')
