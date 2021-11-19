@@ -156,7 +156,10 @@ class CaregiverPrevEnrolledFormValidator(FormValidator):
         child_consents = self.subject_consent_model_cls.objects.get(
             subject_identifier=subject_identifier).caregiverchildconsent_set \
             .only('child_age_at_enrollment', 'is_eligible') \
-            .filter(is_eligible=True, child_age_at_enrollment__gte=7, child_age_at_enrollment__lt=18)
+            .filter(is_eligible=True,
+                    child_age_at_enrollment__gte=7,
+                    child_age_at_enrollment__lt=18)
+
         if child_consents.exists():
 
             for child_consent in child_consents:
