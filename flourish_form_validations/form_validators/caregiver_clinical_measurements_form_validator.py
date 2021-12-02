@@ -1,4 +1,5 @@
 from django.core.exceptions import ValidationError
+from edc_constants.constants import YES
 from edc_form_validators import FormValidator
 
 from .crf_form_validator import CRFFormValidator
@@ -23,3 +24,8 @@ class CaregiverClinicalMeasurementsFormValidator(CRFFormValidator,
                        'diastolic blood pressure. Please correct.'}
                 self._errors.update(msg)
                 raise ValidationError(msg)
+
+        self.not_applicable_if(
+            YES,
+            field='is_preg',
+            field_applicable='waist_circ')
