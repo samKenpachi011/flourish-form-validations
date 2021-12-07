@@ -29,3 +29,8 @@ class CaregiverClinicalMeasurementsFormValidator(CRFFormValidator,
             YES,
             field='is_preg',
             field_applicable='waist_circ')
+
+        self.not_applicable_if(
+            YES,
+            field='is_preg',
+            field_applicable='hip_circ')

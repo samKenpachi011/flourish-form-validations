@@ -89,6 +89,7 @@ class TestCaregiverChildConsentForm(TestModeMixin, TestCase):
         self.assertRaises(ValidationError, form_validator.validate)
         self.assertIn('study_child_identifier', form_validator._errors)
 
+    @tag('tt1')
     def test_pregnant_not_required(self):
         SubjectScreening.objects.create(
             screening_identifier=self.screening_identifier)
