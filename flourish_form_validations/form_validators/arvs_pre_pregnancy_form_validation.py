@@ -7,11 +7,11 @@ from edc_form_validators import FormValidator
 
 from .crf_form_validator import CRFFormValidator
 from .form_validator_mixin import FlourishFormValidatorMixin
+from flourish_caregiver.models import MaternalDelivery
 
 
 class ArvsPrePregnancyFormValidator(CRFFormValidator, FlourishFormValidatorMixin,
                                     FormValidator):
-
     caregiver_consent_model = 'flourish_caregiver.subjectconsent'
     antenatal_enrollment_model = 'flourish_caregiver.antenatalenrollment'
 
@@ -28,11 +28,27 @@ class ArvsPrePregnancyFormValidator(CRFFormValidator, FlourishFormValidatorMixin
             'maternal_visit').subject_identifier
         super().clean()
 
+        self.validate_against_maternal_delivery()
         self.validate_prev_preg_art(cleaned_data=self.cleaned_data)
         self.validate_prior_preg(cleaned_data=self.cleaned_data)
         self.validate_maternal_consent(cleaned_data=self.cleaned_data)
         self.validate_hiv_test_date_antenatal_enrollment()
         self.validate_other_mother()
+
+    def validate_against_maternal_delivery(self):
+
+        subject_identifier = self.cleaned_data.get('maternal_visit').subject_identifier
+
+        import pdb; pdb.set_trace()
+
+        maternal_delivery_exists = MaternalDelivery.objects.filter(subject_identifier=subject_identifier)
+        if maternal_delivery_exists:
+            arv_initiation_date = maternal_delivery_exists.first().arv_initiation_date
+            art_start_date = self.cleaned_data.get('art_start_date', None)
+            if art_start_date and arv_initiation_date != art_start_date:
+                raise ValidationError({
+                    'art_start_date': 'The date should be the same with the date when '
+                                      'the participant initiate therapy for her pregnancy'})
 
     def validate_prev_preg_art(self, cleaned_data={}):
         art_start_date = cleaned_data.get('art_start_date')
@@ -45,7 +61,7 @@ class ArvsPrePregnancyFormValidator(CRFFormValidator, FlourishFormValidatorMixin
         if (cleaned_data.get('preg_on_art') == NO
                 and self.cleaned_data.get('prior_preg') in responses):
             msg = {'prior_preg': 'You indicated that the mother was NOT on'
-                   ' triple ARV when she got pregnant. Please correct.'}
+                                 ' triple ARV when she got pregnant. Please correct.'}
             self._errors.update(msg)
             raise ValidationError(msg)
 
@@ -64,14 +80,14 @@ class ArvsPrePregnancyFormValidator(CRFFormValidator, FlourishFormValidatorMixin
                     NOT_APPLICABLE in selected):
                 message = {
                     'prior_arv':
-                    'This field is applicable.'}
+                        'This field is applicable.'}
                 self._errors.update(message)
                 raise ValidationError(message)
             elif (self.cleaned_data.get('prior_preg') == NOT_APPLICABLE and
-                    NOT_APPLICABLE not in selected):
+                  NOT_APPLICABLE not in selected):
                 message = {
                     'prior_arv':
-                    'This field is not applicable.'}
+                        'This field is not applicable.'}
 
     def validate_other_mother(self):
         selections = [NOT_APPLICABLE]
@@ -98,7 +114,7 @@ class ArvsPrePregnancyFormValidator(CRFFormValidator, FlourishFormValidatorMixin
 
                 if cleaned_data.get('art_start_date') < maternal_consent.dob:
                     msg = {'art_start_date': 'Date of triple ARVs first '
-                           'started CANNOT be before DOB.'}
+                                             'started CANNOT be before DOB.'}
                     self._errors.update(msg)
                     raise ValidationError(msg)
             except self.caregiver_consent_model_cls.DoesNotExist:
@@ -118,10 +134,10 @@ class ArvsPrePregnancyFormValidator(CRFFormValidator, FlourishFormValidatorMixin
                 'Date of HIV test required, complete Antenatal Enrollment'
                 ' form before proceeding.')
         else:
-            if(self.cleaned_data.get('art_start_date') and
+            if (self.cleaned_data.get('art_start_date') and
                     self.cleaned_data.get('art_start_date') < antenatal_enrollment.week32_test_date):
                 msg = {'art_start_date':
-                       'ART start date cannot be before date of HIV test.'}
+                           'ART start date cannot be before date of HIV test.'}
                 self._errors.update(msg)
                 raise ValidationError(msg)
 
