@@ -39,8 +39,6 @@ class ArvsPrePregnancyFormValidator(CRFFormValidator, FlourishFormValidatorMixin
 
         subject_identifier = self.cleaned_data.get('maternal_visit').subject_identifier
 
-        import pdb; pdb.set_trace()
-
         maternal_delivery_exists = MaternalDelivery.objects.filter(subject_identifier=subject_identifier)
         if maternal_delivery_exists:
             arv_initiation_date = maternal_delivery_exists.first().arv_initiation_date
