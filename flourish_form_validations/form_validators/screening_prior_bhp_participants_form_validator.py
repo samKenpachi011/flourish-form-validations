@@ -8,6 +8,7 @@ class ScreeningPriorBhpParticipantsFormValidator(FormValidator):
     def clean(self):
         self.validate_child_alive()
         self.validate_participation()
+        self.validate_reason_not_to_participate()
 
     def validate_participation(self):
         cleaned_data = self.cleaned_data
@@ -31,6 +32,10 @@ class ScreeningPriorBhpParticipantsFormValidator(FormValidator):
             NO,
             field='child_alive',
             field_applicable='flourish_participation')
+
+    def validate_reason_not_to_participate(self):
+        self.applicable_if(NO, field='flourish_participation', field_applicable='reason_not_to_participate')
+
 
     def not_applicable_only(self, *responses, field=None, field_applicable=None):
         cleaned_data = self.cleaned_data
