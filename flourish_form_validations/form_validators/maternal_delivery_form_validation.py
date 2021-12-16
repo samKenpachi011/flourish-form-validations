@@ -48,6 +48,8 @@ class MaternalDeliveryFormValidator(CRFFormValidator, FlourishFormValidatorMixin
             condition,
             field_required='csection_reason'
         )
+
+        self.validate_against_maternal_delivery()
         self.validate_ultrasound(cleaned_data=self.cleaned_data)
         self.validate_initiation_date(cleaned_data=self.cleaned_data)
         self.validate_valid_regime_hiv_pos_only(cleaned_data=self.cleaned_data)
