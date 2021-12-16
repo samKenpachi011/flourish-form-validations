@@ -176,5 +176,5 @@ class MaternalDeliveryFormValidator(CRFFormValidator, FlourishFormValidatorMixin
         else:
             if pre_pregnancy and pre_pregnancy.art_start_date != self.cleaned_data.get('arv_initiation_date'):
                 raise ValidationError({
-                    'arv_initiation_date': 'The date should be the same with the date when '
-                                           'the participant initiate therapy for her pregnancy'})
+                    'arv_initiation_date': 'the date should be the same as - Date of triple antiretrovirals first'
+                                           ' started from the ARV Pre Pregnancy CRF'})
