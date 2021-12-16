@@ -12,7 +12,6 @@ from .form_validator_mixin import FlourishFormValidatorMixin
 
 class MaternalDeliveryFormValidator(CRFFormValidator, FlourishFormValidatorMixin,
                                     FormValidator):
-
     maternal_arv_model = 'flourish_caregiver.maternalarv'
     maternal_visit_model = 'flourish_caregiver.maternalvisit'
     ultrasound_model = 'flourish_caregiver.ultrasound'
@@ -31,8 +30,8 @@ class MaternalDeliveryFormValidator(CRFFormValidator, FlourishFormValidatorMixin
 
     def clean(self):
         self.subject_identifier = self.cleaned_data.get('subject_identifier')
-#         if self.instance and not self.instance.id:
-#             self.validate_offstudy_model()
+        #         if self.instance and not self.instance.id:
+        #             self.validate_offstudy_model()
 
         id = None
         if self.instance:
@@ -74,9 +73,9 @@ class MaternalDeliveryFormValidator(CRFFormValidator, FlourishFormValidatorMixin
             initiation_date = cleaned_data.get('arv_initiation_date')
             if initiation_date != maternal_arv.start_date:
                 message = {'arv_initiation_date':
-                           'ARV\'s initiation date must match start date '
-                           'in pregnancy form, pregnancy form start date is '
-                           f'{maternal_arv.start_date}, got {initiation_date}.'}
+                               'ARV\'s initiation date must match start date '
+                               'in pregnancy form, pregnancy form start date is '
+                               f'{maternal_arv.start_date}, got {initiation_date}.'}
                 self._errors.update(message)
                 raise ValidationError(message)
 
@@ -84,8 +83,8 @@ class MaternalDeliveryFormValidator(CRFFormValidator, FlourishFormValidatorMixin
         if self.maternal_status_helper.hiv_status == POS:
             if cleaned_data.get('valid_regiment_duration') != YES:
                 message = {'valid_regiment_duration':
-                           'Participant is HIV+ valid regimen duration '
-                           'should be YES. Please correct.'}
+                               'Participant is HIV+ valid regimen duration '
+                               'should be YES. Please correct.'}
                 self._errors.update(message)
                 raise ValidationError(message)
             self.required_if(
@@ -93,30 +92,30 @@ class MaternalDeliveryFormValidator(CRFFormValidator, FlourishFormValidatorMixin
                 field='valid_regiment_duration',
                 field_required='arv_initiation_date',
                 required_msg='You indicated participant was on valid regimen, '
-                'please give a valid arv initiation date.'
+                             'please give a valid arv initiation date.'
             )
             if (cleaned_data.get('valid_regiment_duration') == YES and
-                (cleaned_data.get('delivery_datetime').date() - relativedelta(weeks=4) <
-                 cleaned_data.get('arv_initiation_date'))):
+                    (cleaned_data.get('delivery_datetime').date() - relativedelta(weeks=4) <
+                     cleaned_data.get('arv_initiation_date'))):
                 message = {'delivery_datetime':
-                           'You indicated that the mother was on REGIMEN for a '
-                           'valid duration, but delivery date is within 4weeks '
-                           'of art initiation date. Please correct.'}
+                               'You indicated that the mother was on REGIMEN for a '
+                               'valid duration, but delivery date is within 4weeks '
+                               'of art initiation date. Please correct.'}
                 self._errors.update(message)
                 raise ValidationError(message)
         else:
             status = self.maternal_status_helper.hiv_status
             if cleaned_data.get('valid_regiment_duration') not in [NOT_APPLICABLE]:
                 message = {'valid_regiment_duration':
-                           f'Participant\'s HIV status is {status}, '
-                           'valid regimen duration should be Not Applicable.'}
+                               f'Participant\'s HIV status is {status}, '
+                               'valid regimen duration should be Not Applicable.'}
                 self._errors.update(message)
                 raise ValidationError(message)
 
             if cleaned_data.get('arv_initiation_date'):
                 message = {'arv_initiation_date':
-                           f'Participant\'s HIV status is {status}, '
-                           'arv initiation date should not filled.'}
+                               f'Participant\'s HIV status is {status}, '
+                               'arv initiation date should not filled.'}
                 self._errors.update(message)
                 raise ValidationError(message)
 
@@ -125,12 +124,12 @@ class MaternalDeliveryFormValidator(CRFFormValidator, FlourishFormValidatorMixin
         live_births = cleaned_data.get('live_infants_to_register')
         if still_births == 0 and live_births != 1:
             message = {'live_infants_to_register':
-                       'If still birth is 0 then live birth should be 1.'}
+                           'If still birth is 0 then live birth should be 1.'}
             self._errors.update(message)
             raise ValidationError(message)
         elif still_births == 1 and live_births != 0:
             message = {'still_births':
-                       'If live births is 1 then still birth should be 0.'}
+                           'If live births is 1 then still birth should be 0.'}
             self._errors.update(message)
             raise ValidationError(message)
 
@@ -169,12 +168,13 @@ class MaternalDeliveryFormValidator(CRFFormValidator, FlourishFormValidatorMixin
 
         subject_identifier = self.cleaned_data.get('subject_identifier')
 
-        pre_pregnancy_exists = ArvsPrePregnancy.objects.filter(
-            maternal_visit__appointment__subject_identifier=subject_identifier)
-
-        if pre_pregnancy_exists:
-            pre_pregnancy = pre_pregnancy_exists.first()
-            if pre_pregnancy.art_start_date != self.cleaned_data.get('arv_initiation_date'):
+        try:
+            pre_pregnancy = ArvsPrePregnancy.objects.get(
+                maternal_visit__appointment__subject_identifier=subject_identifier)
+        except ArvsPrePregnancy.DoesNotExist:
+            pass
+        else:
+            if pre_pregnancy and pre_pregnancy.art_start_date != self.cleaned_data.get('arv_initiation_date'):
                 raise ValidationError({
                     'arv_initiation_date': 'The date should be the same with the date when '
-                                      'the participant initiate therapy for her pregnancy'})
+                                           'the participant initiate therapy for her pregnancy'})
