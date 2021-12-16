@@ -4,6 +4,7 @@ from edc_base.utils import relativedelta
 from edc_constants.constants import POS, YES, NOT_APPLICABLE, OTHER, NONE
 from edc_form_validators import FormValidator
 from flourish_caregiver.helper_classes import MaternalStatusHelper
+from flourish_caregiver.models import ArvsPrePregnancy
 
 from .crf_form_validator import CRFFormValidator
 from .form_validator_mixin import FlourishFormValidatorMixin
@@ -161,3 +162,17 @@ class MaternalDeliveryFormValidator(CRFFormValidator, FlourishFormValidatorMixin
             raise ValidationError(
                 'Please complete previous visits before filling in '
                 'Maternal Labour Delivery Form.')
+
+    def validate_against_maternal_delivery(self):
+
+        subject_identifier = self.cleaned_data.get('subject_identifier')
+
+        pre_pregnancy_exists = ArvsPrePregnancy.objects.filter(
+            maternal_visit__appointment__subject_identifier=subject_identifier)
+
+        if pre_pregnancy_exists:
+            pre_pregnancy = pre_pregnancy_exists.first()
+            if pre_pregnancy.art_start_date != self.cleaned_data.get('arv_initiation_date'):
+                raise ValidationError({
+                    'arv_initiation_date': 'The date should be the same with the date when '
+                                      'the participant initiate therapy for her pregnancy'})

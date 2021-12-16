@@ -28,25 +28,12 @@ class ArvsPrePregnancyFormValidator(CRFFormValidator, FlourishFormValidatorMixin
             'maternal_visit').subject_identifier
         super().clean()
 
-        self.validate_against_maternal_delivery()
         self.validate_prev_preg_art(cleaned_data=self.cleaned_data)
         self.validate_prior_preg(cleaned_data=self.cleaned_data)
         self.validate_maternal_consent(cleaned_data=self.cleaned_data)
         self.validate_hiv_test_date_antenatal_enrollment()
         self.validate_other_mother()
 
-    def validate_against_maternal_delivery(self):
-
-        subject_identifier = self.cleaned_data.get('maternal_visit').subject_identifier
-
-        maternal_delivery_exists = MaternalDelivery.objects.filter(subject_identifier=subject_identifier)
-        if maternal_delivery_exists:
-            arv_initiation_date = maternal_delivery_exists.first().arv_initiation_date
-            art_start_date = self.cleaned_data.get('art_start_date', None)
-            if art_start_date and arv_initiation_date != art_start_date:
-                raise ValidationError({
-                    'art_start_date': 'The date should be the same with the date when '
-                                      'the participant initiate therapy for her pregnancy'})
 
     def validate_prev_preg_art(self, cleaned_data={}):
         art_start_date = cleaned_data.get('art_start_date')
