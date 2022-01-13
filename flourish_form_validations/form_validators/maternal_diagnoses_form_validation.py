@@ -1,7 +1,7 @@
 from flourish_caregiver.helper_classes import MaternalStatusHelper
 
 from django.core.exceptions import ValidationError
-from edc_constants.constants import YES, NOT_APPLICABLE, POS
+from edc_constants.constants import YES, NOT_APPLICABLE, POS, OTHER
 from edc_form_validators.form_validator import FormValidator
 
 
@@ -13,6 +13,25 @@ class MaternalDiagnosesFormValidator(FormValidator):
         # self.subject_identifier = self.cleaned_data.get(
         #     'maternal_visit').subject_identifier
         super().clean()
+
+        self.m2m_required(
+            m2m_field='diagnoses')
+
+        self.m2m_na_validation(
+            field='new_diagnoses',
+            m2m_field='diagnoses',
+            msg=('Participant has new diagnoses, '
+                 'please give a diagnosis'),
+            na_msg=('Participant has no new diagnoses, '
+                    'diagnosis should be N/A'))
+
+        self.m2m_other_specify(
+            OTHER,
+            m2m_field='diagnoses',
+            field_other='diagnoses_other')
+
+        self.m2m_required(
+            m2m_field='who')
 
         self.applicable_if_true(subject_status == POS,
                                 field_applicable='has_who_dx')
