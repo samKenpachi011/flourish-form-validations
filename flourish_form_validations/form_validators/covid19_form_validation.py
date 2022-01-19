@@ -17,8 +17,8 @@ class Covid19FormValidator(FormValidator):
                              field='test_for_covid',
                              field_required=field)
 
-        self.m2m_required_if(YES,
-                             field='test_for_covid',
+        self.m2m_required_if(POS,
+                             field='result_of_test',
                              m2m_field='isolations_symptoms')
 
         self.required_if(POS,
@@ -40,37 +40,56 @@ class Covid19FormValidator(FormValidator):
             self.m2m_single_selection_if('no_symptoms', m2m_field=field)
 
         if self.cleaned_data.get('fully_vaccinated') == YES:
-            required_fields = ['vaccination_type', 'first_dose', 'second_dose']
-            for field in required_fields:
-                self.required_if(YES,
-                                 field='fully_vaccinated',
-                                 field_required=field)
 
-            self.validate_other_specify(field='vaccination_type',
-                                        other_specify_field='other_vaccination_type')
-            first_dose = self.cleaned_data['first_dose']
-            second_dose = self.cleaned_data['second_dose']
-            if second_dose < first_dose:
-                raise ValidationError({'second_dose': 'Should be greater than the first date'})
-            elif second_dose == first_dose:
-                raise ValidationError({
-                    'first_dose': 'Dates cannot be equal',
-                    'second_dose': 'Dates cannot be equal',
-                })
+            if self.cleaned_data.get("vaccination_type") != "johnson_and_johnson":
+                required_fields = ['vaccination_type', 'first_dose', 'second_dose']
+                for field in required_fields:
+                    self.required_if(YES,
+                                     field='fully_vaccinated',
+                                     field_required=field)
 
-        elif self.cleaned_data.get('fully_vaccinated') == 'partially_jab_or_one_jab':
+                self.validate_other_specify(field='vaccination_type',
+                                            other_specify_field='other_vaccination_type')
+                first_dose = self.cleaned_data['first_dose']
+                second_dose = self.cleaned_data['second_dose']
+                if second_dose < first_dose:
+                    raise ValidationError({'second_dose': 'Should be greater than the first date'})
+                elif second_dose == first_dose:
+                    raise ValidationError({
+                        'first_dose': 'Dates cannot be equal',
+                        'second_dose': 'Dates cannot be equal',
+                    })
+
+            else:
+                required_fields = ['vaccination_type', 'first_dose']
+                for field in required_fields:
+                    self.required_if(YES,
+                                     field='fully_vaccinated',
+                                     field_required=field)
+
+                not_required = ['other_vaccination_type', 'second_dose']
+
+                for field in not_required:
+                    self.not_required_if(
+                        'johnson_and_johnson',
+                        field='vaccination_type',
+                        field_required=field
+                    )
+
+
+        elif self.cleaned_data.get('fully_vaccinated') == 'partially_jab':
 
             required_fields = ['vaccination_type', 'first_dose']
 
             for field in required_fields:
-                self.required_if('partially_jab_or_one_jab',
+                self.required_if('partially_jab',
                                  field='fully_vaccinated',
                                  field_required=field)
 
             self.validate_other_specify(field='vaccination_type',
                                         other_specify_field='other_vaccination_type')
 
-            self.not_required_if('partially_jab_or_one_jab',
+            self.not_required_if('partially_jab',
                                  field='fully_vaccinated',
                                  field_required='second_dose')
 
@@ -81,4 +100,4 @@ class Covid19FormValidator(FormValidator):
                                      field='fully_vaccinated',
                                      field_required=field)
 
-        return super(Covid19FormValidator, self).clean()
+        return super().clean()

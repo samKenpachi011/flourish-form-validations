@@ -32,10 +32,26 @@ class FlourishFormValidatorMixin:
         try:
             consent = self.caregiver_consent_cls.objects.get(
                 subject_identifier=self.subject_identifier,
-                version='1')
+                version=self.consent_version)
         except self.caregiver_consent_cls.DoesNotExist:
                 raise ValidationError(
                     'Please complete Caregiver Consent form '
                     f'before proceeding.')
         else:
             return consent
+
+    @property
+    def consent_version_cls(self):
+        return django_apps.get_model('flourish_caregiver.flourishconsentversion')
+
+    @property
+    def consent_version(self):
+        version = '1'
+        try:
+            consent_version_obj = self.consent_version_cls.objects.get(
+                screening_identifier=self.screening_identifier)
+        except self.consent_version_cls.DoesNotExist:
+            pass
+        else:
+            version = consent_version_obj.version
+        return version

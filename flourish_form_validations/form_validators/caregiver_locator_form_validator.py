@@ -17,7 +17,6 @@ class CaregiverLocatorFormValidator(FormValidator):
         return django_apps.get_model(self.caregiver_child_consent_model)
 
     def clean(self):
-        #self.validate_names_against_dataset()
         self.required_if(
             YES,
             field='may_visit_home',
@@ -94,23 +93,6 @@ class CaregiverLocatorFormValidator(FormValidator):
                 field='has_caretaker',
                 field_required=not_required,
                 inverse=False)
-
-    def validate_names_against_dataset(self):
-        cleaned_data = self.cleaned_data
-        dataset = self.maternal_dataset_obj
-        if dataset:
-            first_name = cleaned_data.get('first_name')
-            last_name = cleaned_data.get('last_name')
-            if dataset.first_name and first_name != dataset.first_name:
-                message = {'first_name':
-                           f'First name does not match {dataset.first_name} from dataset.'}
-                self._errors.update(message)
-                raise ValidationError(message)
-            if dataset.last_name and last_name != dataset.last_name:
-                message = {'last_name':
-                           f'Last name does not match {dataset.last_name} from dataset.'}
-                self._errors.update(message)
-                raise ValidationError(message)
 
     @property
     def maternal_dataset_obj(self):
