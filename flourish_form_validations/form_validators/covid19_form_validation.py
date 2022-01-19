@@ -9,7 +9,8 @@ class Covid19FormValidator(FormValidator):
     def clean(self):
 
         required_fields = [
-            'date_of_test', 'is_test_estimated', 'reason_for_testing', 'result_of_test'
+            'date_of_test', 'is_test_estimated', 'reason_for_testing',
+            'result_of_test'
         ]
 
         for field in required_fields:
@@ -34,15 +35,18 @@ class Covid19FormValidator(FormValidator):
                          field='has_tested_positive',
                          field_required='date_of_test_member')
 
-        single_selection_fields = ['isolations_symptoms', 'symptoms_for_past_14days']
+        single_selection_fields = ['isolations_symptoms',
+                                   'symptoms_for_past_14days']
 
         for field in single_selection_fields:
             self.m2m_single_selection_if('no_symptoms', m2m_field=field)
 
         if self.cleaned_data.get('fully_vaccinated') == YES:
 
-            if self.cleaned_data.get("vaccination_type") != "johnson_and_johnson":
-                required_fields = ['vaccination_type', 'first_dose', 'second_dose']
+            if self.cleaned_data.get(
+                    "vaccination_type") != "johnson_and_johnson":
+                required_fields = ['vaccination_type', 'first_dose',
+                                   'second_dose']
                 for field in required_fields:
                     self.required_if(YES,
                                      field='fully_vaccinated',
@@ -53,7 +57,8 @@ class Covid19FormValidator(FormValidator):
                 first_dose = self.cleaned_data['first_dose']
                 second_dose = self.cleaned_data['second_dose']
                 if second_dose < first_dose:
-                    raise ValidationError({'second_dose': 'Should be greater than the first date'})
+                    raise ValidationError({
+                                              'second_dose': 'Should be greater than the first date'})
                 elif second_dose == first_dose:
                     raise ValidationError({
                         'first_dose': 'Dates cannot be equal',
@@ -94,7 +99,8 @@ class Covid19FormValidator(FormValidator):
                                  field_required='second_dose')
 
         else:
-            not_required_fields = ['vaccination_type', 'other_vaccination_type', 'first_dose', 'second_dose']
+            not_required_fields = ['vaccination_type', 'other_vaccination_type',
+                                   'first_dose', 'second_dose']
             for field in not_required_fields:
                 self.not_required_if(NO,
                                      field='fully_vaccinated',

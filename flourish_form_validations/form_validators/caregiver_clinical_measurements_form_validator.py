@@ -25,7 +25,12 @@ class CaregiverClinicalMeasurementsFormValidator(CRFFormValidator,
                 self._errors.update(msg)
                 raise ValidationError(msg)
 
-        self.not_applicable_if(
+        self.not_required_if(
             YES,
             field='is_preg',
-            field_applicable='waist_circ')
+            field_required='waist_circ')
+
+        self.not_required_if(
+            YES,
+            field='is_preg',
+            field_required='hip_circ')
