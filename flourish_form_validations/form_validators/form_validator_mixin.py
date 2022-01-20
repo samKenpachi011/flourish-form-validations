@@ -7,10 +7,15 @@ class FlourishFormValidatorMixin:
 
     antenatal_enrollment_model = 'flourish_caregiver.antenatalenrollment'
     caregiver_consent_model = 'flourish_caregiver.subjectconsent'
+    screening_preg_women_model = 'flourish_caregiver.screeningpregwomen'
 
     @property
     def antenatal_enrollment_cls(self):
         return django_apps.get_model(self.antenatal_enrollment_model)
+
+    @property
+    def screening_preg_women_cls(self):
+        return django_apps.get_model(self.screening_preg_women_model)
 
     @property
     def caregiver_consent_cls(self):
@@ -46,12 +51,22 @@ class FlourishFormValidatorMixin:
 
     @property
     def consent_version(self):
-        version = '1'
+        version = '2'
         try:
             consent_version_obj = self.consent_version_cls.objects.get(
-                screening_identifier=self.screening_identifier)
+                screening_identifier=self.screening_obj.screening_identifier)
         except self.consent_version_cls.DoesNotExist:
             pass
         else:
             version = consent_version_obj.version
         return version
+
+    @property
+    def screening_obj(self):
+        try:
+            screening_obj = self.caregiver_consent_cls.objects.get(
+                 subject_identifier=self.subject_identifier,)
+        except self.screening_preg_women_cls.DoesNotExist:
+            pass
+        else:
+            return screening_obj
