@@ -14,10 +14,10 @@ class TestChildHospitalization(TestModeMixin, TestCase):
         super().__init__(ChildHospitalizationFormValidations, *args, **kwargs)
 
     def test_hospitalization_number(self):
-        '''
+        """
         Raise an error if the hospitalisation number is entered when
         the participant was not hospitalized
-        '''
+        """
 
         cleaned_data = {
             'hospitalized': NO,
