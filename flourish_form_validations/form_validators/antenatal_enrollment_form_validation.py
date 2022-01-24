@@ -81,7 +81,7 @@ class AntenatalEnrollmentFormValidator(CRFFormValidator,
         report_datetime = cleaned_data.get('report_datetime')
 
         if last_period_date and (
-                last_period_date < (
+                last_period_date > (
                 report_datetime.date() - relativedelta(weeks=16))):
             message = {'last_period_date':
                            'LMP cannot be less than 16 weeks of report datetime. '
