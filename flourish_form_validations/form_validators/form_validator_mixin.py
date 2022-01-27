@@ -51,22 +51,21 @@ class FlourishFormValidatorMixin:
 
     @property
     def consent_version(self):
-        version = '2'
+        version = None
         try:
             consent_version_obj = self.consent_version_cls.objects.get(
                 screening_identifier=self.screening_obj.screening_identifier)
         except self.consent_version_cls.DoesNotExist:
-            pass
+            version = '1'
         else:
             version = consent_version_obj.version
         return version
 
     @property
     def screening_obj(self):
-        try:
-            screening_obj = self.caregiver_consent_cls.objects.get(
-                 subject_identifier=self.subject_identifier,)
-        except self.screening_preg_women_cls.DoesNotExist:
-            pass
-        else:
-            return screening_obj
+        screening_obj = self.caregiver_consent_cls.objects.filter(
+                 subject_identifier=self.subject_identifier)
+        if screening_obj.count() > 0:
+            return screening_obj[0]
+        return None
+
