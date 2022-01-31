@@ -119,38 +119,6 @@ class TestObstericalHistoryForm(TestCase):
             cleaned_data=cleaned_data)
         form_validator.validate()
 
-    def test_sum_pregs_lost_before_and_current_preg_sum_not_equal(self):
-        '''Asserts raises exception if the sum of pregnancies 24 weeks or more
-        and pregnancies lost before 24 weeks is not equals to the value of
-        previous pregnancies.'''
-
-        cleaned_data = {
-            'maternal_visit': self.maternal_visit,
-            'prev_pregnancies': 2,
-            'pregs_24wks_or_more': 1,
-            'lost_before_24wks': 2,
-            'lost_after_24wks': 1}
-        form_validator = ObstericalHistoryFormValidator(
-            cleaned_data=cleaned_data)
-        self.assertRaises(ValidationError, form_validator.validate)
-
-    def test_sum_pregs_lost_before_and_current_preg_sum_equal(self):
-        '''Tests if cleaned data validates or fails tests if exception
-        is raised unexpectedly.'''
-
-        cleaned_data = {
-            'maternal_visit': self.maternal_visit,
-            'prev_pregnancies': 3,
-            'pregs_24wks_or_more': 1,
-            'lost_before_24wks': 2,
-            'lost_after_24wks': 1}
-        form_validator = ObstericalHistoryFormValidator(
-            cleaned_data=cleaned_data)
-        try:
-            form_validator.validate()
-        except ValidationError as e:
-            self.fail(f'ValidationError unexpectedly raised. Got{e}')
-
     def test_pregs_24wks_less_than_lost_after(self):
         '''Asserts raises exception if pregnancies 24 weeks or more
         is less than pregnancies lost before 24 weeks.'''
