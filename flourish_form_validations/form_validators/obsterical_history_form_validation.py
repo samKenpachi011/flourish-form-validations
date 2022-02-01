@@ -1,10 +1,8 @@
 from re import sub
-from turtle import pd
 from django.apps import apps as django_apps
 from django.core.exceptions import ValidationError
 from edc_form_validators.form_validator import FormValidator
 from .crf_form_validator import CRFFormValidator
-from flourish_caregiver.models import UltraSound
 
 class ObstericalHistoryFormValidator(CRFFormValidator, FormValidator):
     ultrasound_model = 'flourish_caregiver.ultrasound'
@@ -32,11 +30,13 @@ class ObstericalHistoryFormValidator(CRFFormValidator, FormValidator):
         visit_code = maternal_visit.visit_code
 
         try:
+
             self.ultrasound_model_cls.objects.get(
                 maternal_visit__subject_identifier=subject_identifier, 
                 maternal_visit__visit_code=visit_code)
 
         except self.ultrasound_model_cls.DoesNotExist:
+
             raise ValidationError('Please fill the ultrasound CRF first')
 
         
