@@ -35,7 +35,6 @@ class AntenatalEnrollmentFormValidator(CRFFormValidator,
             field_required='rapid_test_result'
         )
 
-        self.validate_last_period_date(cleaned_data=self.cleaned_data)
 
         id = self.instance.id if self.instance else None
 
@@ -73,29 +72,5 @@ class AntenatalEnrollmentFormValidator(CRFFormValidator,
             message = {'current_hiv_status':
                            'Participant has previously tested for HIV. Current '
                            'HIV status cannot be unknown or never tested.'}
-            self._errors.update(message)
-            raise ValidationError(message)
-
-    def validate_last_period_date(self, cleaned_data=None):
-        last_period_date = cleaned_data.get('last_period_date')
-        report_datetime = cleaned_data.get('report_datetime')
-
-        if last_period_date and (
-                last_period_date > (
-                report_datetime.date() - relativedelta(weeks=16))):
-            message = {'last_period_date':
-                           'LMP cannot be less than 16 weeks of report datetime. '
-                           f'Got LMP as {last_period_date} and report datetime as '
-                           f'{report_datetime}'}
-            self._errors.update(message)
-            raise ValidationError(message)
-
-        elif last_period_date and (
-                last_period_date < (
-                    report_datetime.date() - relativedelta(weeks=30))):
-            message = {'last_period_date':
-                           'LMP cannot be more than 30 weeks of report datetime. '
-                           f'Got LMP as {last_period_date} and report datetime as '
-                           f'{report_datetime}'}
             self._errors.update(message)
             raise ValidationError(message)
