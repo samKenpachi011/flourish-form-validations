@@ -65,11 +65,28 @@ class ObstericalHistoryFormValidator(CRFFormValidator, FormValidator):
         prev_pregnancies = cleaned_data.get('prev_pregnancies')
         pregs_24wks_or_more = cleaned_data.get('pregs_24wks_or_more')
         lost_before_24wks = cleaned_data.get('lost_before_24wks')
+        maternal_visit = cleaned_data.get('maternal_visit')
+        subject_identifier = maternal_visit.subject_identifier
+        visit_code = maternal_visit.visit_code
 
-        if prev_pregnancies > 1:
-            if pregs_24wks_or_more < lost_before_24wks:
+        if  prev_pregnancies > 1:
+
+            ultrasound_obj = self.ultrasound_model_cls.objects.get(
+                    maternal_visit__subject_identifier=subject_identifier,
+                    maternal_visit__visit_code=visit_code)
+
+
+            if ultrasound_obj.ga_by_ultrasound_wks  < 24:
+
+                sum_pregs = pregs_24wks_or_more + lost_before_24wks
+                if sum_pregs != prev_pregnancies:
+                    raise ValidationError(
+                            'Total pregnancies should be equal to sum of pregancies'
+                            ' lost and current')
+            elif pregs_24wks_or_more < lost_before_24wks:
+                
                 message = {'pregs_24wks_or_more':
-                           'Sum of pregnancies more than 24 weeks should NOT be'
-                           ' less than those lost'}
+                            'Sum of pregnancies more than 24 weeks should NOT be'
+                            ' less than those lost'}
                 self._errors.update(message)
                 raise ValidationError(message)
