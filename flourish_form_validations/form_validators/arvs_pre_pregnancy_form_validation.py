@@ -7,6 +7,7 @@ from edc_form_validators import FormValidator
 
 from .crf_form_validator import CRFFormValidator
 from .form_validator_mixin import FlourishFormValidatorMixin
+from flourish_caregiver.models import MaternalDelivery
 
 
 class ArvsPrePregnancyFormValidator(CRFFormValidator, FlourishFormValidatorMixin,
