@@ -186,7 +186,7 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin,
         fields = ['breastfeed_intent', 'hiv_testing']
         for field in fields:
             self.applicable_if_true(
-                self.preg_women_screening is not None,
+                self.preg_women_screening is not None and not self.bhp_prior_screening,
                 field_applicable=field)
 
     def validate_identity_number(self, cleaned_data=None):
@@ -269,7 +269,7 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin,
                           f'recruited from as you already indicated {clinic}')
         )
 
-        if (self.preg_women_screening
+        if (self.preg_women_screening and not self.bhp_prior_screening
                 and self.cleaned_data.get('recruitment_clinic') == 'Prior'):
             message = {'recruitment_clinic':
                        'Participant is pregnant, cannot be from prior BHP Study.'}

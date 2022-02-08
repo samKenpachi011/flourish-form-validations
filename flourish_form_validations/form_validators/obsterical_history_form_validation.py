@@ -84,3 +84,22 @@ class ObstericalHistoryFormValidator(CRFFormValidator, FormValidator):
                         {cleaned_data.get("prev_pregnancies")}, {field} should be zero'}
                     self._errors.update(message)
                     raise ValidationError(message)
+
+    def validate_ultrasound(self, cleaned_data=None):
+        ultrasound = self.maternal_ultrasound_cls.objects.filter(
+            maternal_visit=cleaned_data.get('maternal_visit'))
+        if not ultrasound:
+            message = 'Please complete ultrasound form first'
+            raise ValidationError(message)
+
+        if (cleaned_data.get('prev_pregnancies') == 1 and
+                ultrasound[0].ga_confirmed < 24):
+            fields = ['pregs_24wks_or_more',
+                      'lost_before_24wks', 'lost_after_24wks']
+            for field in fields:
+                if (field in cleaned_data and
+                        cleaned_data.get(field) != 0):
+                    message = {field: f'You indicated previous pregnancies were \
+                        {cleaned_data.get("prev_pregnancies")}, {field} should be zero'}
+                    self._errors.update(message)
+                    raise ValidationError(message)

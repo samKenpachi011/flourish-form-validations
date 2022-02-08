@@ -47,6 +47,37 @@ class TestObstericalHistoryForm(TestCase):
         except ValidationError as e:
             self.fail(f'ValidationError unexpectedly raised. Got{e}')
 
+    def test_prev_preg_one_pregs_24wks_or_more_not_one_lost(self):
+        '''Asserts raises exception if previous pregnancies is 1
+        and and the value of pregnancies 24 weeks or more is not 0.'''
+
+        cleaned_data = {
+            'maternal_visit': self.maternal_visit,
+            'prev_pregnancies': 3,
+            'pregs_24wks_or_more': 3,
+            'lost_before_24wks': 0,
+            'lost_after_24wks': 1,
+            'live_children': 2}
+        form_validator = ObstericalHistoryFormValidator(
+            cleaned_data=cleaned_data)
+        try:
+            form_validator.validate()
+        except ValidationError as e:
+            self.fail(f'ValidationError unexpectedly raised. Got{e}')
+
+    def test_prev_preg_one_pregs_24wks_or_more_not_zero(self):
+        '''Asserts raises exception if previous pregnancies is 1
+        and and the value of pregnancies 24 weeks or more is not 0.'''
+
+        cleaned_data = {
+            'maternal_visit': self.maternal_visit,
+            'prev_pregnancies': 1,
+            'pregs_24wks_or_more': 3}
+        form_validator = ObstericalHistoryFormValidator(
+            cleaned_data=cleaned_data)
+        self.assertRaises(ValidationError, form_validator.validate)
+        self.assertIn('pregs_24wks_or_more', form_validator._errors)
+
     def test_lost_after_24wks_valid(self):
         '''Asserts raises exception if previous pregnancies is 1
         and and the value of pregnancies 24 weeks or more is not 0.'''
