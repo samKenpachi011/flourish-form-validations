@@ -26,8 +26,7 @@ class ObstericalHistoryFormValidator(CRFFormValidator, FormValidator):
                         cleaned_data.get('children_deliv_aftr_37wks'),
                         cleaned_data.get('lost_before_24wks'),
                         cleaned_data.get('lost_after_24wks')]:
-            import pdb
-            pdb.set_trace()
+                        
             sum_deliv_37_wks = \
                 (cleaned_data.get('children_deliv_before_37wks') +
                  cleaned_data.get('children_deliv_aftr_37wks'))
