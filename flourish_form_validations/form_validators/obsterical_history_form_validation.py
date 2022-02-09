@@ -70,32 +70,33 @@ class ObstericalHistoryFormValidator(CRFFormValidator, FormValidator):
                     raise ValidationError(message)
 
     def validate_ultrasound(self, cleaned_data=None):
-        ultrasound = self.maternal_ultrasound_cls.objects.filter(
-            maternal_visit=cleaned_data.get('maternal_visit'))
 
-        prev_pregnancies = cleaned_data.get('prev_pregnancies')
-        pregs_24wks_or_more = cleaned_data.get('pregs_24wks_or_more')
 
-        if not ultrasound:
+        try:
+            ultrasound = self.maternal_ultrasound_cls.objects.filter(
+                maternal_visit=cleaned_data.get('maternal_visit'))
+        except self.maternal_ultrasound_cls.DoesNotExist:
             message = 'Please complete ultrasound form first'
             raise ValidationError(message)
+        else:
+            prev_pregnancies = cleaned_data.get('prev_pregnancies')
 
-        if (prev_pregnancies == 1 and
-                ultrasound[0].ga_confirmed < 24):
+            if (prev_pregnancies == 1 and
+                    ultrasound.ga_confirmed < 24):
 
-            fields = ['pregs_24wks_or_more',
-                      'lost_before_24wks', 'lost_after_24wks']
+                fields = ['pregs_24wks_or_more',
+                        'lost_before_24wks', 'lost_after_24wks']
 
-            for field in fields:
-                if (field in cleaned_data and
-                        cleaned_data.get(field) != 0):
-                    message = {field: f'You indicated previous pregnancies were \
-                        {prev_pregnancies}, {field} should be zero'}
-                    self._errors.update(message)
-                    raise ValidationError(message)
+                for field in fields:
+                    if (field in cleaned_data and
+                            cleaned_data.get(field) != 0):
+                        message = {field: f'You indicated previous pregnancies were \
+                            {prev_pregnancies}, {field} should be zero'}
+                        self._errors.update(message)
+                        raise ValidationError(message)
 
-        elif ultrasound[0].ga_by_ultrasound_wks > 24:
-            fields = ['prev_pregnancies', 'pregs_24wks_or_more']
-            for field in fields:
-                if cleaned_data.get(field) == 0:
-                    raise ValidationError({field: 'Cannot be zero'})
+            elif ultrasound.ga_by_ultrasound_wks > 24:
+                fields = ['prev_pregnancies', 'pregs_24wks_or_more']
+                for field in fields:
+                    if cleaned_data.get(field) == 0:
+                        raise ValidationError({field: 'Cannot be zero'})
