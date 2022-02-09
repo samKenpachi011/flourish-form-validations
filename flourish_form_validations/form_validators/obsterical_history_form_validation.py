@@ -80,8 +80,7 @@ class ObstericalHistoryFormValidator(CRFFormValidator, FormValidator):
         else:
             prev_pregnancies = cleaned_data.get('prev_pregnancies')
 
-            if (prev_pregnancies == 1 and
-                    ultrasound.ga_confirmed < 24):
+            if prev_pregnancies == 1:
 
                 fields = ['pregs_24wks_or_more',
                         'lost_before_24wks', 'lost_after_24wks']
