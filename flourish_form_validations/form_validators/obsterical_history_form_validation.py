@@ -4,8 +4,10 @@ from django.core.exceptions import ValidationError
 from edc_form_validators.form_validator import FormValidator
 from .crf_form_validator import CRFFormValidator
 
+
 class ObstericalHistoryFormValidator(CRFFormValidator, FormValidator):
     ultrasound_model = 'flourish_caregiver.ultrasound'
+
     @property
     def maternal_ultrasound_cls(self):
         return django_apps.get_model(self.ultrasound_model)
@@ -24,7 +26,7 @@ class ObstericalHistoryFormValidator(CRFFormValidator, FormValidator):
                         cleaned_data.get('children_deliv_aftr_37wks'),
                         cleaned_data.get('lost_before_24wks'),
                         cleaned_data.get('lost_after_24wks')]:
-
+                        
             sum_deliv_37_wks = \
                 (cleaned_data.get('children_deliv_before_37wks') +
                  cleaned_data.get('children_deliv_aftr_37wks'))
@@ -53,10 +55,10 @@ class ObstericalHistoryFormValidator(CRFFormValidator, FormValidator):
 
                 previous_pregs = (cleaned_data.get('prev_pregnancies'))
 
-                if (sum_pregs != previous_pregs):
-                    raise ValidationError('Total pregnancies should be '
-                                          'equal to sum of pregancies '
-                                          'lost and current')
+                # if (sum_pregs != previous_pregs):
+                #     raise ValidationError('Total pregnancies should be '
+                #                           'equal to sum of pregancies '
+                #                           'lost and current')
 
                 if (cleaned_data.get('pregs_24wks_or_more') <
                         cleaned_data.get('lost_after_24wks')):
@@ -67,20 +69,33 @@ class ObstericalHistoryFormValidator(CRFFormValidator, FormValidator):
                     raise ValidationError(message)
 
     def validate_ultrasound(self, cleaned_data=None):
-        ultrasound = self.maternal_ultrasound_cls.objects.filter(
-            maternal_visit=cleaned_data.get('maternal_visit'))
-        if not ultrasound:
+
+
+        try:
+            ultrasound = self.maternal_ultrasound_cls.objects.filter(
+                maternal_visit=cleaned_data.get('maternal_visit'))
+        except self.maternal_ultrasound_cls.DoesNotExist:
             message = 'Please complete ultrasound form first'
             raise ValidationError(message)
+        else:
+            prev_pregnancies = cleaned_data.get('prev_pregnancies')
 
-        if (cleaned_data.get('prev_pregnancies') == 1 and
-                ultrasound[0].ga_confirmed < 24):
-            fields = ['pregs_24wks_or_more',
-                      'lost_before_24wks', 'lost_after_24wks']
-            for field in fields:
-                if (field in cleaned_data and
-                        cleaned_data.get(field) != 0):
-                    message = {field: f'You indicated previous pregnancies were \
-                        {cleaned_data.get("prev_pregnancies")}, {field} should be zero'}
-                    self._errors.update(message)
-                    raise ValidationError(message)
+            if (prev_pregnancies == 1 and
+                    ultrasound.ga_confirmed < 24):
+
+                fields = ['pregs_24wks_or_more',
+                        'lost_before_24wks', 'lost_after_24wks']
+
+                for field in fields:
+                    if (field in cleaned_data and
+                            cleaned_data.get(field) != 0):
+                        message = {field: f'You indicated previous pregnancies were \
+                            {prev_pregnancies}, {field} should be zero'}
+                        self._errors.update(message)
+                        raise ValidationError(message)
+
+            elif ultrasound.ga_by_ultrasound_wks > 24:
+                fields = ['prev_pregnancies', 'pregs_24wks_or_more']
+                for field in fields:
+                    if cleaned_data.get(field) == 0:
+                        raise ValidationError({field: 'Cannot be zero'})
