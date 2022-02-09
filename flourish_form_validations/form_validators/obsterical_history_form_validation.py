@@ -61,7 +61,7 @@ class ObstericalHistoryFormValidator(CRFFormValidator, FormValidator):
                 #                           'lost and current')
 
                 if (cleaned_data.get('pregs_24wks_or_more') <
-                        cleaned_data.get('losafter_24wks')):
+                        cleaned_data.get('lost_after_24wks')):
                     message = {'pregs_24wks_or_more':
                                'Sum of Pregnancies more than 24 weeks should be '
                                'less than those lost'}
