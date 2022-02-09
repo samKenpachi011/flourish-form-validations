@@ -61,7 +61,7 @@ class ObstericalHistoryFormValidator(CRFFormValidator, FormValidator):
                 #                           'lost and current')
 
                 if (cleaned_data.get('pregs_24wks_or_more') <
-                        cleaned_data.get('lost_after_24wks')):
+                        cleaned_data.get('losafter_24wks')):
                     message = {'pregs_24wks_or_more':
                                'Sum of Pregnancies more than 24 weeks should be '
                                'less than those lost'}
@@ -70,17 +70,23 @@ class ObstericalHistoryFormValidator(CRFFormValidator, FormValidator):
 
     def validate_ultrasound(self, cleaned_data=None):
 
+        maternal_visit = cleaned_data.get('maternal_visit')
+        subject_identifier = maternal_visit.subject_identifier
 
         try:
+
             ultrasound = self.maternal_ultrasound_cls.objects.get(
-                maternal_visit=cleaned_data.get('maternal_visit'))
+                maternal_visit__subject_identifier=subject_identifier,
+                maternal_visit=maternal_visit)
+
         except self.maternal_ultrasound_cls.DoesNotExist:
             message = 'Please complete ultrasound form first'
             raise ValidationError(message)
         else:
             prev_pregnancies = cleaned_data.get('prev_pregnancies')
 
-            if prev_pregnancies == 1:
+            if (prev_pregnancies == 1 and
+                    ultrasound.ga_confirmed < 24):
 
                 fields = ['pregs_24wks_or_more',
                         'lost_before_24wks', 'lost_after_24wks']
