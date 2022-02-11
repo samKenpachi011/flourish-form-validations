@@ -5,8 +5,6 @@ from django.core.exceptions import ValidationError
 from edc_base.utils import get_utcnow
 from edc_constants.constants import YES, NO
 from edc_form_validators.form_validator import FormValidator
-from flourish_child.models import ChildAssent
-from flourish_caregiver.models import SubjectConsent
 
 
 class CaregiverPrevEnrolledFormValidator(FormValidator):

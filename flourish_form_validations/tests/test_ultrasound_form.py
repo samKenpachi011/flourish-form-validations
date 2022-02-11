@@ -1,12 +1,13 @@
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
-from django.test import TestCase
+from django.test import TestCase, tag
 from edc_base.utils import get_utcnow
-from ..form_validators import UltrasoundFormValidator
 
 from .models import SubjectConsent, MaternalVisit, Appointment
+from ..form_validators import UltrasoundFormValidator
 
 
+@tag('bpd')
 class TestUltrasoundForm(TestCase):
 
     def setUp(self):
@@ -108,6 +109,22 @@ class TestUltrasoundForm(TestCase):
             'ga_by_ultrasound_wks': 35,
             'report_datetime': get_utcnow()
         }
+        form_validator = UltrasoundFormValidator(
+            cleaned_data=cleaned_data)
+        try:
+            form_validator.validate()
+        except ValidationError as e:
+            self.fail(f'ValidationError unexpectedly raised. Got{e}')
+
+    def test_bpd(self):
+        """
+        check if bpd value allows for values below 5
+        """
+        cleaned_data = {
+            'maternal_visit': self.maternal_visit,
+            'bpd': 2,
+        }
+
         form_validator = UltrasoundFormValidator(
             cleaned_data=cleaned_data)
         try:
