@@ -4,7 +4,6 @@ from edc_base.utils import relativedelta
 from edc_constants.constants import POS, YES, NOT_APPLICABLE, OTHER, NONE
 from edc_form_validators import FormValidator
 from flourish_caregiver.helper_classes import MaternalStatusHelper
-from flourish_caregiver.models import ArvsPrePregnancy
 
 from .crf_form_validator import CRFFormValidator
 from .form_validator_mixin import FlourishFormValidatorMixin
@@ -15,6 +14,7 @@ class MaternalDeliveryFormValidator(CRFFormValidator, FlourishFormValidatorMixin
     maternal_arv_model = 'flourish_caregiver.maternalarv'
     maternal_visit_model = 'flourish_caregiver.maternalvisit'
     ultrasound_model = 'flourish_caregiver.ultrasound'
+    arvs_pre_pregnancy = 'flourish_caregiver.arvsprepregnancy'
 
     @property
     def ultrasound_cls(self):
@@ -27,6 +27,10 @@ class MaternalDeliveryFormValidator(CRFFormValidator, FlourishFormValidatorMixin
     @property
     def maternal_arv_cls(self):
         return django_apps.get_model(self.maternal_arv_model)
+
+    @property
+    def arvs_pre_pregnancy_cls(self):
+        return django_apps.get_model(self.arvs_pre_pregnancy)
 
     def clean(self):
         self.subject_identifier = self.cleaned_data.get('subject_identifier')
@@ -169,9 +173,9 @@ class MaternalDeliveryFormValidator(CRFFormValidator, FlourishFormValidatorMixin
         subject_identifier = self.cleaned_data.get('subject_identifier')
 
         try:
-            pre_pregnancy = ArvsPrePregnancy.objects.get(
+            pre_pregnancy = self.arvs_pre_pregnancy_cls.objects.get(
                 maternal_visit__appointment__subject_identifier=subject_identifier)
-        except ArvsPrePregnancy.DoesNotExist:
+        except self.arvs_pre_pregnancy_cls.DoesNotExist:
             pass
         else:
             if pre_pregnancy.art_start_date != self.cleaned_data.get('arv_initiation_date'):
