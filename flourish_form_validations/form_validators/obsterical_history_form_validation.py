@@ -70,10 +70,15 @@ class ObstericalHistoryFormValidator(CRFFormValidator, FormValidator):
 
     def validate_ultrasound(self, cleaned_data=None):
 
+        maternal_visit = cleaned_data.get('maternal_visit')
+        subject_identifier = maternal_visit.subject_identifier
 
         try:
-            ultrasound = self.maternal_ultrasound_cls.objects.filter(
-                maternal_visit=cleaned_data.get('maternal_visit'))
+
+            ultrasound = self.maternal_ultrasound_cls.objects.get(
+                maternal_visit__subject_identifier=subject_identifier,
+                maternal_visit=maternal_visit)
+
         except self.maternal_ultrasound_cls.DoesNotExist:
             message = 'Please complete ultrasound form first'
             raise ValidationError(message)
