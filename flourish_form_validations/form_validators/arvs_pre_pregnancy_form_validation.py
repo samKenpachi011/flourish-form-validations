@@ -1,13 +1,11 @@
 from django import forms
 from django.apps import apps as django_apps
 from django.core.exceptions import ValidationError
-from edc_constants.constants import YES, NO, RESTARTED, CONTINUOUS, STOPPED, OTHER, \
-    NOT_APPLICABLE
+from edc_constants.constants import YES, NO, RESTARTED, CONTINUOUS, STOPPED, NOT_APPLICABLE
 from edc_form_validators import FormValidator
 
 from .crf_form_validator import CRFFormValidator
 from .form_validator_mixin import FlourishFormValidatorMixin
-from flourish_caregiver.models import MaternalDelivery
 
 
 class ArvsPrePregnancyFormValidator(CRFFormValidator, FlourishFormValidatorMixin,
@@ -33,7 +31,6 @@ class ArvsPrePregnancyFormValidator(CRFFormValidator, FlourishFormValidatorMixin
         self.validate_maternal_consent(cleaned_data=self.cleaned_data)
         self.validate_hiv_test_date_antenatal_enrollment()
         self.validate_other_mother()
-
 
     def validate_prev_preg_art(self, cleaned_data={}):
         art_start_date = cleaned_data.get('art_start_date')
@@ -91,7 +88,8 @@ class ArvsPrePregnancyFormValidator(CRFFormValidator, FlourishFormValidatorMixin
                 id = self.instance.id
             try:
                 maternal_consent = self.validate_against_consent()
-                if cleaned_data.get('report_datetime') < maternal_consent.consent_datetime:
+                if cleaned_data.get(
+                        'report_datetime') < maternal_consent.consent_datetime:
                     msg = {'report_datetime': 'Report datetime CANNOT be '
                                               'before consent datetime'}
                     self._errors.update(msg)
@@ -120,9 +118,10 @@ class ArvsPrePregnancyFormValidator(CRFFormValidator, FlourishFormValidatorMixin
                 ' form before proceeding.')
         else:
             if (self.cleaned_data.get('art_start_date') and
-                    self.cleaned_data.get('art_start_date') < antenatal_enrollment.week32_test_date):
+                    self.cleaned_data.get(
+                        'art_start_date') < antenatal_enrollment.week32_test_date):
                 msg = {'art_start_date':
-                           'ART start date cannot be before date of HIV test.'}
+                       'ART start date cannot be before date of HIV test.'}
                 self._errors.update(msg)
                 raise ValidationError(msg)
 

@@ -25,12 +25,12 @@ class CaregiverClinicalMeasurementsFormValidator(CRFFormValidator,
                 self._errors.update(msg)
                 raise ValidationError(msg)
 
-        self.not_required_if(
-            YES,
-            field='is_preg',
+        self.required_if_true(
+            (cleaned_data.get('is_preg') != YES
+                and cleaned_data.get('maternal_visit').visit_code != '2000D'),
             field_required='waist_circ')
 
-        self.not_required_if(
-            YES,
-            field='is_preg',
+        self.required_if_true(
+            (cleaned_data.get('is_preg') != YES
+                and cleaned_data.get('maternal_visit').visit_code != '2000D'),
             field_required='hip_circ')
