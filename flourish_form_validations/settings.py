@@ -43,6 +43,7 @@ APP_NAME = 'flourish_form_validations'
 # Application definition
 
 INSTALLED_APPS = [
+    'django_nose',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -65,6 +66,15 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'edc_subject_dashboard.middleware.DashboardMiddleware',
+]
+
+# Use nose to run all tests
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+
+# Tell nose to measure coverage on the 'foo' and 'bar' apps
+NOSE_ARGS = [
+    '--with-coverage',
+    '--cover-package=foo,bar',
 ]
 
 ROOT_URLCONF = 'flourish_form_validations.urls'

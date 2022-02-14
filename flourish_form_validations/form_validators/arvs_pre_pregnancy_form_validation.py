@@ -88,7 +88,8 @@ class ArvsPrePregnancyFormValidator(CRFFormValidator, FlourishFormValidatorMixin
                 id = self.instance.id
             try:
                 maternal_consent = self.validate_against_consent()
-                if cleaned_data.get('report_datetime') < maternal_consent.consent_datetime:
+                if cleaned_data.get(
+                        'report_datetime') < maternal_consent.consent_datetime:
                     msg = {'report_datetime': 'Report datetime CANNOT be '
                                               'before consent datetime'}
                     self._errors.update(msg)
@@ -117,7 +118,8 @@ class ArvsPrePregnancyFormValidator(CRFFormValidator, FlourishFormValidatorMixin
                 ' form before proceeding.')
         else:
             if (self.cleaned_data.get('art_start_date') and
-                    self.cleaned_data.get('art_start_date') < antenatal_enrollment.week32_test_date):
+                    self.cleaned_data.get(
+                        'art_start_date') < antenatal_enrollment.week32_test_date):
                 msg = {'art_start_date':
                        'ART start date cannot be before date of HIV test.'}
                 self._errors.update(msg)

@@ -11,3 +11,5 @@ git+https://github.com/botswana-harvard/edc-protocol.git@develop#egg=edc_protoco
 git+https://github.com/botswana-harvard/edc-registration.git@develop#egg=edc_registration
 git+https://github.com/flourishbhp/flourish-caregiver.git@develop#egg=flourish_caregiver
 git+https://github.com/flourishbhp/flourish-prn.git@develop#egg=flourish_prn
+coverage
+django-nose
