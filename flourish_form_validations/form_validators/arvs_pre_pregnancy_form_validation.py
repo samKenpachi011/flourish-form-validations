@@ -1,8 +1,7 @@
 from django import forms
 from django.apps import apps as django_apps
 from django.core.exceptions import ValidationError
-from edc_constants.constants import YES, NO, RESTARTED, CONTINUOUS, STOPPED, \
-    NOT_APPLICABLE
+from edc_constants.constants import YES, NO, RESTARTED, CONTINUOUS, STOPPED, NOT_APPLICABLE
 from edc_form_validators import FormValidator
 
 from .crf_form_validator import CRFFormValidator
@@ -122,7 +121,7 @@ class ArvsPrePregnancyFormValidator(CRFFormValidator, FlourishFormValidatorMixin
                     self.cleaned_data.get(
                         'art_start_date') < antenatal_enrollment.week32_test_date):
                 msg = {'art_start_date':
-                           'ART start date cannot be before date of HIV test.'}
+                       'ART start date cannot be before date of HIV test.'}
                 self._errors.update(msg)
                 raise ValidationError(msg)
 

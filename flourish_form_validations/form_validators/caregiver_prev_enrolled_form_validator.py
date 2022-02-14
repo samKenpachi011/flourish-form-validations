@@ -42,14 +42,14 @@ class CaregiverPrevEnrolledFormValidator(FormValidator):
                 self.bhp_prior_screening_obj.flourish_participation ==
                 'another_caregiver_interested'):
             message = {'maternal_prev_enroll':
-                           'Participant is not from any bhp prior studies'}
+                       'Participant is not from any bhp prior studies'}
             self._errors.update(message)
             raise ValidationError(message)
         elif (self.cleaned_data.get('maternal_prev_enroll') == NO and
               self.bhp_prior_screening_obj.flourish_participation ==
               'interested'):
             message = {'maternal_prev_enroll':
-                           'Participant is from a prior bhp study'}
+                       'Participant is from a prior bhp study'}
             self._errors.update(message)
             raise ValidationError(message)
 
