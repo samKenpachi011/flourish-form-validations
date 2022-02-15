@@ -30,7 +30,7 @@ class TestScreeningPriorBhpParticipantsForm(TestCase):
 
     def test_child_alive(self):
         """
-        Raise an error if the mother is alive but the child is
+        Raise an error if mother and florish participation is specified but the child is no longer alive
         """
 
         cleaned_data = {
@@ -51,7 +51,7 @@ class TestScreeningPriorBhpParticipantsForm(TestCase):
     @tag('reasons')
     def test_reason_not_to_participate(self):
         """
-        Raise an error if flourish participation is set to
+        Raise an error if flourish participation is set to no and there is no reason provided
         """
 
         cleaned_data = {
