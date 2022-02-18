@@ -3,7 +3,7 @@ from django.apps import apps as django_apps
 from django.core.exceptions import ValidationError
 
 from edc_base.utils import get_utcnow
-from edc_constants.constants import YES, NO
+from edc_constants.constants import YES, NO, NEG, IND
 from edc_form_validators.form_validator import FormValidator
 
 
@@ -67,10 +67,11 @@ class CaregiverPrevEnrolledFormValidator(FormValidator):
 
     def validate_caregiver_previously_enrolled(self, cleaned_data=None):
         maternal_prev_enroll = cleaned_data.get('maternal_prev_enroll')
+
         if (maternal_prev_enroll == YES and
-                self.bhp_prior_screening_obj.flourish_participation ==
-                'interested'):
-            if self.maternal_dataset_obj.mom_hivstatus == 'HIV-uninfected':
+                self.bhp_prior_screening_obj.flourish_participation == 'interested'):
+
+            if (self.maternal_dataset_obj.mom_hivstatus == 'HIV-uninfected'):
                 fields_required = ['current_hiv_status', 'last_test_date', ]
                 for field_required in fields_required:
                     self.required_if(
@@ -84,11 +85,12 @@ class CaregiverPrevEnrolledFormValidator(FormValidator):
                     field_required='test_date')
 
                 test_date = self.cleaned_data.get('test_date', None)
-                if test_date:
-                    difference = get_utcnow().date() - relativedelta(months=3)
+                if test_date and cleaned_data.get('current_hiv_status') in [NEG, IND]:
+                    difference = self.cleaned_data.get(
+                        'report_datetime').date() - relativedelta(months=3)
                     if test_date < difference:
                         msg = {'test_date':
-                                   'HIV test date should not be older than 3months'}
+                               'HIV test date should not be older than 3 months'}
                         self._errors.update(msg)
                         raise ValidationError(msg)
 
@@ -96,11 +98,13 @@ class CaregiverPrevEnrolledFormValidator(FormValidator):
                     YES,
                     field='last_test_date',
                     field_required='is_date_estimated')
+
             elif self.maternal_dataset_obj.mom_hivstatus == 'HIV-infected':
                 not_required_fields = ['current_hiv_status', 'last_test_date',
                                        'test_date', 'is_date_estimated', 'sex',
                                        'relation_to_child',
                                        'relation_to_child_other']
+
                 for field in not_required_fields:
                     self.not_required_if(
                         YES, field='maternal_prev_enroll', field_required=field)
