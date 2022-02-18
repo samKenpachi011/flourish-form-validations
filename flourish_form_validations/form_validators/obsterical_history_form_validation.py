@@ -41,9 +41,6 @@ class ObstericalHistoryFormValidator(CRFFormValidator, FormValidator):
     def validate_prev_pregnancies(self, cleaned_data=None):
         ultrasound = self.maternal_ultrasound_cls.objects.filter(
             maternal_visit=cleaned_data.get('maternal_visit'))
-        if not ultrasound:
-            message = 'Please complete ultrasound form first'
-            raise ValidationError(message)
 
         if (('prev_pregnancies' in cleaned_data and
                 cleaned_data.get('prev_pregnancies') > 1)
