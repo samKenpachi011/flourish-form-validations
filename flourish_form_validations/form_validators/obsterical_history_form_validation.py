@@ -8,7 +8,7 @@ from .crf_form_validator import CRFFormValidator
 class ObstericalHistoryFormValidator(CRFFormValidator, FormValidator):
     ultrasound_model = 'flourish_caregiver.ultrasound'
     preg_women_screening_model = 'flourish_caregiver.screeningpregwomen'
-    consent_model = 'flourish_caregiver.subjectconsent'
+    antenatal_enrollment_model = 'flourish_caregiver.antenatalenrollment'
 
     @property
     def maternal_ultrasound_cls(self):
@@ -19,8 +19,8 @@ class ObstericalHistoryFormValidator(CRFFormValidator, FormValidator):
         return django_apps.get_model(self.preg_women_screening_model)
 
     @property
-    def consent_cls(self):
-        return django_apps.get_model(self.consent_model)
+    def antenatal_enrollment_cls(self):
+        return django_apps.get_model(self.antenatal_enrollment_model)
 
     def clean(self):
         super().clean()
@@ -37,28 +37,21 @@ class ObstericalHistoryFormValidator(CRFFormValidator, FormValidator):
         subject_identifier = maternal_visit.subject_identifier
 
         try:
-            consent_obj = self.consent_cls.objects.get(
-                subject_identifier=subject_identifier
-            )
-        except self.consent_cls.DoesNotExist:
+            self.antenatal_enrollment_cls.objects.get(
+                subject_identifier=self.subject_identifier, )
+        except self.preg_women_screening_cls.DoesNotExist:
             return 0
         else:
             try:
-                self.preg_women_screening_cls.objects.get(
-                    screening_identifier=consent_obj.screening_identifier, )
-            except self.preg_women_screening_cls.DoesNotExist:
-                return 0
-            else:
-                try:
-                    ultrasound = self.maternal_ultrasound_cls.objects.get(
-                        maternal_visit__subject_identifier=subject_identifier,
-                        maternal_visit=maternal_visit)
+                ultrasound = self.maternal_ultrasound_cls.objects.get(
+                    maternal_visit__subject_identifier=subject_identifier,
+                    maternal_visit=maternal_visit)
 
-                except self.maternal_ultrasound_cls.DoesNotExist:
-                    message = 'Please complete ultrasound form first.'
-                    raise ValidationError(message)
-                else:
-                    return ultrasound.ga_confirmed
+            except self.maternal_ultrasound_cls.DoesNotExist:
+                message = 'Please complete ultrasound form first.'
+                raise ValidationError(message)
+            else:
+                return ultrasound.ga_confirmed
 
     def validate_ultrasound(self, cleaned_data=None):
 
