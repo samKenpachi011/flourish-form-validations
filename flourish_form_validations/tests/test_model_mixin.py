@@ -47,5 +47,8 @@ class TestModeMixin:
         validator_class.ultrasound_model = \
             'flourish_form_validations.ultrasound'
 
+        validator_class.screening_preg_women = \
+            'flourish_form_validations.screeningpregwomen'
+
     class Meta:
         abstract = True

@@ -12,7 +12,6 @@ class ListModel(ListModelMixin, BaseUuidModel):
 
 
 class CaregiverLocator(BaseUuidModel):
-
     subject_identifier = models.CharField(max_length=50)
 
     screening_identifier = models.CharField(max_length=50)
@@ -29,7 +28,6 @@ class CaregiverLocator(BaseUuidModel):
 
 
 class SubjectConsent(UpdatesOrCreatesRegistrationModelMixin, BaseUuidModel):
-
     subject_identifier = models.CharField(max_length=25)
 
     screening_identifier = models.CharField(max_length=50)
@@ -54,19 +52,16 @@ class SubjectConsent(UpdatesOrCreatesRegistrationModelMixin, BaseUuidModel):
 
 
 class SubjectScreening(UpdatesOrCreatesRegistrationModelMixin, BaseUuidModel):
-
     screening_identifier = models.CharField(max_length=50)
 
     mother_alive = models.CharField(max_length=50)
 
 
 class MaternalDelivery(UpdatesOrCreatesRegistrationModelMixin, BaseUuidModel):
-
     subject_identifier = models.CharField(max_length=25)
 
 
 class AntenatalEnrollment(BaseUuidModel):
-
     subject_identifier = models.CharField(max_length=50)
 
     report_datetime = models.DateTimeField(
@@ -101,7 +96,6 @@ class AntenatalEnrollment(BaseUuidModel):
 
 
 class Appointment(BaseUuidModel):
-
     subject_identifier = models.CharField(max_length=25)
 
     appt_datetime = models.DateTimeField(default=get_utcnow)
@@ -110,7 +104,6 @@ class Appointment(BaseUuidModel):
 
 
 class MaternalVisit(BaseUuidModel):
-
     appointment = models.OneToOneField(Appointment, on_delete=PROTECT)
 
     subject_identifier = models.CharField(max_length=25)
@@ -129,7 +122,6 @@ class MaternalVisit(BaseUuidModel):
 
 
 class MaternalArvDuringPreg(models.Model):
-
     took_arv = models.CharField(
         choices=YES_NO,
         max_length=10)
@@ -137,7 +129,6 @@ class MaternalArvDuringPreg(models.Model):
 
 
 class MaternalArv(models.Model):
-
     maternal_arv_durg_preg = models.ForeignKey(MaternalArvDuringPreg, on_delete=PROTECT)
 
     arv_code = models.CharField(
@@ -154,7 +145,6 @@ class MaternalArv(models.Model):
 
 
 class ArvsPrePregnancy(models.Model):
-
     maternal_visit = models.ForeignKey(MaternalVisit, on_delete=PROTECT)
 
     preg_on_art = models.CharField(max_length=25, choices=YES_NO_NA)
@@ -165,7 +155,6 @@ class ArvsPrePregnancy(models.Model):
 
 
 class RegisteredSubject(BaseUuidModel):
-
     subject_identifier = models.CharField(max_length=25)
 
     first_name = FirstnameField(null=True)
@@ -176,14 +165,12 @@ class RegisteredSubject(BaseUuidModel):
 
 
 class UltraSound(models.Model):
-
     maternal_visit = models.OneToOneField(MaternalVisit, on_delete=PROTECT)
 
     ga_confirmed = models.IntegerField()
 
 
 class MaternalDataset(BaseUuidModel):
-
     screening_identifier = models.CharField(max_length=36)
 
     study_child_identifier = models.CharField(max_length=36)
@@ -194,7 +181,6 @@ class MaternalDataset(BaseUuidModel):
 
 
 class ChildDataset(BaseUuidModel):
-
     study_child_identifier = models.CharField(max_length=36)
 
     dob = models.DateField(
@@ -202,3 +188,4 @@ class ChildDataset(BaseUuidModel):
         blank=True)
 
     infant_sex = models.CharField(max_length=7)
+

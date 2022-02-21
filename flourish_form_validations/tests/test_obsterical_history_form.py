@@ -3,13 +3,17 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase, tag
 from edc_base.utils import get_utcnow
 
-from ..form_validators import ObstericalHistoryFormValidator
 from .models import SubjectConsent, Appointment, MaternalVisit
 from .models import UltraSound
+from .test_model_mixin import TestModeMixin
+from ..form_validators import ObstericalHistoryFormValidator
 
 
 @tag('xxx')
-class TestObstericalHistoryForm(TestCase):
+class TestObstericalHistoryForm(TestModeMixin, TestCase):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(ObstericalHistoryFormValidator, *args, **kwargs)
 
     def setUp(self):
         self.subject_consent = SubjectConsent.objects.create(
@@ -48,6 +52,7 @@ class TestObstericalHistoryForm(TestCase):
         except ValidationError as e:
             self.fail(f'ValidationError unexpectedly raised. Got{e}')
 
+    @tag('obx')
     def test_prev_preg_one_pregs_24wks_or_more_not_one_lost(self):
         '''Asserts raises exception if previous pregnancies is 1
         and and the value of pregnancies 24 weeks or more is not 0.'''
