@@ -38,8 +38,8 @@ class ObstericalHistoryFormValidator(CRFFormValidator, FormValidator):
 
         try:
             self.antenatal_enrollment_cls.objects.get(
-                subject_identifier=self.subject_identifier, )
-        except self.preg_women_screening_cls.DoesNotExist:
+                subject_identifier=self.subject_identifier,)
+        except self.antenatal_enrollment_cls.DoesNotExist:
             return 0
         else:
             try:
@@ -59,27 +59,22 @@ class ObstericalHistoryFormValidator(CRFFormValidator, FormValidator):
 
         if prev_pregnancies == 1:
 
-            if self.ultrasound_ga_confirmed > 24:
+            if self.ultrasound_ga_confirmed < 24:
 
-                fields = ['pregs_24wks_or_more',
-                          'lost_before_24wks', 'lost_after_24wks']
-
-                for field in fields:
-                    if (field in cleaned_data and
-                            cleaned_data.get(field) != 0):
-                        message = {field: 'You indicated previous pregnancies were '
-                                          f'{prev_pregnancies}, {field} should be zero as '
-                                          'the current pregnancy is more than 24 weeks.'}
+                if cleaned_data.get('pregs_24wks_or_more') != 0:
+                        message = {'pregs_24wks_or_more': 'You indicated pregnancies were '
+                                   f'1, value should be zero as the '
+                                   'participant\'s ga_confirmed is less than 24 weeks'}
                         self._errors.update(message)
                         raise ValidationError(message)
-
             else:
-                fields = ['prev_pregnancies', 'pregs_24wks_or_more']
-                for field in fields:
-                    if cleaned_data.get(field) == 0:
-                        raise ValidationError(
-                            {field: 'You indicated previous pregnancies were '
-                                    f'{prev_pregnancies}, {field} cannot be zero.'})
+
+                if (cleaned_data.get('lost_after_24wks') != 0):
+                    message = {'lost_after_24wks': 'You indicated pregnancies were '
+                               f'1, value should be zero as the participant\'s '
+                               'ga_confirmed is less than 24 weeks.'}
+                    self._errors.update(message)
+                    raise ValidationError(message)
 
     def validate_children_delivery(self, cleaned_data=None):
         if None not in [cleaned_data.get('children_deliv_before_37wks'),
@@ -98,19 +93,20 @@ class ObstericalHistoryFormValidator(CRFFormValidator, FormValidator):
 
             offset = 0
 
-            if self.ultrasound_ga_confirmed > 24:
+            if self.ultrasound_ga_confirmed:
                 offset = 1
 
             if (cleaned_data.get('prev_pregnancies') and
                     sum_deliv_37_wks != ((cleaned_data.get('prev_pregnancies') - offset)
-                                         - sum_lost_24_wks)):
+                                         -sum_lost_24_wks)):
                 raise ValidationError('The sum of Q9 and Q10 must be equal to '
                                       f'(Q3 -{offset}) - (Q5 + Q6). Please correct.')
 
-            if live_children > (sum_deliv_37_wks - children_died_b4_5yrs):
-                raise ValidationError(
-                    'Living children cannot be less than pregnancies delivered(Q9 + Q10) '
-                    'and childrenn lost. Please correct.')
+            if live_children != (sum_deliv_37_wks - children_died_b4_5yrs):
+                raise ValidationError({
+                    'live_children':
+                    'Living children must be equal to pregnancies delivered(Q9 + Q10) '
+                    'and children lost. Please correct.'})
 
     def validate_prev_pregnancies(self, cleaned_data=None):
 
@@ -122,21 +118,26 @@ class ObstericalHistoryFormValidator(CRFFormValidator, FormValidator):
 
         previous_pregs = cleaned_data.get('prev_pregnancies')
 
-        if sum_pregs != previous_pregs:
+        offset = 0
+
+        if self.ultrasound_ga_confirmed and self.ultrasound_ga_confirmed < 24:
+            offset = 1
+
+        if previous_pregs > 1 and sum_pregs != (previous_pregs - offset):
             raise ValidationError('Total pregnancies should be '
                                   'equal to sum of pregnancies '
                                   'lost and current')
 
         if self.ultrasound_ga_confirmed > 24 and pregs_24wks_or_more < 1:
             message = {'pregs_24wks_or_more':
-                           'Pregnancies more than 24 weeks should be '
-                           'more than 1 including the current pregnancy'}
+                       'Pregnancies more than 24 weeks should be '
+                       'more than 1 including the current pregnancy'}
             self._errors.update(message)
             raise ValidationError(message)
 
         if lost_after_24wks > pregs_24wks_or_more:
             message = {'lost_after_24wks':
-                           'Pregnancies lost after 24 weeks cannot be '
-                           'more than pregnancies atleast 24 weeks'}
+                       'Pregnancies lost after 24 weeks cannot be '
+                       'more than pregnancies atleast 24 weeks'}
             self._errors.update(message)
             raise ValidationError(message)

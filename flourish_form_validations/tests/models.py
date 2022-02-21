@@ -72,23 +72,44 @@ class AntenatalEnrollment(BaseUuidModel):
         null=True,
         blank=True)
 
-    current_hiv_status = models.CharField(max_length=15)
+    current_hiv_status = models.CharField(
+        max_length=15,
+        null=True,
+        blank=True)
 
-    week32_test = models.CharField(max_length=15)
+    week32_test = models.CharField(
+        max_length=15,
+        null=True,
+        blank=True)
 
     week32_test_date = models.DateField(
         null=True,
         blank=True)
 
-    enrollment_hiv_status = models.CharField(max_length=15)
+    enrollment_hiv_status = models.CharField(
+        max_length=15,
+        null=True,
+        blank=True)
 
-    evidence_hiv_status = models.CharField(max_length=15)
+    evidence_hiv_status = models.CharField(
+        max_length=15,
+        null=True,
+        blank=True)
 
-    week32_result = models.CharField(max_length=15)
+    week32_result = models.CharField(
+        max_length=15,
+        null=True,
+        blank=True)
 
-    rapid_test_done = models.CharField(max_length=15)
+    rapid_test_done = models.CharField(
+        max_length=15,
+        null=True,
+        blank=True)
 
-    rapid_test_result = models.CharField(max_length=15)
+    rapid_test_result = models.CharField(
+        max_length=15,
+        null=True,
+        blank=True)
 
     rapid_test_date = models.DateField(
         null=True,
