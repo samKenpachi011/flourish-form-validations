@@ -1,6 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.test import TestCase
-from edc_constants.constants import *
+from edc_constants.constants import YES, NO, NEG, OTHER
 from ..form_validators.covid19_form_validation import Covid19FormValidator
 from .models import ListModel
 
@@ -35,5 +35,4 @@ class Covid9Tests(TestCase):
 
         self.assertRaises(ValidationError, form.validate)
         self.assertIn('date_of_test_member', form._errors)
-
 

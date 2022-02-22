@@ -8,6 +8,11 @@ class FlourishFormValidatorMixin:
     antenatal_enrollment_model = 'flourish_caregiver.antenatalenrollment'
     caregiver_consent_model = 'flourish_caregiver.subjectconsent'
     screening_preg_women_model = 'flourish_caregiver.screeningpregwomen'
+    consent_version_model = 'flourish_caregiver.flourishconsentversion'
+
+    @property
+    def consent_version_cls(self):
+        return django_apps.get_model(self.consent_version_model)
 
     @property
     def antenatal_enrollment_cls(self):
@@ -44,10 +49,6 @@ class FlourishFormValidatorMixin:
                     f'before proceeding.')
         else:
             return consent
-
-    @property
-    def consent_version_cls(self):
-        return django_apps.get_model('flourish_caregiver.flourishconsentversion')
 
     @property
     def consent_version(self):
