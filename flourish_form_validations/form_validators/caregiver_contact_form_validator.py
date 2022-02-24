@@ -7,7 +7,6 @@ from .form_validator_mixin import FlourishFormValidatorMixin
 
 
 class CaregiverContactFormValidator(FlourishFormValidatorMixin, FormValidator):
-
     caregiver_locator_model = 'flourish_caregiver.caregiverlocator'
 
     @property
@@ -31,23 +30,23 @@ class CaregiverContactFormValidator(FlourishFormValidatorMixin, FormValidator):
             if (cleaned_data.get('contact_type') == 'in_person'
                     and locator.may_visit_home == NO):
                 msg = {'contact_type':
-                       'Caregiver Locator says may visit home: '
-                       f'{locator.may_visit_home}, you cannot make a home visit'
-                       ' to participant if they did not give permission.'}
+                           'Caregiver Locator says may visit home: '
+                           f'{locator.may_visit_home}, you cannot make a home visit'
+                           ' to participant if they did not give permission.'}
                 self._errors.update(msg)
                 raise ValidationError(msg)
             if (cleaned_data.get('contact_type') == 'phone_call'
                     and locator.may_call == NO):
                 msg = {'contact_type':
-                       f'Caregiver Locator says may call: {locator.may_call}, '
-                       'you cannot call participant if they did not give '
-                       'permission.'}
+                           f'Caregiver Locator says may call: {locator.may_call}, '
+                           'you cannot call participant if they did not give '
+                           'permission.'}
                 self._errors.update(msg)
                 raise ValidationError(msg)
         else:
             msg = {'__all__':
-                   'Caregiver Locator not found, please add Locator before '
-                   'proceeding.'}
+                       'Caregiver Locator not found, please add Locator before '
+                       'proceeding.'}
             self._errors.update(msg)
             raise ValidationError(msg)
 
@@ -59,6 +58,8 @@ class CaregiverContactFormValidator(FlourishFormValidatorMixin, FormValidator):
             field_required='contact_comment',
             inverse=False)
 
+        self.validate_call_rescheduled()
+
     @property
     def caregiver_locator(self):
         cleaned_data = self.cleaned_data
@@ -67,3 +68,17 @@ class CaregiverContactFormValidator(FlourishFormValidatorMixin, FormValidator):
                 subject_identifier=cleaned_data.get('subject_identifier'))
         except self.caregiver_locator_cls.DoesNotExist:
             return None
+
+    def validate_call_rescheduled(self):
+
+        self.required_if(
+            NO,
+            field='contact_success',
+            field_required='rescheduled',
+        )
+
+        self.required_if(
+            YES,
+            field='rescheduled',
+            field_required='reason_rescheduled',
+        )
