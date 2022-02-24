@@ -166,5 +166,5 @@ class MaternalDeliveryFormValidator(CRFFormValidator, FlourishFormValidatorMixin
         else:
             if pre_pregnancy.art_start_date != self.cleaned_data.get('arv_initiation_date'):
                 raise ValidationError(
-                    {'arv_initiation_date': 'The date does not corrospond with the date from '
+                    {'arv_initiation_date': 'Date not corresponding with the date from '
                      f'Arv Pregnancy CRF, the date should be {pre_pregnancy.art_start_date} '})
