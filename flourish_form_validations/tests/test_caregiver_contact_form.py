@@ -100,7 +100,7 @@ class TestCaregiverContactForm(TestModeMixin, TestCase):
         cleaned_data = {
             'subject_identifier': self.subject_identifier,
             'contact_success': NO,
-            'rescheduled': YES,
+            'call_rescheduled': YES,
             'reason_rescheduled': 'blah blah',
         }
         form_validator = CaregiverContactFormValidator(

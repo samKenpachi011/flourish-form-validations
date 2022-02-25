@@ -74,11 +74,11 @@ class CaregiverContactFormValidator(FlourishFormValidatorMixin, FormValidator):
         self.required_if(
             NO,
             field='contact_success',
-            field_required='rescheduled',
+            field_required='call_rescheduled',
         )
 
         self.required_if(
             YES,
-            field='rescheduled',
+            field='call_rescheduled',
             field_required='reason_rescheduled',
         )

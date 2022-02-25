@@ -232,7 +232,7 @@ class CaregiverContact(BaseUuidModel):
 
     contact_comment = models.CharField(max_length=7)
 
-    rescheduled = models.CharField(max_length=7)
+    call_rescheduled = models.CharField(max_length=7)
 
     reason_rescheduled = models.CharField(max_length=7)
 
