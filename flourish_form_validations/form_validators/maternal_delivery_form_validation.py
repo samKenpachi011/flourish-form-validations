@@ -58,7 +58,6 @@ class MaternalDeliveryFormValidator(FormValidatorMixin,
             message = 'Please complete ultrasound form first'
             raise ValidationError(message)
 
-<<<<<<< HEAD
     def validate_initiation_date(self, cleaned_data=None):
         subject_identifier = cleaned_data.get('subject_identifier')
         maternal_arv = self.maternal_arv_cls.objects.filter(
@@ -75,8 +74,6 @@ class MaternalDeliveryFormValidator(FormValidatorMixin,
                 self._errors.update(message)
                 raise ValidationError(message)
 
-=======
->>>>>>> 70b40e578c3e52b1fd99562903d9a805800d8b10
     def validate_valid_regime_hiv_pos_only(self, cleaned_data=None):
         if self.maternal_status_helper.hiv_status == POS:
             if cleaned_data.get('valid_regiment_duration') != YES:
