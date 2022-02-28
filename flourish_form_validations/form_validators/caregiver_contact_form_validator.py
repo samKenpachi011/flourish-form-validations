@@ -6,12 +6,8 @@ from edc_form_validators import FormValidator
 from .crf_form_validator import FormValidatorMixin
 
 
-<<<<<<< HEAD
 class CaregiverContactFormValidator(FormValidatorMixin, FormValidator):
 
-=======
-class CaregiverContactFormValidator(FlourishFormValidatorMixin, FormValidator):
->>>>>>> 70b40e578c3e52b1fd99562903d9a805800d8b10
     caregiver_locator_model = 'flourish_caregiver.caregiverlocator'
 
     @property
