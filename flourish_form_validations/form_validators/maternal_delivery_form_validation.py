@@ -4,10 +4,6 @@ from edc_base.utils import relativedelta
 from edc_constants.constants import POS, YES, NOT_APPLICABLE, OTHER, NONE
 from edc_form_validators import FormValidator
 from flourish_caregiver.helper_classes import MaternalStatusHelper
-<<<<<<< HEAD
-=======
-
->>>>>>> 70b40e578c3e52b1fd99562903d9a805800d8b10
 
 from .crf_form_validator import FormValidatorMixin
 
@@ -37,13 +33,6 @@ class MaternalDeliveryFormValidator(FormValidatorMixin,
 
     def clean(self):
         self.subject_identifier = self.cleaned_data.get('subject_identifier')
-<<<<<<< HEAD
-=======
-
-        id = None
-        if self.instance:
-            id = self.instance.id
->>>>>>> 70b40e578c3e52b1fd99562903d9a805800d8b10
 
         super().clean()
         self.validate_against_consent_datetime(self.cleaned_data.get('report_datetime'))
