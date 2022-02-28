@@ -1,8 +1,9 @@
 from edc_constants.constants import YES
 from edc_form_validators import FormValidator
+from .crf_form_validator import FormValidatorMixin
 
 
-class FoodSecurityQuestionnaireFormValidator(FormValidator):
+class FoodSecurityQuestionnaireFormValidator(FormValidatorMixin, FormValidator):
 
     def clean(self):
         super().clean()

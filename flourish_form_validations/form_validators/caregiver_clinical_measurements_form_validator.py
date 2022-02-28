@@ -2,10 +2,10 @@ from django.core.exceptions import ValidationError
 from edc_constants.constants import YES
 from edc_form_validators import FormValidator
 
-from .crf_form_validator import CRFFormValidator
+from .crf_form_validator import FormValidatorMixin
 
 
-class CaregiverClinicalMeasurementsFormValidator(CRFFormValidator,
+class CaregiverClinicalMeasurementsFormValidator(FormValidatorMixin,
                                                  FormValidator):
 
     def clean(self):

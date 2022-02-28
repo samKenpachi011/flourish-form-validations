@@ -1,13 +1,13 @@
 from django.apps import apps as django_apps
 from django.core.exceptions import ValidationError
-from edc_constants.constants import YES, NO, NOT_APPLICABLE, NEG, POS, OTHER, NONE
+from edc_constants.constants import YES, NO, NOT_APPLICABLE, POS, OTHER, NONE
 from edc_form_validators import FormValidator
-# from flourish_caregiver.helper_classes import MaternalStatusHelper
+from flourish_caregiver.helper_classes import MaternalStatusHelper
 
-from .crf_form_validator import CRFFormValidator
+from .crf_form_validator import FormValidatorMixin
 
 
-class MedicalHistoryFormValidator(CRFFormValidator, FormValidator):
+class MedicalHistoryFormValidator(FormValidatorMixin, FormValidator):
     antenatal_enrollment_model = 'flourish_caregiver.antenatalenrollment'
 
     @property
@@ -38,8 +38,10 @@ class MedicalHistoryFormValidator(CRFFormValidator, FormValidator):
 
     def validate_chronic_since_who_diagnosis_neg(self, cleaned_data=None):
 
+        subject_status = self.maternal_status_helper.hiv_status
+
         self.applicable_if_true(
-            self.subject_status == POS,
+            subject_status == POS,
             field_applicable='who_diagnosis',
             applicable_msg=('The caregiver is HIV positive. WHO Diagnosis is '
                             'applicable.'),
@@ -48,17 +50,16 @@ class MedicalHistoryFormValidator(CRFFormValidator, FormValidator):
         )
 
     def validate_who_diagnosis_who_chronic_list(self, cleaned_data=None):
+        subject_status = self.maternal_status_helper.hiv_status
 
-        # subject_status = self.maternal_status_helper.hiv_status
-
-        if self.subject_status == POS and cleaned_data.get('who_diagnosis') == YES:
+        if subject_status == POS and cleaned_data.get('who_diagnosis') == YES:
             qs = self.cleaned_data.get('who')
             if qs and qs.count() > 0:
                 selected = {obj.short_name: obj.name for obj in qs}
                 if NOT_APPLICABLE in selected:
                     msg = {'who':
-                               'Participant indicated that they had WHO stage III '
-                               'and IV, list of diagnosis cannot be N/A'}
+                           'Participant indicated that they had WHO stage III '
+                           'and IV, list of diagnosis cannot be N/A'}
                     self._errors.update(msg)
                     raise ValidationError(msg)
         elif cleaned_data.get('who_diagnosis') != YES:
@@ -75,15 +76,15 @@ class MedicalHistoryFormValidator(CRFFormValidator, FormValidator):
         if cleaned_data.get('chronic_since') == YES:
             if NOT_APPLICABLE in selected:
                 msg = {'caregiver_chronic':
-                           'Participant indicated that they had chronic'
-                           ' conditions list of diagnosis cannot be N/A'}
+                       'Participant indicated that they had chronic'
+                       ' conditions list of diagnosis cannot be N/A'}
                 self._errors.update(msg)
                 raise ValidationError(msg)
         elif cleaned_data.get('chronic_since') == NO:
             if NOT_APPLICABLE not in selected:
                 msg = {'caregiver_chronic':
-                           'Participant indicated that they had no chronic '
-                           'conditions list of diagnosis should be N/A'}
+                       'Participant indicated that they had no chronic '
+                       'conditions list of diagnosis should be N/A'}
                 self._errors.update(msg)
                 raise ValidationError(msg)
         self.m2m_single_selection_if(
@@ -122,3 +123,10 @@ class MedicalHistoryFormValidator(CRFFormValidator, FormValidator):
             self.m2m_single_selection_if(
                 NOT_APPLICABLE,
                 m2m_field=m2m_field)
+
+    @property
+    def maternal_status_helper(self):
+        cleaned_data = self.cleaned_data
+        visit_obj = cleaned_data.get('maternal_visit')
+        if visit_obj:
+            return MaternalStatusHelper(visit_obj)

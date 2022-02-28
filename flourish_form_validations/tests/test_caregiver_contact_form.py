@@ -5,11 +5,15 @@ from edc_base.utils import get_utcnow
 from edc_constants.constants import YES, NO, OTHER
 
 from ..form_validators import CaregiverContactFormValidator
-from .models import CaregiverLocator, SubjectConsent
+from .models import CaregiverLocator, SubjectConsent, FlourishConsentVersion
+from .test_model_mixin import TestModeMixin
 
 
 @tag('contact')
-class TestCaregiverContactForm(TestCase):
+class TestCaregiverContactForm(TestModeMixin, TestCase):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(CaregiverContactFormValidator, *args, **kwargs)
 
     def setUp(self):
         CaregiverContactFormValidator.caregiver_consent_model = \
@@ -19,6 +23,9 @@ class TestCaregiverContactForm(TestCase):
 
         self.subject_identifier = '12345678'
         self.screening_identifier = 'ABC12345'
+
+        FlourishConsentVersion.objects.create(
+            screening_identifier='ABC12345')
 
         self.subject_consent = SubjectConsent.objects.create(
             subject_identifier=self.subject_identifier,

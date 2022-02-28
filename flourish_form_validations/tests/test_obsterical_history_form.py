@@ -5,7 +5,7 @@ from edc_base.utils import get_utcnow
 
 from ..form_validators import ObstericalHistoryFormValidator
 from .models import SubjectConsent, Appointment, MaternalVisit
-from .models import UltraSound, AntenatalEnrollment
+from .models import UltraSound, AntenatalEnrollment, FlourishConsentVersion
 from .test_model_mixin import TestModeMixin
 
 
@@ -16,8 +16,12 @@ class TestObstericalHistoryForm(TestModeMixin, TestCase):
         super().__init__(ObstericalHistoryFormValidator, *args, **kwargs)
 
     def setUp(self):
+
+        FlourishConsentVersion.objects.create(
+            screening_identifier='ABC12345')
+
         self.subject_consent = SubjectConsent.objects.create(
-            subject_identifier='11111111',
+            subject_identifier='11111111', screening_identifier='ABC12345',
             gender='M', dob=(get_utcnow() - relativedelta(years=25)).date(),
             consent_datetime=get_utcnow())
 

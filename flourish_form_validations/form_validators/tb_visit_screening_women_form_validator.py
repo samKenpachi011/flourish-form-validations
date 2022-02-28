@@ -1,10 +1,10 @@
 from edc_constants.constants import YES, NO, UNKNOWN, DWTA
 from edc_form_validators import FormValidator
 
-from .crf_form_validator import CRFFormValidator
+from .crf_form_validator import FormValidatorMixin
 
 
-class TbVisitScreeningWomenFormValidator(CRFFormValidator, FormValidator):
+class TbVisitScreeningWomenFormValidator(FormValidatorMixin, FormValidator):
     responses = [NO, UNKNOWN, DWTA]
 
     def clean(self):

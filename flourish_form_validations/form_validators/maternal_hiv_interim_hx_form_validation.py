@@ -1,10 +1,11 @@
+from django.core.exceptions import ValidationError
 from edc_constants.constants import YES, NO, NOT_APPLICABLE
 from edc_form_validators import FormValidator
-from .crf_form_validator import CRFFormValidator
-from django.core.exceptions import ValidationError
+
+from .crf_form_validator import FormValidatorMixin
 
 
-class MaternalHivInterimHxFormValidator(CRFFormValidator,
+class MaternalHivInterimHxFormValidator(FormValidatorMixin,
                                         FormValidator):
 
     def clean(self):

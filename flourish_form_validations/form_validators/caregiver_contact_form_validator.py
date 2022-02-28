@@ -3,10 +3,10 @@ from django.core.exceptions import ValidationError
 from edc_constants.constants import YES, NO
 from edc_form_validators import FormValidator
 
-from .form_validator_mixin import FlourishFormValidatorMixin
+from .crf_form_validator import FormValidatorMixin
 
 
-class CaregiverContactFormValidator(FlourishFormValidatorMixin, FormValidator):
+class CaregiverContactFormValidator(FormValidatorMixin, FormValidator):
 
     caregiver_locator_model = 'flourish_caregiver.caregiverlocator'
 
@@ -18,13 +18,7 @@ class CaregiverContactFormValidator(FlourishFormValidatorMixin, FormValidator):
         cleaned_data = self.cleaned_data
         self.subject_identifier = self.cleaned_data.get('subject_identifier')
 
-        id = None
-        if self.instance:
-            id = self.instance.id
-
-        self.validate_against_consent_datetime(
-            self.cleaned_data.get('report_datetime'),
-            id=id)
+        self.validate_against_consent_datetime(self.cleaned_data.get('report_datetime'))
 
         locator = self.caregiver_locator
         if locator:

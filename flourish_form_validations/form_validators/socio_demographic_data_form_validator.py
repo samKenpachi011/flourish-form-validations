@@ -1,12 +1,12 @@
-from edc_form_validators import FormValidator
-
-from .crf_form_validator import CRFFormValidator
 from django.apps import apps as django_apps
 from django.core.exceptions import ValidationError
-from  edc_constants.constants import NOT_APPLICABLE
+from edc_constants.constants import NOT_APPLICABLE
+from edc_form_validators import FormValidator
+
+from .crf_form_validator import FormValidatorMixin
 
 
-class SocioDemographicDataFormValidator(CRFFormValidator, FormValidator):
+class SocioDemographicDataFormValidator(FormValidatorMixin, FormValidator):
     antenatal_enrollment_model = 'flourish_caregiver.antenatalenrollment'
 
     @property
