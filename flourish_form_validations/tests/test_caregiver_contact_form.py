@@ -16,10 +16,6 @@ class TestCaregiverContactForm(TestModeMixin, TestCase):
         super().__init__(CaregiverContactFormValidator, *args, **kwargs)
 
     def setUp(self):
-        CaregiverContactFormValidator.caregiver_consent_model = \
-            'flourish_form_validations.subjectconsent'
-        CaregiverContactFormValidator.caregiver_locator_model = \
-            'flourish_form_validations.caregiverlocator'
 
         self.subject_identifier = '12345678'
         self.screening_identifier = 'ABC12345'
@@ -85,14 +81,30 @@ class TestCaregiverContactForm(TestModeMixin, TestCase):
         self.assertIn('call_reason_other', form_validator._errors)
 
     def test_contact_success_valid(self):
-        '''Assert form saves without error.
-        '''
+        """Assert form saves without error.
+        """
         cleaned_data = {
             'subject_identifier': self.subject_identifier,
             'contact_type': 'phone_call',
             'contact_success': YES,
             'contact_comment': 'blahblah'
 
+        }
+        form_validator = CaregiverContactFormValidator(
+            cleaned_data=cleaned_data)
+        try:
+            form_validator.validate()
+        except ValidationError as e:
+            self.fail(f'ValidationError unexpectedly raised. Got{e}')
+
+    @tag('call_reschedule')
+    def test_call_rescheduled(self):
+        """Assert form saves without error."""
+        cleaned_data = {
+            'subject_identifier': self.subject_identifier,
+            'contact_success': NO,
+            'call_rescheduled': YES,
+            'reason_rescheduled': 'blah blah',
         }
         form_validator = CaregiverContactFormValidator(
             cleaned_data=cleaned_data)

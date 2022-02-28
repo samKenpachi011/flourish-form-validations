@@ -223,8 +223,37 @@ class FlourishConsentVersion(models.Model):
 
     version = models.CharField(max_length=3)
 
+    report_datetime = models.DateTimeField(
+        null=True,
+        blank=True)
+
 
 class OffStudy(BaseUuidModel):
 
     subject_identifier = models.CharField(max_length=25)
 
+
+class CaregiverContact(BaseUuidModel):
+    consent_model = SubjectConsent
+
+    report_datetime = models.DateField(
+        null=True,
+        blank=True)
+
+    contact_type = models.CharField(max_length=7)
+
+    contact_datetime = models.DateField(
+        null=True,
+        blank=True)
+
+    call_reason = models.CharField(max_length=7)
+
+    call_reason_other = models.CharField(max_length=7)
+
+    contact_success = models.CharField(max_length=7)
+
+    contact_comment = models.CharField(max_length=7)
+
+    call_rescheduled = models.CharField(max_length=7)
+
+    reason_rescheduled = models.CharField(max_length=7)

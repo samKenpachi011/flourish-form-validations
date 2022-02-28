@@ -4,6 +4,10 @@ from edc_base.utils import relativedelta
 from edc_constants.constants import POS, YES, NOT_APPLICABLE, OTHER, NONE
 from edc_form_validators import FormValidator
 from flourish_caregiver.helper_classes import MaternalStatusHelper
+<<<<<<< HEAD
+=======
+
+>>>>>>> 70b40e578c3e52b1fd99562903d9a805800d8b10
 
 from .crf_form_validator import FormValidatorMixin
 
@@ -33,6 +37,13 @@ class MaternalDeliveryFormValidator(FormValidatorMixin,
 
     def clean(self):
         self.subject_identifier = self.cleaned_data.get('subject_identifier')
+<<<<<<< HEAD
+=======
+
+        id = None
+        if self.instance:
+            id = self.instance.id
+>>>>>>> 70b40e578c3e52b1fd99562903d9a805800d8b10
 
         super().clean()
         self.validate_against_consent_datetime(self.cleaned_data.get('report_datetime'))
@@ -46,19 +57,19 @@ class MaternalDeliveryFormValidator(FormValidatorMixin,
 
         self.validate_against_maternal_delivery()
         self.validate_ultrasound(cleaned_data=self.cleaned_data)
-        self.validate_initiation_date(cleaned_data=self.cleaned_data)
         self.validate_valid_regime_hiv_pos_only(cleaned_data=self.cleaned_data)
         self.validate_live_births_still_birth(cleaned_data=self.cleaned_data)
         self.validate_other()
 
     def validate_ultrasound(self, cleaned_data=None):
         ultrasound = self.ultrasound_cls.objects.filter(
-            maternal_visit__appointment__subject_identifier=cleaned_data.get(
+            maternal_visit__subject_identifier=cleaned_data.get(
                 'subject_identifier'))
         if not ultrasound:
             message = 'Please complete ultrasound form first'
             raise ValidationError(message)
 
+<<<<<<< HEAD
     def validate_initiation_date(self, cleaned_data=None):
         subject_identifier = cleaned_data.get('subject_identifier')
         maternal_arv = self.maternal_arv_cls.objects.filter(
@@ -75,6 +86,8 @@ class MaternalDeliveryFormValidator(FormValidatorMixin,
                 self._errors.update(message)
                 raise ValidationError(message)
 
+=======
+>>>>>>> 70b40e578c3e52b1fd99562903d9a805800d8b10
     def validate_valid_regime_hiv_pos_only(self, cleaned_data=None):
         if self.maternal_status_helper.hiv_status == POS:
             if cleaned_data.get('valid_regiment_duration') != YES:
@@ -168,11 +181,11 @@ class MaternalDeliveryFormValidator(FormValidatorMixin,
 
         try:
             pre_pregnancy = self.arvs_pre_pregnancy_cls.objects.get(
-                maternal_visit__appointment__subject_identifier=subject_identifier)
+                maternal_visit__subject_identifier=subject_identifier)
         except self.arvs_pre_pregnancy_cls.DoesNotExist:
             pass
         else:
             if pre_pregnancy.art_start_date != self.cleaned_data.get('arv_initiation_date'):
                 raise ValidationError(
-                    {'arv_initiation_date': 'The date does not corrospond with the date from '
+                    {'arv_initiation_date': 'Date not corresponding with the date from '
                      f'Arv Pregnancy CRF, the date should be {pre_pregnancy.art_start_date} '})

@@ -38,11 +38,12 @@ class ObstericalHistoryFormValidator(FormValidatorMixin, FormValidator):
 
         try:
             self.antenatal_enrollment_cls.objects.get(
-                subject_identifier=self.subject_identifier,)
+                subject_identifier=self.subject_identifier, )
         except self.antenatal_enrollment_cls.DoesNotExist:
             return 0
         else:
             try:
+
                 ultrasound = self.maternal_ultrasound_cls.objects.get(
                     maternal_visit__subject_identifier=subject_identifier,
                     maternal_visit=maternal_visit)
@@ -54,27 +55,38 @@ class ObstericalHistoryFormValidator(FormValidatorMixin, FormValidator):
                 return ultrasound.ga_confirmed
 
     def validate_ultrasound(self, cleaned_data=None):
+        try:
+            self.antenatal_enrollment_cls.objects.get(
+                subject_identifier=self.subject_identifier, )
+        except self.antenatal_enrollment_cls.DoesNotExist:
+            return 0
+        else:
+            prev_pregnancies = cleaned_data.get('prev_pregnancies')
 
-        prev_pregnancies = cleaned_data.get('prev_pregnancies')
+            if prev_pregnancies == 1:
 
-        if prev_pregnancies == 1:
+                if self.ultrasound_ga_confirmed > 24:
 
-            if self.ultrasound_ga_confirmed < 24:
+                    fields = ['pregs_24wks_or_more',
+                              'lost_before_24wks', 'lost_after_24wks']
 
-                if cleaned_data.get('pregs_24wks_or_more') != 0:
-                        message = {'pregs_24wks_or_more': 'You indicated pregnancies were '
-                                   f'1, value should be zero as the '
-                                   'participant\'s ga_confirmed is less than 24 weeks'}
-                        self._errors.update(message)
-                        raise ValidationError(message)
-            else:
+                    for field in fields:
+                        if (field in cleaned_data and
+                                cleaned_data.get(field) != 0):
+                            message = {field: 'You indicated previous pregnancies were '
+                                              f'{prev_pregnancies}, {field} should be '
+                                              f'zero as the current pregnancy is more '
+                                              f'than 24 weeks.'}
+                            self._errors.update(message)
+                            raise ValidationError(message)
 
-                if (cleaned_data.get('lost_after_24wks') != 0):
-                    message = {'lost_after_24wks': 'You indicated pregnancies were '
-                               f'1, value should be zero as the participant\'s '
-                               'ga_confirmed is less than 24 weeks.'}
-                    self._errors.update(message)
-                    raise ValidationError(message)
+                else:
+                    fields = ['prev_pregnancies', 'pregs_24wks_or_more']
+                    for field in fields:
+                        if cleaned_data.get(field) == 0:
+                            raise ValidationError(
+                                {field: 'You indicated previous pregnancies were '
+                                        f'{prev_pregnancies}, {field} cannot be zero.'})
 
     def validate_children_delivery(self, cleaned_data=None):
         if None not in [cleaned_data.get('children_deliv_before_37wks'),
