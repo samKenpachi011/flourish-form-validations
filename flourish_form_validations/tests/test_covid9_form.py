@@ -1,9 +1,12 @@
+from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
+
 from django.test import TestCase, tag
+from edc_base.utils import get_utcnow
 from edc_constants.constants import YES, NO, NEG, OTHER
 
-from .models import ListModel
 from ..form_validators.covid19_form_validation import Covid19FormValidator
+from .models import ListModel, FlourishConsentVersion, SubjectConsent
 
 
 @tag('test_covid')
@@ -21,6 +24,16 @@ class Covid9Tests(TestCase):
             'symptoms_for_past_14days': ListModel.objects.all(),
             'full_vaccinated': YES,
         }
+
+        FlourishConsentVersion.objects.create(
+            screening_identifier='ABC12345')
+
+        self.subject_identifier = '11111111'
+
+        self.subject_consent = SubjectConsent.objects.create(
+            subject_identifier='11111111', screening_identifier='ABC12345',
+            gender='M', dob=(get_utcnow() - relativedelta(years=25)).date(),
+            consent_datetime=get_utcnow(), version='1')
 
     def test_other_reason_for_testing_required(self):
         self.form_data['reason_for_testing'] = OTHER

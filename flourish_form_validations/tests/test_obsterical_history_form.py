@@ -3,10 +3,10 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase, tag
 from edc_base.utils import get_utcnow
 
-from .models import SubjectConsent, Appointment, MaternalVisit, AntenatalEnrollment
-from .models import UltraSound
-from .test_model_mixin import TestModeMixin
 from ..form_validators import ObstericalHistoryFormValidator
+from .models import SubjectConsent, Appointment, MaternalVisit
+from .models import UltraSound, AntenatalEnrollment, FlourishConsentVersion
+from .test_model_mixin import TestModeMixin
 
 
 @tag('xxx')
@@ -16,8 +16,12 @@ class TestObstericalHistoryForm(TestModeMixin, TestCase):
         super().__init__(ObstericalHistoryFormValidator, *args, **kwargs)
 
     def setUp(self):
+
+        FlourishConsentVersion.objects.create(
+            screening_identifier='ABC12345')
+
         self.subject_consent = SubjectConsent.objects.create(
-            subject_identifier='11111111',
+            subject_identifier='11111111', screening_identifier='ABC12345',
             gender='M', dob=(get_utcnow() - relativedelta(years=25)).date(),
             consent_datetime=get_utcnow())
         appointment = Appointment.objects.create(
@@ -35,7 +39,7 @@ class TestObstericalHistoryForm(TestModeMixin, TestCase):
         '''Test if '''
 
         AntenatalEnrollment.objects.create(
-            subject_identifier='11111111', )
+            subject_identifier='11111111',)
 
         UltraSound.objects.create(
             maternal_visit=self.maternal_visit, ga_confirmed=20)
@@ -62,7 +66,7 @@ class TestObstericalHistoryForm(TestModeMixin, TestCase):
         '''Test if '''
 
         AntenatalEnrollment.objects.create(
-            subject_identifier='11111111', )
+            subject_identifier='11111111',)
 
         UltraSound.objects.create(
             maternal_visit=self.maternal_visit, ga_confirmed=20)
@@ -87,7 +91,7 @@ class TestObstericalHistoryForm(TestModeMixin, TestCase):
         '''Test if '''
 
         AntenatalEnrollment.objects.create(
-            subject_identifier='11111111', )
+            subject_identifier='11111111',)
 
         UltraSound.objects.create(
             maternal_visit=self.maternal_visit, ga_confirmed=20)
@@ -111,7 +115,7 @@ class TestObstericalHistoryForm(TestModeMixin, TestCase):
         '''Test if '''
 
         AntenatalEnrollment.objects.create(
-            subject_identifier='11111111', )
+            subject_identifier='11111111',)
 
         UltraSound.objects.create(
             maternal_visit=self.maternal_visit, ga_confirmed=26)
@@ -140,7 +144,7 @@ class TestObstericalHistoryForm(TestModeMixin, TestCase):
         '''Test if '''
 
         AntenatalEnrollment.objects.create(
-            subject_identifier='11111111', )
+            subject_identifier='11111111',)
 
         UltraSound.objects.create(
             maternal_visit=self.maternal_visit, ga_confirmed=26)
@@ -167,7 +171,7 @@ class TestObstericalHistoryForm(TestModeMixin, TestCase):
         '''Test if '''
 
         AntenatalEnrollment.objects.create(
-            subject_identifier='11111111', )
+            subject_identifier='11111111',)
 
         UltraSound.objects.create(
             maternal_visit=self.maternal_visit, ga_confirmed=20)

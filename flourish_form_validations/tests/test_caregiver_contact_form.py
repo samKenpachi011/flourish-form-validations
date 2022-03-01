@@ -4,9 +4,9 @@ from django.test import TestCase, tag
 from edc_base.utils import get_utcnow
 from edc_constants.constants import YES, NO, OTHER
 
-from .models import CaregiverLocator, SubjectConsent
-from .test_model_mixin import TestModeMixin
 from ..form_validators import CaregiverContactFormValidator
+from .models import CaregiverLocator, SubjectConsent, FlourishConsentVersion
+from .test_model_mixin import TestModeMixin
 
 
 @tag('contact')
@@ -19,6 +19,9 @@ class TestCaregiverContactForm(TestModeMixin, TestCase):
 
         self.subject_identifier = '12345678'
         self.screening_identifier = 'ABC12345'
+
+        FlourishConsentVersion.objects.create(
+            screening_identifier='ABC12345')
 
         self.subject_consent = SubjectConsent.objects.create(
             subject_identifier=self.subject_identifier,

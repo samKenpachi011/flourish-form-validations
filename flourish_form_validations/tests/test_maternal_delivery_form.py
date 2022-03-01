@@ -4,7 +4,7 @@ from edc_base.utils import get_utcnow, relativedelta
 from edc_constants.constants import YES, NO, POS, NEG, NOT_APPLICABLE
 
 from ..form_validators import MaternalDeliveryFormValidator
-from .models import MaternalArv, MaternalVisit, UltraSound
+from .models import MaternalArv, MaternalVisit, UltraSound, FlourishConsentVersion
 from .models import SubjectConsent, Appointment, MaternalArvDuringPreg
 from .test_model_mixin import TestModeMixin
 
@@ -25,6 +25,9 @@ class TestMaternalDeliverylForm(TestModeMixin, TestCase):
         super().__init__(MaternalDeliveryFormValidator, *args, **kwargs)
 
     def setUp(self):
+
+        FlourishConsentVersion.objects.create(
+            screening_identifier='ABC12345')
 
         self.subject_consent = SubjectConsent.objects.create(
             subject_identifier='11111111', screening_identifier='ABC12345',

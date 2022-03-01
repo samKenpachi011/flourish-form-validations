@@ -1,5 +1,3 @@
-from flourish_caregiver.helper_classes import MaternalStatusHelper
-
 from django.apps import apps as django_apps
 from django.core.exceptions import ValidationError
 from edc_base.utils import relativedelta
@@ -7,12 +5,10 @@ from edc_constants.constants import POS, YES, NOT_APPLICABLE, OTHER, NONE
 from edc_form_validators import FormValidator
 from flourish_caregiver.helper_classes import MaternalStatusHelper
 
-
-from .crf_form_validator import CRFFormValidator
-from .form_validator_mixin import FlourishFormValidatorMixin
+from .crf_form_validator import FormValidatorMixin
 
 
-class MaternalDeliveryFormValidator(CRFFormValidator, FlourishFormValidatorMixin,
+class MaternalDeliveryFormValidator(FormValidatorMixin,
                                     FormValidator):
     maternal_arv_model = 'flourish_caregiver.maternalarv'
     maternal_visit_model = 'flourish_caregiver.maternalvisit'
@@ -38,13 +34,8 @@ class MaternalDeliveryFormValidator(CRFFormValidator, FlourishFormValidatorMixin
     def clean(self):
         self.subject_identifier = self.cleaned_data.get('subject_identifier')
 
-        id = None
-        if self.instance:
-            id = self.instance.id
-
-        self.validate_against_consent_datetime(
-            self.cleaned_data.get('report_datetime'),
-            id=id)
+        super().clean()
+        self.validate_against_consent_datetime(self.cleaned_data.get('report_datetime'))
 
         condition = self.cleaned_data.get(
             'mode_delivery') and 'c-section' in self.cleaned_data.get('mode_delivery')
@@ -66,6 +57,22 @@ class MaternalDeliveryFormValidator(CRFFormValidator, FlourishFormValidatorMixin
         if not ultrasound:
             message = 'Please complete ultrasound form first'
             raise ValidationError(message)
+
+    def validate_initiation_date(self, cleaned_data=None):
+        subject_identifier = cleaned_data.get('subject_identifier')
+        maternal_arv = self.maternal_arv_cls.objects.filter(
+            maternal_arv_durg_preg__maternal_visit__appointment__subject_identifier=subject_identifier,
+            arv_code='Tenoforvir',
+            stop_date__isnull=True).order_by('-start_date').first()
+        if maternal_arv:
+            initiation_date = cleaned_data.get('arv_initiation_date')
+            if initiation_date != maternal_arv.start_date:
+                message = {'arv_initiation_date':
+                           'ARV\'s initiation date must match start date '
+                           'in pregnancy form, pregnancy form start date is '
+                           f'{maternal_arv.start_date}, got {initiation_date}.'}
+                self._errors.update(message)
+                raise ValidationError(message)
 
     def validate_valid_regime_hiv_pos_only(self, cleaned_data=None):
         if self.maternal_status_helper.hiv_status == POS:

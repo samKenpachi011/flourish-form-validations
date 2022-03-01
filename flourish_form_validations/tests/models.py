@@ -143,10 +143,16 @@ class MaternalVisit(BaseUuidModel):
 
 
 class MaternalArvDuringPreg(models.Model):
+
     took_arv = models.CharField(
         choices=YES_NO,
         max_length=10)
+
     maternal_visit = models.OneToOneField(MaternalVisit, on_delete=PROTECT)
+
+    art_start_date = models.DateField(
+        null=True,
+        blank=False)
 
 
 class MaternalArv(models.Model):
@@ -211,6 +217,22 @@ class ChildDataset(BaseUuidModel):
     infant_sex = models.CharField(max_length=7)
 
 
+class FlourishConsentVersion(models.Model):
+
+    screening_identifier = models.CharField(max_length=25)
+
+    version = models.CharField(max_length=3)
+
+    report_datetime = models.DateTimeField(
+        null=True,
+        blank=True)
+
+
+class OffStudy(BaseUuidModel):
+
+    subject_identifier = models.CharField(max_length=25)
+
+
 class CaregiverContact(BaseUuidModel):
     consent_model = SubjectConsent
 
@@ -235,13 +257,3 @@ class CaregiverContact(BaseUuidModel):
     call_rescheduled = models.CharField(max_length=7)
 
     reason_rescheduled = models.CharField(max_length=7)
-
-
-class FlourishConsentVersion(BaseUuidModel):
-    screening_identifier = models.CharField(max_length=36)
-
-    version = models.CharField(max_length=36)
-
-    report_datetime = models.DateTimeField(
-        null=True,
-        blank=True)

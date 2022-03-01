@@ -2,10 +2,10 @@ from django.apps import apps as django_apps
 from django.core.exceptions import ValidationError
 from edc_form_validators.form_validator import FormValidator
 
-from .crf_form_validator import CRFFormValidator
+from .crf_form_validator import FormValidatorMixin
 
 
-class ObstericalHistoryFormValidator(CRFFormValidator, FormValidator):
+class ObstericalHistoryFormValidator(FormValidatorMixin, FormValidator):
     ultrasound_model = 'flourish_caregiver.ultrasound'
     preg_women_screening_model = 'flourish_caregiver.screeningpregwomen'
     antenatal_enrollment_model = 'flourish_caregiver.antenatalenrollment'
