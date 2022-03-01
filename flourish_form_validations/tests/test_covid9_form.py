@@ -1,6 +1,7 @@
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
-from django.test import TestCase
+
+from django.test import TestCase, tag
 from edc_base.utils import get_utcnow
 from edc_constants.constants import YES, NO, NEG, OTHER
 
@@ -8,6 +9,7 @@ from ..form_validators.covid19_form_validation import Covid19FormValidator
 from .models import ListModel, FlourishConsentVersion, SubjectConsent
 
 
+@tag('test_covid')
 class Covid9Tests(TestCase):
 
     def setUp(self):
@@ -20,7 +22,7 @@ class Covid9Tests(TestCase):
             'has_tested_positive': NO,
             'close_contact': ListModel.objects.all(),
             'symptoms_for_past_14days': ListModel.objects.all(),
-            'full_vaccinated': NO,
+            'full_vaccinated': YES,
         }
 
         FlourishConsentVersion.objects.create(
@@ -40,7 +42,6 @@ class Covid9Tests(TestCase):
         self.assertIn('other_reason_for_testing', form._errors)
 
     def test_has_tested_positive_date_required(self):
-
         self.form_data['has_tested_positive'] = YES
         self.form_data['date_of_test_member'] = None
 
@@ -49,3 +50,27 @@ class Covid9Tests(TestCase):
         self.assertRaises(ValidationError, form.validate)
         self.assertIn('date_of_test_member', form._errors)
 
+    def test_received_booster(self):
+        cleaned_data = {
+            'received_booster': YES,
+            'booster_vac_type': 'blah blah',
+            'booster_vac_date': 'blah blah',
+        }
+        form_validator = Covid19FormValidator(
+            cleaned_data=cleaned_data | self.form_data)
+        try:
+            form_validator.validate()
+        except ValidationError as e:
+            self.fail(f'ValidationError unexpectedly raised. Got{e}')
+
+    def test_other_booster_vac_type(self):
+        cleaned_data = {
+            'booster_vac_type': OTHER,
+            'other_booster_vac_type': 'blah blah',
+        }
+        form_validator = Covid19FormValidator(
+            cleaned_data=cleaned_data | self.form_data)
+        try:
+            form_validator.validate()
+        except ValidationError as e:
+            self.fail(f'ValidationError unexpectedly raised. Got{e}')

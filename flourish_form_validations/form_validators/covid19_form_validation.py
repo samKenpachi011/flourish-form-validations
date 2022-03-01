@@ -1,5 +1,3 @@
-import datetime
-
 from django.core.exceptions import ValidationError
 from edc_constants.constants import *
 from edc_form_validators import FormValidator
@@ -7,6 +5,8 @@ from edc_form_validators import FormValidator
 
 class Covid19FormValidator(FormValidator):
     def clean(self):
+
+        self.validate_booster_vac()
 
         required_fields = [
             'date_of_test', 'is_test_estimated', 'reason_for_testing',
@@ -58,7 +58,7 @@ class Covid19FormValidator(FormValidator):
                 second_dose = self.cleaned_data['second_dose']
                 if second_dose < first_dose:
                     raise ValidationError({
-                                              'second_dose': 'Should be greater than the first date'})
+                        'second_dose': 'Should be greater than the first date'})
                 elif second_dose == first_dose:
                     raise ValidationError({
                         'first_dose': 'Dates cannot be equal',
@@ -107,3 +107,24 @@ class Covid19FormValidator(FormValidator):
                                      field_required=field)
 
         return super().clean()
+
+    def validate_booster_vac(self):
+        self.required_if(
+            YES,
+            field='fully_vaccinated',
+            field_required='received_booster'
+        )
+
+        fields = ['booster_vac_type', 'booster_vac_date']
+
+        for field in fields:
+            self.required_if(
+                YES,
+                field='received_booster',
+                field_required=field
+            )
+
+        self.validate_other_specify(
+            field='booster_vac_type',
+            other_specify_field='other_booster_vac_type'
+        )
