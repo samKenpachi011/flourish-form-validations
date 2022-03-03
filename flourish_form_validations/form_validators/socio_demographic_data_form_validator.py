@@ -7,11 +7,22 @@ from .crf_form_validator import FormValidatorMixin
 
 
 class SocioDemographicDataFormValidator(FormValidatorMixin, FormValidator):
+
     antenatal_enrollment_model = 'flourish_caregiver.antenatalenrollment'
+    preg_women_screening_model = 'flourish_caregiver.screeningpregwomen'
+    delivery_model = 'flourish_caregiver.maternaldelivery'
 
     @property
     def antenatal_enrollment_cls(self):
         return django_apps.get_model(self.antenatal_enrollment_model)
+
+    @property
+    def preg_screening_cls(self):
+        return django_apps.get_model(self.preg_women_screening_model)
+
+    @property
+    def delivery_model_cls(self):
+        return django_apps.get_model(self.delivery_model)
 
     def clean(self):
         super().clean()
@@ -22,26 +33,24 @@ class SocioDemographicDataFormValidator(FormValidatorMixin, FormValidator):
         for field in other_specify_fields:
             self.validate_other_specify(field=field)
 
-        subject_identifier = self.cleaned_data.get(
-            'maternal_visit').subject_identifier
+        self.applicable_if_true(self.is_not_pregnant, 'stay_with_child')
 
-        is_woman_preg = self.antenatal_enrollment_cls.objects.filter(subject_identifier=subject_identifier)
+        self.required_if_true(not self.is_not_pregnant, 'number_of_household_members')
 
-        if is_woman_preg:
-            stay_with_child = self.cleaned_data['stay_with_child']
-            if not stay_with_child == NOT_APPLICABLE:
-                raise ValidationError({
-                    'stay_with_child': 'The participant is currently pregnant'
-                })
+    @property
+    def is_not_pregnant(self):
 
-            if not self.cleaned_data['number_of_household_members']:
-                raise ValidationError({
-                    'number_of_household_members': 'The participant is pregnant, hence this question needs to be '
-                                                   'answered '
-                })
-
+        maternal_visit = self.cleaned_data.get('maternal_visit')
+        try:
+            self.preg_screening_cls.objects.get(
+                subject_identifier=maternal_visit.subject_identifier)
+        except self.preg_screening_cls.DoesNotExist:
+            return True
         else:
-            if self.cleaned_data['number_of_household_members']:
-                raise ValidationError({
-                    'number_of_household_members': 'The participant is not pregnant, hence should be left blank'
-                })
+            try:
+                self.delivery_model_cls.objects.get(
+                    subject_identifier=maternal_visit.subject_identifier)
+            except self.delivery_model_cls.DoesNotExist:
+                return False
+            else:
+                return True
