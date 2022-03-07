@@ -4,7 +4,7 @@ from edc_base.utils import get_utcnow, relativedelta
 from edc_constants.constants import YES, FEMALE, NOT_APPLICABLE, MALE
 
 from ..form_validators import CaregiverChildConsentFormValidator
-from .models import ChildDataset, SubjectConsent, SubjectScreening
+from .models import ChildDataset, SubjectConsent, SubjectScreening, FlourishConsentVersion
 from .test_model_mixin import TestModeMixin
 
 
@@ -18,6 +18,9 @@ class TestCaregiverChildConsentForm(TestModeMixin, TestCase):
 
         self.screening_identifier = 'ABC12345'
         self.study_child_identifier = '1234DCD'
+
+        FlourishConsentVersion.objects.create(
+            screening_identifier='ABC12345')
 
         self.subject_consent = SubjectConsent.objects.create(
             subject_identifier='11111111',

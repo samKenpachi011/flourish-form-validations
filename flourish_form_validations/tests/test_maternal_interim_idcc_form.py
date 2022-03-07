@@ -6,7 +6,7 @@ from edc_constants.constants import YES, NO
 
 from ..form_validators import MaternalIterimIdccFormValidator
 from .models import MaternalVisit, Appointment
-from .models import SubjectConsent
+from .models import SubjectConsent, FlourishConsentVersion
 from .test_model_mixin import TestModeMixin
 
 
@@ -16,6 +16,9 @@ class TestMaternalInterimIdccFormValidator(TestModeMixin, TestCase):
         super().__init__(MaternalIterimIdccFormValidator, *args, **kwargs)
 
     def setUp(self):
+
+        FlourishConsentVersion.objects.create(
+            screening_identifier='ABC12345')
 
         self.subject_identifier = '11111111'
 

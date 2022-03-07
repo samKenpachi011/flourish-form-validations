@@ -3,9 +3,10 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase
 from edc_base.utils import get_utcnow
 from edc_constants.constants import YES, NO, NOT_APPLICABLE
+
 from ..form_validators import MaternalArvDuringPregFormValidator
+from .models import ArvsPrePregnancy, SubjectConsent, FlourishConsentVersion
 from .models import MaternalVisit, Appointment
-from .models import ArvsPrePregnancy, SubjectConsent
 from .test_model_mixin import TestModeMixin
 
 
@@ -15,6 +16,9 @@ class TestMaternalArvDuringPregForm(TestModeMixin, TestCase):
         super().__init__(MaternalArvDuringPregFormValidator, *args, **kwargs)
 
     def setUp(self):
+
+        FlourishConsentVersion.objects.create(
+            screening_identifier='ABC12345')
 
         self.subject_identifier = '11111111'
 

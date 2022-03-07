@@ -33,7 +33,7 @@ class TestModeMixin:
             'flourish_form_validations.subjectscreening'
 
         validator_class.caregiver_locator_model = \
-            'flourish_form_validations.subjectscreening'
+            'flourish_form_validations.caregiverlocator'
 
         validator_class.delivery_model = \
             'flourish_form_validations.maternaldelivery'
@@ -44,11 +44,26 @@ class TestModeMixin:
         validator_class.maternal_arv_model = \
             'flourish_form_validations.maternalarv'
 
+        validator_class.arvs_pre_pregnancy = \
+            'flourish_form_validations.maternalarvduringpreg'
+
         validator_class.ultrasound_model = \
             'flourish_form_validations.ultrasound'
 
         validator_class.screening_preg_women = \
             'flourish_form_validations.screeningpregwomen'
+
+        validator_class.caregiver_offstudy_model = \
+            'flourish_form_validations.offstudy'
+
+        validator_class.caregiver_contact_model = \
+            'flourish_form_validations.caregivercontact'
+
+        validator_class.consent_version_model = \
+            'flourish_form_validations.flourishconsentversion'
+
+        validator_class.caregiver_locator_model = \
+            'flourish_form_validations.caregiverlocator'
 
     class Meta:
         abstract = True

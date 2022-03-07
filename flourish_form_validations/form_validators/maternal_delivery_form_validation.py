@@ -1,16 +1,14 @@
-from flourish_caregiver.helper_classes import MaternalStatusHelper
-
 from django.apps import apps as django_apps
 from django.core.exceptions import ValidationError
 from edc_base.utils import relativedelta
 from edc_constants.constants import POS, YES, NOT_APPLICABLE, OTHER, NONE
 from edc_form_validators import FormValidator
+from flourish_caregiver.helper_classes import MaternalStatusHelper
 
-from .crf_form_validator import CRFFormValidator
-from .form_validator_mixin import FlourishFormValidatorMixin
+from .crf_form_validator import FormValidatorMixin
 
 
-class MaternalDeliveryFormValidator(CRFFormValidator, FlourishFormValidatorMixin,
+class MaternalDeliveryFormValidator(FormValidatorMixin,
                                     FormValidator):
     maternal_arv_model = 'flourish_caregiver.maternalarv'
     maternal_visit_model = 'flourish_caregiver.maternalvisit'
@@ -35,16 +33,9 @@ class MaternalDeliveryFormValidator(CRFFormValidator, FlourishFormValidatorMixin
 
     def clean(self):
         self.subject_identifier = self.cleaned_data.get('subject_identifier')
-        #         if self.instance and not self.instance.id:
-        #             self.validate_offstudy_model()
 
-        id = None
-        if self.instance:
-            id = self.instance.id
-
-        self.validate_against_consent_datetime(
-            self.cleaned_data.get('report_datetime'),
-            id=id)
+        super().clean()
+        self.validate_against_consent_datetime(self.cleaned_data.get('report_datetime'))
 
         condition = self.cleaned_data.get(
             'mode_delivery') and 'c-section' in self.cleaned_data.get('mode_delivery')
@@ -55,14 +46,13 @@ class MaternalDeliveryFormValidator(CRFFormValidator, FlourishFormValidatorMixin
 
         self.validate_against_maternal_delivery()
         self.validate_ultrasound(cleaned_data=self.cleaned_data)
-        self.validate_initiation_date(cleaned_data=self.cleaned_data)
         self.validate_valid_regime_hiv_pos_only(cleaned_data=self.cleaned_data)
         self.validate_live_births_still_birth(cleaned_data=self.cleaned_data)
         self.validate_other()
 
     def validate_ultrasound(self, cleaned_data=None):
         ultrasound = self.ultrasound_cls.objects.filter(
-            maternal_visit__appointment__subject_identifier=cleaned_data.get(
+            maternal_visit__subject_identifier=cleaned_data.get(
                 'subject_identifier'))
         if not ultrasound:
             message = 'Please complete ultrasound form first'
@@ -78,9 +68,9 @@ class MaternalDeliveryFormValidator(CRFFormValidator, FlourishFormValidatorMixin
             initiation_date = cleaned_data.get('arv_initiation_date')
             if initiation_date != maternal_arv.start_date:
                 message = {'arv_initiation_date':
-                               'ARV\'s initiation date must match start date '
-                               'in pregnancy form, pregnancy form start date is '
-                               f'{maternal_arv.start_date}, got {initiation_date}.'}
+                           'ARV\'s initiation date must match start date '
+                           'in pregnancy form, pregnancy form start date is '
+                           f'{maternal_arv.start_date}, got {initiation_date}.'}
                 self._errors.update(message)
                 raise ValidationError(message)
 
@@ -88,8 +78,8 @@ class MaternalDeliveryFormValidator(CRFFormValidator, FlourishFormValidatorMixin
         if self.maternal_status_helper.hiv_status == POS:
             if cleaned_data.get('valid_regiment_duration') != YES:
                 message = {'valid_regiment_duration':
-                               'Participant is HIV+ valid regimen duration '
-                               'should be YES. Please correct.'}
+                           'Participant is HIV+ valid regimen duration '
+                           'should be YES. Please correct.'}
                 self._errors.update(message)
                 raise ValidationError(message)
             self.required_if(
@@ -103,9 +93,9 @@ class MaternalDeliveryFormValidator(CRFFormValidator, FlourishFormValidatorMixin
                     (cleaned_data.get('delivery_datetime').date() - relativedelta(weeks=4) <
                      cleaned_data.get('arv_initiation_date'))):
                 message = {'delivery_datetime':
-                               'You indicated that the mother was on REGIMEN for a '
-                               'valid duration, but delivery date is within 4weeks '
-                               'of art initiation date. Please correct.'}
+                           'You indicated that the mother was on REGIMEN for a '
+                           'valid duration, but delivery date is within 4weeks '
+                           'of art initiation date. Please correct.'}
                 self._errors.update(message)
                 raise ValidationError(message)
         else:
@@ -177,11 +167,11 @@ class MaternalDeliveryFormValidator(CRFFormValidator, FlourishFormValidatorMixin
 
         try:
             pre_pregnancy = self.arvs_pre_pregnancy_cls.objects.get(
-                maternal_visit__appointment__subject_identifier=subject_identifier)
+                maternal_visit__subject_identifier=subject_identifier)
         except self.arvs_pre_pregnancy_cls.DoesNotExist:
             pass
         else:
             if pre_pregnancy.art_start_date != self.cleaned_data.get('arv_initiation_date'):
                 raise ValidationError(
-                    {'arv_initiation_date': 'The date does not corrospond with the date from '
+                    {'arv_initiation_date': 'Date not corresponding with the date from '
                      f'Arv Pregnancy CRF, the date should be {pre_pregnancy.art_start_date} '})

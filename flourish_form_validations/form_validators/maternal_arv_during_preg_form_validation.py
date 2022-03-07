@@ -4,10 +4,10 @@ from django.core.exceptions import ValidationError
 
 from edc_constants.constants import YES, NO
 from edc_form_validators import FormValidator
-from .crf_form_validator import CRFFormValidator
+from .crf_form_validator import FormValidatorMixin
 
 
-class MaternalArvDuringPregFormValidator(CRFFormValidator, FormValidator):
+class MaternalArvDuringPregFormValidator(FormValidatorMixin, FormValidator):
 
     arvs_pre_preg_model = 'flourish_caregiver.arvsprepregnancy'
 

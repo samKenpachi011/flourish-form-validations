@@ -4,7 +4,7 @@ from edc_base.utils import get_utcnow, relativedelta
 from edc_constants.constants import YES, OTHER
 
 from ..form_validators import SubjectConsentFormValidator
-from .models import SubjectConsent, SubjectScreening
+from .models import SubjectConsent, SubjectScreening, FlourishConsentVersion
 from .test_model_mixin import TestModeMixin
 
 
@@ -18,6 +18,9 @@ class TestSubjectConsentForm(TestModeMixin, TestCase):
 
         self.screening_identifier = 'ABC12345'
         self.study_child_identifier = '1234DCD'
+
+        FlourishConsentVersion.objects.create(
+            screening_identifier='ABC12345')
 
         self.consent_options = {
             'screening_identifier': self.screening_identifier,

@@ -3,10 +3,10 @@ from django.core.exceptions import ValidationError
 from edc_constants.constants import YES, NO
 from edc_form_validators import FormValidator
 
-from .form_validator_mixin import FlourishFormValidatorMixin
+from .crf_form_validator import FormValidatorMixin
 
 
-class CaregiverContactFormValidator(FlourishFormValidatorMixin, FormValidator):
+class CaregiverContactFormValidator(FormValidatorMixin, FormValidator):
 
     caregiver_locator_model = 'flourish_caregiver.caregiverlocator'
 
@@ -18,13 +18,7 @@ class CaregiverContactFormValidator(FlourishFormValidatorMixin, FormValidator):
         cleaned_data = self.cleaned_data
         self.subject_identifier = self.cleaned_data.get('subject_identifier')
 
-        id = None
-        if self.instance:
-            id = self.instance.id
-
-        self.validate_against_consent_datetime(
-            self.cleaned_data.get('report_datetime'),
-            id=id)
+        self.validate_against_consent_datetime(self.cleaned_data.get('report_datetime'))
 
         locator = self.caregiver_locator
         if locator:
@@ -40,14 +34,12 @@ class CaregiverContactFormValidator(FlourishFormValidatorMixin, FormValidator):
                     and locator.may_call == NO):
                 msg = {'contact_type':
                        f'Caregiver Locator says may call: {locator.may_call}, '
-                       'you cannot call participant if they did not give '
-                       'permission.'}
+                       'you cannot call participant if they did not give permission.'}
                 self._errors.update(msg)
                 raise ValidationError(msg)
         else:
             msg = {'__all__':
-                   'Caregiver Locator not found, please add Locator before '
-                   'proceeding.'}
+                   'Caregiver Locator not found, please add Locator before proceeding.'}
             self._errors.update(msg)
             raise ValidationError(msg)
 
@@ -59,6 +51,8 @@ class CaregiverContactFormValidator(FlourishFormValidatorMixin, FormValidator):
             field_required='contact_comment',
             inverse=False)
 
+        self.validate_call_rescheduled()
+
     @property
     def caregiver_locator(self):
         cleaned_data = self.cleaned_data
@@ -67,3 +61,17 @@ class CaregiverContactFormValidator(FlourishFormValidatorMixin, FormValidator):
                 subject_identifier=cleaned_data.get('subject_identifier'))
         except self.caregiver_locator_cls.DoesNotExist:
             return None
+
+    def validate_call_rescheduled(self):
+
+        self.required_if(
+            NO,
+            field='contact_success',
+            field_required='call_rescheduled',
+        )
+
+        self.required_if(
+            YES,
+            field='call_rescheduled',
+            field_required='reason_rescheduled',
+        )

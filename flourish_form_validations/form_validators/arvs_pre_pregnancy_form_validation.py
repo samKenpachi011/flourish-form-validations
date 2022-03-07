@@ -4,12 +4,10 @@ from django.core.exceptions import ValidationError
 from edc_constants.constants import YES, NO, RESTARTED, CONTINUOUS, STOPPED, NOT_APPLICABLE
 from edc_form_validators import FormValidator
 
-from .crf_form_validator import CRFFormValidator
-from .form_validator_mixin import FlourishFormValidatorMixin
+from .crf_form_validator import FormValidatorMixin
 
 
-class ArvsPrePregnancyFormValidator(CRFFormValidator, FlourishFormValidatorMixin,
-                                    FormValidator):
+class ArvsPrePregnancyFormValidator(FormValidatorMixin, FormValidator):
     caregiver_consent_model = 'flourish_caregiver.subjectconsent'
     antenatal_enrollment_model = 'flourish_caregiver.antenatalenrollment'
 
@@ -83,25 +81,16 @@ class ArvsPrePregnancyFormValidator(CRFFormValidator, FlourishFormValidatorMixin
 
     def validate_maternal_consent(self, cleaned_data=None):
         if cleaned_data.get('art_start_date'):
-            id = None
-            if self.instance:
-                id = self.instance.id
-            try:
-                maternal_consent = self.validate_against_consent()
-                if cleaned_data.get(
-                        'report_datetime') < maternal_consent.consent_datetime:
-                    msg = {'report_datetime': 'Report datetime CANNOT be '
-                                              'before consent datetime'}
-                    self._errors.update(msg)
-                    raise ValidationError(msg)
 
-                if cleaned_data.get('art_start_date') < maternal_consent.dob:
+            if self.latest_consent_obj:
+
+                if cleaned_data.get('art_start_date') < self.latest_consent_obj.dob:
                     msg = {'art_start_date': 'Date of triple ARVs first '
                                              'started CANNOT be before DOB.'}
                     self._errors.update(msg)
                     raise ValidationError(msg)
-            except self.caregiver_consent_model_cls.DoesNotExist:
-                raise ValidationError('Maternal Consent does not exist.')
+            else:
+                raise forms.ValidationError('Maternal Consent does not exist.')
 
         self.applicable_if_true(
             cleaned_data.get('art_start_date') is not None,
@@ -123,7 +112,7 @@ class ArvsPrePregnancyFormValidator(CRFFormValidator, FlourishFormValidatorMixin
                 msg = {'art_start_date':
                        'ART start date cannot be before date of HIV test.'}
                 self._errors.update(msg)
-                raise ValidationError(msg)
+                raise forms.ValidationError(msg)
 
     @property
     def subject_screening(self):
