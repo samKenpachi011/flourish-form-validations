@@ -1,6 +1,7 @@
 from .antenatal_enrollment_form_validation import \
     AntenatalEnrollmentFormValidator
 from .arvs_pre_pregnancy_form_validation import ArvsPrePregnancyFormValidator
+from .caregiver_appointment_form_validator import CaregiverAppointmentFormValidator
 from .caregiver_child_consent_form_validator import \
     CaregiverChildConsentFormValidator
 from .caregiver_clinical_measurements_form_validator import \
