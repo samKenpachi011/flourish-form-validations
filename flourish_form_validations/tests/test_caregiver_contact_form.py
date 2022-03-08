@@ -102,7 +102,7 @@ class TestCaregiverContactForm(TestModeMixin, TestCase):
         """Assert form saves without error."""
         cleaned_data = {
             'subject_identifier': self.subject_identifier,
-            'contact_success': NO,
+            'call_reason': 'call_reason',
             'call_rescheduled': YES,
             'reason_rescheduled': 'blah blah',
         }
