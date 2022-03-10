@@ -19,6 +19,18 @@ class CaregiverContactFormValidator(FormValidatorMixin, FormValidator):
 
         self.validate_against_consent_datetime(self.cleaned_data.get('report_datetime'))
 
+        self.required_if(
+            're_appointment',
+            field='call_reason',
+            field_required='call_rescheduled',
+        )
+
+        self.required_if(
+            YES,
+            field='call_rescheduled',
+            field_required='reason_rescheduled',
+        )
+
         locator = self.caregiver_locator
         if locator:
             if (cleaned_data.get('contact_type') == 'in_person'
@@ -50,8 +62,6 @@ class CaregiverContactFormValidator(FormValidatorMixin, FormValidator):
             field_required='contact_comment',
             inverse=False)
 
-        self.validate_call_rescheduled()
-
     @property
     def caregiver_locator(self):
         cleaned_data = self.cleaned_data
@@ -60,17 +70,3 @@ class CaregiverContactFormValidator(FormValidatorMixin, FormValidator):
                 subject_identifier=cleaned_data.get('subject_identifier'))
         except self.caregiver_locator_cls.DoesNotExist:
             return None
-
-    def validate_call_rescheduled(self):
-
-        self.required_if(
-            're_appointment',
-            field='call_reasons',
-            field_required='call_rescheduled',
-        )
-
-        self.required_if(
-            YES,
-            field='call_rescheduled',
-            field_required='reason_rescheduled',
-        )
