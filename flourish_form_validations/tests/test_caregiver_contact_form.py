@@ -4,9 +4,9 @@ from django.test import TestCase, tag
 from edc_base.utils import get_utcnow
 from edc_constants.constants import YES, NO, OTHER
 
-from ..form_validators import CaregiverContactFormValidator
 from .models import CaregiverLocator, SubjectConsent, FlourishConsentVersion
 from .test_model_mixin import TestModeMixin
+from ..form_validators import CaregiverContactFormValidator
 
 
 @tag('contact')
@@ -80,6 +80,7 @@ class TestCaregiverContactForm(TestModeMixin, TestCase):
         self.assertRaises(ValidationError, form_validator.validate)
         self.assertIn('call_reason_other', form_validator._errors)
 
+    @tag('call')
     def test_contact_success_valid(self):
         """Assert form saves without error.
         """
@@ -102,9 +103,9 @@ class TestCaregiverContactForm(TestModeMixin, TestCase):
         """Assert form saves without error."""
         cleaned_data = {
             'subject_identifier': self.subject_identifier,
-            'contact_success': NO,
-            'call_rescheduled': YES,
-            'reason_rescheduled': 'blah blah',
+            'call_reason': 'call_reason',
+            'call_rescheduled': None,
+            'reason_rescheduled': None,
         }
         form_validator = CaregiverContactFormValidator(
             cleaned_data=cleaned_data)
