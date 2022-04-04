@@ -38,7 +38,7 @@ class ObstericalHistoryFormValidator(FormValidatorMixin, FormValidator):
 
         try:
             self.antenatal_enrollment_cls.objects.get(
-                subject_identifier=self.subject_identifier, )
+                subject_identifier=self.subject_identifier,)
         except self.antenatal_enrollment_cls.DoesNotExist:
             return 0
         else:
@@ -57,18 +57,15 @@ class ObstericalHistoryFormValidator(FormValidatorMixin, FormValidator):
     def validate_ultrasound(self, cleaned_data=None):
         try:
             self.antenatal_enrollment_cls.objects.get(
-                subject_identifier=self.subject_identifier, )
+                subject_identifier=self.subject_identifier,)
         except self.antenatal_enrollment_cls.DoesNotExist:
             return 0
         else:
             prev_pregnancies = cleaned_data.get('prev_pregnancies')
 
-            if prev_pregnancies == 1:
+            if prev_pregnancies == 1 and self.ultrasound_ga_confirmed > 24:
 
-                if self.ultrasound_ga_confirmed > 24:
-
-                    fields = ['pregs_24wks_or_more',
-                              'lost_before_24wks', 'lost_after_24wks']
+                    fields = ['lost_before_24wks', 'lost_after_24wks']
 
                     for field in fields:
                         if (field in cleaned_data and
@@ -80,13 +77,15 @@ class ObstericalHistoryFormValidator(FormValidatorMixin, FormValidator):
                             self._errors.update(message)
                             raise ValidationError(message)
 
-                else:
-                    fields = ['prev_pregnancies', 'pregs_24wks_or_more']
-                    for field in fields:
-                        if cleaned_data.get(field) == 0:
-                            raise ValidationError(
-                                {field: 'You indicated previous pregnancies were '
-                                        f'{prev_pregnancies}, {field} cannot be zero.'})
+            elif prev_pregnancies == 1 and self.ultrasound_ga_confirmed < 24:
+                fields = ['pregs_24wks_or_more', 'lost_after_24wks']
+                for field in fields:
+                    if cleaned_data.get(field) != 0:
+                        raise ValidationError(
+                            {field: 'You indicated previous pregnancies were '
+                                    f'{prev_pregnancies}, {field} should be '
+                                    f'zero as the current pregnancy is not more '
+                                    f'than 24 weeks.'})
 
     def validate_children_delivery(self, cleaned_data=None):
         if None not in [cleaned_data.get('children_deliv_before_37wks'),
