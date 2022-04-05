@@ -138,6 +138,33 @@ class TestObstericalHistoryForm(TestModeMixin, TestCase):
             self.fail(f'ValidationError unexpectedly raised. Got{e}')
 
     @tag('obg')
+    def test_ultrasound_prev_preg_261_valid(self):
+        '''Test if '''
+
+        AntenatalEnrollment.objects.create(
+            subject_identifier='11111111',)
+
+        UltraSound.objects.create(
+            maternal_visit=self.maternal_visit, ga_confirmed=26)
+
+        cleaned_data = {
+            'maternal_visit': self.maternal_visit,
+            'prev_pregnancies': 1,
+            'pregs_24wks_or_more': 0,
+            'lost_before_24wks': 0,
+            'lost_after_24wks': 0,
+            'live_children': 0,
+            'children_died_b4_5yrs': 0,
+            'children_deliv_before_37wks': 0,
+            'children_deliv_aftr_37wks': 0}
+        form_validator = ObstericalHistoryFormValidator(
+            cleaned_data=cleaned_data)
+        try:
+            form_validator.validate()
+        except ValidationError as e:
+            self.fail(f'ValidationError unexpectedly raised. Got{e}')
+
+    @tag('obg')
     def test_ultrasound_prev_preg_26_invalid(self):
         '''Test if '''
 
