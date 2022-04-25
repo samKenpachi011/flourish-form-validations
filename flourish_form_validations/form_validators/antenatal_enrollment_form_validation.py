@@ -13,13 +13,21 @@ class AntenatalEnrollmentFormValidator(FormValidatorMixin,
 
     antenatal_enrollment_model = 'flourish_caregiver.antenatalenrollment'
 
+    child_consent_model = 'flourish_caregiver.caregiverchildconsent'
+
     @property
     def antenatal_enrollment_cls(self):
         return django_apps.get_model(self.antenatal_enrollment_model)
 
+    @property
+    def child_consent_cls(self):
+        return django_apps.get_model(self.child_consent_model)
+
     def clean(self):
 
         super().clean()
+
+        self.validate_child_consent_preg()
 
         self.subject_identifier = self.cleaned_data.get('subject_identifier')
 
@@ -59,6 +67,16 @@ class AntenatalEnrollmentFormValidator(FormValidatorMixin,
                 'Unable to determine maternal hiv status at enrollment.')
 
         enrollment_helper.raise_validation_error_for_rapidtest()
+
+    def validate_child_consent_preg(self):
+
+        if not self.child_consent_cls.objects.filter(
+                preg_enroll=True, subject_identifier__startswith=self.cleaned_data.get(
+                    'subject_identifier')):
+            message = {'__all__': 'Missing Child Consent associated with participant\'s '
+                       ' pregnancy screening form. Please correct.'}
+            self._errors.update(message)
+            raise ValidationError(message)
 
     def validate_current_hiv_status(self):
         if (self.cleaned_data.get('week32_test') == NO and
