@@ -1,6 +1,4 @@
 from django.apps import apps as django_apps
-from django.core.exceptions import ValidationError
-from edc_constants.constants import NOT_APPLICABLE
 from edc_form_validators import FormValidator
 
 from .crf_form_validator import FormValidatorMixin
@@ -25,6 +23,8 @@ class SocioDemographicDataFormValidator(FormValidatorMixin, FormValidator):
         return django_apps.get_model(self.delivery_model)
 
     def clean(self):
+        self.subject_identifier = self.cleaned_data.get(
+            'maternal_visit').subject_identifier
         super().clean()
 
         other_specify_fields = ['marital_status', 'ethnicity',

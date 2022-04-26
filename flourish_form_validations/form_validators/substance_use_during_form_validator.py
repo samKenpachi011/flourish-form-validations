@@ -1,10 +1,15 @@
 from edc_constants.constants import YES
 from edc_form_validators.form_validator import FormValidator
+from .crf_form_validator import FormValidatorMixin
 
 
-class SubstanceUseDuringPregFormValidator(FormValidator):
+class SubstanceUseDuringPregFormValidator(FormValidatorMixin, FormValidator):
 
     def clean(self):
+        self.subject_identifier = self.cleaned_data.get(
+            'maternal_visit').subject_identifier
+        super().clean()
+
         self.required_if(
             YES,
             field='smoked_during_preg',
