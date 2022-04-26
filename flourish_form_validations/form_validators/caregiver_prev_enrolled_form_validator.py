@@ -2,7 +2,6 @@ from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
 from django.core.exceptions import ValidationError
 
-from edc_base.utils import get_utcnow
 from edc_constants.constants import YES, NO, NEG, IND
 from edc_form_validators.form_validator import FormValidator
 

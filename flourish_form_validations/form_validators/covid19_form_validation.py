@@ -1,10 +1,14 @@
 from django.core.exceptions import ValidationError
-from edc_constants.constants import *
+from edc_constants.constants import YES, POS, NO
 from edc_form_validators import FormValidator
 
 
 class Covid19FormValidator(FormValidator):
+
     def clean(self):
+
+        self.subject_identifier = self.cleaned_data.get(
+            'maternal_visit').subject_identifier
 
         self.validate_booster_vac()
 
@@ -80,7 +84,6 @@ class Covid19FormValidator(FormValidator):
                         field='vaccination_type',
                         field_required=field
                     )
-
 
         elif self.cleaned_data.get('fully_vaccinated') == 'partially_jab':
 

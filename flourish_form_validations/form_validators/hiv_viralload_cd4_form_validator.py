@@ -1,11 +1,15 @@
 from django.core.exceptions import ValidationError
-from edc_form_validators import FormValidator
 from edc_constants.choices import YES, NO
+from edc_form_validators import FormValidator
+
+from .crf_form_validator import FormValidatorMixin
 
 
-class HivViralLoadCd4FormValidator(FormValidator):
+class HivViralLoadCd4FormValidator(FormValidatorMixin, FormValidator):
 
     def clean(self):
+        self.subject_identifier = self.cleaned_data.get(
+            'maternal_visit').subject_identifier
 
         required_fields = ['cd4_count', 'cd4_count_date']
         for field in required_fields:
