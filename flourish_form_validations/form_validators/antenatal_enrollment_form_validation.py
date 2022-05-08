@@ -13,9 +13,15 @@ class AntenatalEnrollmentFormValidator(FormValidatorMixin,
 
     antenatal_enrollment_model = 'flourish_caregiver.antenatalenrollment'
 
+    child_consent_model = 'flourish_caregiver.caregiverchildconsent'
+
     @property
     def antenatal_enrollment_cls(self):
         return django_apps.get_model(self.antenatal_enrollment_model)
+
+    @property
+    def child_consent_cls(self):
+        return django_apps.get_model(self.child_consent_model)
 
     def clean(self):
 

@@ -225,31 +225,33 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin,
 
     def validate_dob(self, cleaned_data=None):
         consent_datetime = cleaned_data.get('consent_datetime')
-        consent_age = relativedelta(
-            consent_datetime.date(), cleaned_data.get('dob')).years
-        age_in_years = None
 
-        try:
-            consent_obj = self.subject_consent_cls.objects.get(
-                screening_identifier=self.cleaned_data.get('screening_identifier'),
-                version=self.cleaned_data.get('version'))
-        except self.subject_consent_cls.DoesNotExist:
-            if consent_age < 18:
-                message = {'dob':
-                           'Participant is less than 18 years, age derived '
-                           f'from the DOB is {consent_age}.'}
-                self._errors.update(message)
-                raise ValidationError(message)
-        else:
-            age_in_years = relativedelta(
-                consent_datetime.date(), consent_obj.dob).years
-            if consent_age != age_in_years:
-                message = {'dob':
-                           'In previous consent the derived age of the '
-                           f'participant is {age_in_years}, but age derived '
-                           f'from the DOB is {consent_age}.'}
-                self._errors.update(message)
-                raise ValidationError(message)
+        if cleaned_data.get('dob') and consent_datetime:
+            consent_age = relativedelta(
+                consent_datetime.date(), cleaned_data.get('dob')).years
+            age_in_years = None
+
+            try:
+                consent_obj = self.subject_consent_cls.objects.get(
+                    screening_identifier=self.cleaned_data.get('screening_identifier'),
+                    version=self.cleaned_data.get('version'))
+            except self.subject_consent_cls.DoesNotExist:
+                if consent_age and consent_age < 18:
+                    message = {'dob':
+                               'Participant is less than 18 years, age derived '
+                               f'from the DOB is {consent_age}.'}
+                    self._errors.update(message)
+                    raise ValidationError(message)
+            else:
+                age_in_years = relativedelta(
+                    consent_datetime.date(), consent_obj.dob).years
+                if consent_age and consent_age != age_in_years:
+                    message = {'dob':
+                               'In previous consent the derived age of the '
+                               f'participant is {age_in_years}, but age derived '
+                               f'from the DOB is {consent_age}.'}
+                    self._errors.update(message)
+                    raise ValidationError(message)
 
     def validate_recruit_source(self):
         self.validate_other_specify(

@@ -1,17 +1,17 @@
-from flourish_caregiver.helper_classes import MaternalStatusHelper
-
 from django.core.exceptions import ValidationError
 from edc_constants.constants import YES, NOT_APPLICABLE, POS, OTHER
 from edc_form_validators.form_validator import FormValidator
+from flourish_caregiver.helper_classes import MaternalStatusHelper
+from .crf_form_validator import FormValidatorMixin
 
 
-class MaternalDiagnosesFormValidator(FormValidator):
+class MaternalDiagnosesFormValidator(FormValidatorMixin, FormValidator):
 
     def clean(self):
         subject_status = self.maternal_status_helper.hiv_status
 
-        # self.subject_identifier = self.cleaned_data.get(
-        #     'maternal_visit').subject_identifier
+        self.subject_identifier = self.cleaned_data.get(
+            'maternal_visit').subject_identifier
         super().clean()
 
         self.m2m_required(
