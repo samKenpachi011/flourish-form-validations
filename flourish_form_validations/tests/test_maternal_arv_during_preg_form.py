@@ -1,6 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
-from django.test import TestCase
+from django.test import TestCase,tag
 from edc_base.utils import get_utcnow
 from edc_constants.constants import YES, NO, NOT_APPLICABLE
 
@@ -9,7 +9,7 @@ from .models import ArvsPrePregnancy, SubjectConsent, FlourishConsentVersion
 from .models import MaternalVisit, Appointment
 from .test_model_mixin import TestModeMixin
 
-
+@tag('mdp')
 class TestMaternalArvDuringPregForm(TestModeMixin, TestCase):
 
     def __init__(self, *args, **kwargs):
@@ -126,6 +126,62 @@ class TestMaternalArvDuringPregForm(TestModeMixin, TestCase):
         }
         form_validator = MaternalArvDuringPregFormValidator(
             cleaned_data=cleaned_data)
+        try:
+            form_validator.validate()
+        except ValidationError as e:
+            self.fail(f'ValidationError raised. Got {e}')
+       
+          
+    def test_pre_preg_not_valid(self):
+        '''Assert pre preg is not filled when updating arv during pregnancy.
+        '''
+
+        ArvsPrePregnancy.objects.all().delete()
+        
+        appt = Appointment.objects.create(
+            subject_identifier=self.subject_consent.subject_identifier,
+            appt_datetime=get_utcnow(),
+            visit_code='2000D')
+        
+        visit = MaternalVisit.objects.create(
+            appointment=appt,
+            subject_identifier=self.subject_consent.subject_identifier)
+       
+        cleaned_data = {
+            'maternal_visit': visit,
+            'is_interrupt': NO,
+            'interrupt': NOT_APPLICABLE,
+            'took_arv': YES
+        }
+        
+        form_validator = MaternalArvDuringPregFormValidator(
+            cleaned_data=cleaned_data)
+        self.assertRaises(ValidationError, form_validator.validate)
+        
+            
+    def test_pre_preg_valid(self):
+        '''Raise error when pre preg is valid when updating arv during pregnancy.
+        '''
+        
+        appt = Appointment.objects.create(
+            subject_identifier=self.subject_consent.subject_identifier,
+            appt_datetime=get_utcnow(),
+            visit_code='2000D')
+        
+        visit = MaternalVisit.objects.create(
+            appointment=appt,
+            subject_identifier=self.subject_consent.subject_identifier)
+       
+        cleaned_data = {
+            'maternal_visit': visit,
+            'is_interrupt': NO,
+            'interrupt': NOT_APPLICABLE,
+            'took_arv': YES
+        }
+        
+        form_validator = MaternalArvDuringPregFormValidator(
+            cleaned_data=cleaned_data)
+        
         try:
             form_validator.validate()
         except ValidationError as e:

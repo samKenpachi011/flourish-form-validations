@@ -36,12 +36,15 @@ class MaternalArvDuringPregFormValidator(FormValidatorMixin, FormValidator):
             other_specify_field='interrupt_other',
             required_msg='Please give reason for interruption'
         )
-
+        
+        self.validate_avr_pre_pregnancy()
+        
+    def validate_avr_pre_pregnancy(self,arvs_pre_preg=None):
         try:
             arvs_pre_preg = self.arvs_pre_preg_cls.objects.get(
-                maternal_visit=self.cleaned_data.get('maternal_visit'))
+                maternal_visit__subject_identifier=self.subject_identifier)
         except self.arvs_pre_preg_cls.DoesNotExist:
-            raise forms.ValidationError(
+                raise forms.ValidationError(
                 'Please complete the ARV\'s pre pregnancy form first.')
         else:
             if (arvs_pre_preg.preg_on_art == YES and
@@ -49,4 +52,5 @@ class MaternalArvDuringPregFormValidator(FormValidatorMixin, FormValidator):
                     message = {'took_arv':
                                'cannot be answered as No'}
                     self._errors.update(message)
-                    raise ValidationError(message)
+                    raise ValidationError(message)    
+                
