@@ -160,8 +160,9 @@ class TestMaternalArvDuringPregForm(TestModeMixin, TestCase):
         
             
     def test_pre_preg_valid(self):
-        '''Raise error when pre preg is valid when updating arv during pregnancy.
-        '''
+        """ Tests pre pregnancy and raises a validation error for
+            unexpected errors.
+        """
         
         appt = Appointment.objects.create(
             subject_identifier=self.subject_consent.subject_identifier,
@@ -185,4 +186,4 @@ class TestMaternalArvDuringPregForm(TestModeMixin, TestCase):
         try:
             form_validator.validate()
         except ValidationError as e:
-            self.fail(f'ValidationError raised. Got {e}')
+            self.fail(f'Maternal Arv During Pregnancy unexpectedly raised. Got {e}')
