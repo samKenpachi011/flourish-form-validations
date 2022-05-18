@@ -6,9 +6,8 @@ from edc_form_validators import FormValidator
 class Covid19FormValidator(FormValidator):
 
     def clean(self):
-
-        self.subject_identifier = self.cleaned_data.get(
-            'maternal_visit').subject_identifier
+        
+        self.validate_visit()
 
         self.validate_booster_vac()
 
@@ -131,3 +130,13 @@ class Covid19FormValidator(FormValidator):
             field='booster_vac_type',
             other_specify_field='other_booster_vac_type'
         )
+
+    def validate_visit(self):
+        if 'maternal_visit' in self.cleaned_data:
+            self.subject_identifier = self.cleaned_data.get(
+            'maternal_visit').subject_identifier
+        else:
+            self.subject_identifier = self.cleaned_data.get(
+            'child_visit').subject_identifier    
+            
+            
