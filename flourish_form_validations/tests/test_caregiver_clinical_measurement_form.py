@@ -104,22 +104,5 @@ class TestCaregiverClinicalMeasurementsForm(TestModeMixin, TestCase):
         except ValidationError as e:
             self.fail(f'ValidationError unexpectedly raised. Got{e}')
     
-    
-    def test_confirm_values_required_invalid(self):
-        
-        field_name = 'confirm_values'
 
-        form_validator = CaregiverClinicalMeasurementsFormValidator(cleaned_data=self.data)
-
-        self.assertRaises(ValidationError, form_validator.validate)
-        self.assertIn(field_name, form_validator._errors)
-    
-    def test_confirm_values_required_valid(self):
-        self.data.update({'systolic_bp':120})
-        self.data.update({'diastolic_bp':70})
-        form_validator = CaregiverClinicalMeasurementsFormValidator(cleaned_data=self.data)
-
-        try:
-            form_validator.validate()
-        except ValidationError as e:
-            self.fail(f'ValidationError unexpectedly raised. Got{e}')
+   
