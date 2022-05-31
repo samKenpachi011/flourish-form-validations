@@ -31,19 +31,16 @@ class TestCaregiverClinicalMeasurementsForm(TestModeMixin, TestCase):
         appointment = Appointment.objects.create(
             subject_identifier=self.subject_consent.subject_identifier,
             appt_datetime=get_utcnow(),
-            visit_code='1000')
+            visit_code='2001M')
 
         self.maternal_visit = MaternalVisit.objects.create(
             appointment=appointment,
             subject_identifier=self.subject_consent.subject_identifier,
             report_datetime=get_utcnow())
         
-        self.data = {
+        self.options = {
             'maternal_visit': self.maternal_visit,
-            'is_preg': YES,
-            'systolic_bp': 10,
-            'diastolic_bp': 10,
-            'confirm_values': NOT_APPLICABLE,
+            
         }
            
         
