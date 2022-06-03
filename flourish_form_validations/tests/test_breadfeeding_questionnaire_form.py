@@ -1,8 +1,7 @@
-
-from django.test import TestCase, tag
+from django.test import TestCase, 
 from django.core.exceptions import ValidationError
 from edc_base.utils import get_utcnow
-from edc_constants.constants import YES, NO, NOT_APPLICABLE
+from edc_constants.constants import YES, NO, NOT_APPLICABLE,POS
 from ..form_validators import BreastFeedingQuestionnaireFormValidator
 from flourish_form_validations.tests.test_model_mixin import TestModeMixin
 from .models import (FlourishConsentVersion, SubjectConsent,
@@ -10,7 +9,7 @@ from .models import (FlourishConsentVersion, SubjectConsent,
 from dateutil.relativedelta import relativedelta
 from edc_constants.constants import OTHER 
 
-@tag('bfq')
+
 class TestBreastFeedingQuestionnaireForm(TestModeMixin,TestCase):
     
     def __init__(self, *args, **kwargs):
@@ -44,17 +43,15 @@ class TestBreastFeedingQuestionnaireForm(TestModeMixin,TestCase):
             
         }
         
-  
     def test_during_preg_influencers_specify_required(self):
         """ Assert that the During Pregnancy Influencers specify raises an error if 
             during pregnancy influencers includes other, but not specified.
         """
         
-        ListModel.objects.create(name=OTHER)
+        ListModel.objects.create(short_name=OTHER)
         self.options.update(
             during_preg_influencers=ListModel.objects.all(),
             during_preg_influencers_other=None)
-        
         form_validator = BreastFeedingQuestionnaireFormValidator(cleaned_data=self.options)
         self.assertRaises(ValidationError, form_validator.validate)
         self.assertIn('during_preg_influencers_other',form_validator._errors)
@@ -66,31 +63,29 @@ class TestBreastFeedingQuestionnaireForm(TestModeMixin,TestCase):
             tests if the Validation Error is raised unexpectedly.
         """
         
-        ListModel.objects.create(name=OTHER)
+        ListModel.objects.create(short_name=OTHER)
         self.options.update(
             during_preg_influencers=ListModel.objects.all(),
             during_preg_influencers_other='blah')
         
         form_validator = BreastFeedingQuestionnaireFormValidator(cleaned_data=self.options)
-        import pdb;pdb.set_trace()
         try:
             form_validator.validate()
         except ValidationError as e:
             self.fail(f'ValidationError unexpectedly raised. Got{e}')
 
-    # after delivery
+
     def test_after_delivery_influencers_specify_required(self):
         """ Assert that the After Pregnancy Influencers specify raises an error if 
             after pregnancy influencers includes other, but not specified.
         """
         
-        ListModel.objects.create(name=OTHER)
-        data = {
-            'after_delivery_influencers':ListModel.objects.all(),
-            'after_delivery_influencers_other':None
-        }
+        ListModel.objects.create(short_name=OTHER)
+        self.options.update(
+            after_delivery_influencers=ListModel.objects.all(),
+            after_delivery_influencers_other=None)
             
-        form_validator = BreastFeedingQuestionnaireFormValidator(cleaned_data=data)
+        form_validator = BreastFeedingQuestionnaireFormValidator(cleaned_data=self.options)
         self.assertRaises(ValidationError, form_validator.validate)
         self.assertIn('after_delivery_influencers_other',form_validator._errors)
         
@@ -101,7 +96,7 @@ class TestBreastFeedingQuestionnaireForm(TestModeMixin,TestCase):
             tests if the Validation Error is raised unexpectedly.
         """
         
-        ListModel.objects.create(name=OTHER)
+        ListModel.objects.create(short_name=OTHER)
         self.options.update(
             after_delivery_influencers=ListModel.objects.all(),
             after_delivery_influencers_other='blah')
@@ -118,7 +113,7 @@ class TestBreastFeedingQuestionnaireForm(TestModeMixin,TestCase):
             infant feeding includes other, but not specified.
         """
         
-        ListModel.objects.create(name=OTHER)
+        ListModel.objects.create(short_name=OTHER)
         self.options.update(
             infant_feeding_reasons=ListModel.objects.all(),
             infant_feeding_other=None)
@@ -134,8 +129,9 @@ class TestBreastFeedingQuestionnaireForm(TestModeMixin,TestCase):
             tests if the Validation Error is raised unexpectedly.
         """
         
-        ListModel.objects.create(name=OTHER)
+        ListModel.objects.create(short_name=OTHER)
         self.options.update(
+            six_months_feeding=YES,
             infant_feeding_reasons=ListModel.objects.all(),
             infant_feeding_other='blah')
         
@@ -145,7 +141,7 @@ class TestBreastFeedingQuestionnaireForm(TestModeMixin,TestCase):
         except ValidationError as e:
             self.fail(f'ValidationError unexpectedly raised. Got{e}')
       
-      
+
     def test_hiv_status_aware_required(self):
         
         self.options.update(
@@ -192,12 +188,12 @@ class TestBreastFeedingQuestionnaireForm(TestModeMixin,TestCase):
             form_validator.validate()
         except ValidationError as e:
             self.fail(f'ValidationError unexpectedly raised. Got{e}')      
-        
+    
 
     def test_hiv_status_known_by_required(self):
         
         self.options.update(
-            hiv_status_during_preg=YES,
+            hiv_status_during_preg=POS,
             hiv_status_known_by=None)
         
         form_validator = BreastFeedingQuestionnaireFormValidator(cleaned_data=self.options)
@@ -208,7 +204,7 @@ class TestBreastFeedingQuestionnaireForm(TestModeMixin,TestCase):
     def test_hiv_status_known_by_valid(self):
         
         self.options.update(
-            hiv_status_during_preg=YES,
+            hiv_status_during_preg=POS,
             hiv_status_known_by='blah')
         
         form_validator = BreastFeedingQuestionnaireFormValidator(cleaned_data=self.options)
@@ -219,8 +215,9 @@ class TestBreastFeedingQuestionnaireForm(TestModeMixin,TestCase):
     
     def test_influenced_during_preg_required(self):
         
+        ListModel.objects.create(short_name=YES)
         self.options.update(
-            hiv_status_during_preg=NO,
+            during_preg_influencers=ListModel.objects.all(),
             influenced_during_preg=None)
         
         form_validator = BreastFeedingQuestionnaireFormValidator(cleaned_data=self.options)
@@ -229,8 +226,9 @@ class TestBreastFeedingQuestionnaireForm(TestModeMixin,TestCase):
               
     def test_influenced_during_preg_valid(self):
         
+        ListModel.objects.create(short_name=YES)
         self.options.update(
-            hiv_status_during_preg=NO,
+            during_preg_influencers=ListModel.objects.all(),
             influenced_during_preg='blah')
         
         form_validator = BreastFeedingQuestionnaireFormValidator(cleaned_data=self.options)
@@ -238,6 +236,55 @@ class TestBreastFeedingQuestionnaireForm(TestModeMixin,TestCase):
             form_validator.validate()
         except ValidationError as e:
             self.fail(f'ValidationError unexpectedly raised. Got{e}')   
+
+    
+    def test_infant_feeding_reasons_required(self):
+        
+        self.options.update(
+            six_months_feeding=YES,
+            infant_feeding_reasons=None)
+        
+        form_validator = BreastFeedingQuestionnaireFormValidator(cleaned_data=self.options)
+        self.assertRaises(ValidationError, form_validator.validate)
+        self.assertIn('infant_feeding_reasons',form_validator._errors)  
+            
+    def test_infant_feeding_reasons_valid(self):
+        
+        ListModel.objects.create(name='test')
+        self.options.update(
+            six_months_feeding=YES,
+            infant_feeding_reasons=ListModel.objects.all())
+        
+        form_validator = BreastFeedingQuestionnaireFormValidator(cleaned_data=self.options)
+        try:
+            form_validator.validate()
+        except ValidationError as e:
+            self.fail(f'ValidationError unexpectedly raised. Got{e}')  
+                  
+
+    def test_infant_feeding_reasons_unsure_required(self):
+        
+        self.options.update(
+            six_months_feeding='do_not_remember',
+            infant_feeding_reasons=None)
+        
+        form_validator = BreastFeedingQuestionnaireFormValidator(cleaned_data=self.options)
+        self.assertRaises(ValidationError, form_validator.validate)
+        self.assertIn('infant_feeding_reasons',form_validator._errors)  
+     
+     
+    def test_infant_feeding_reasons_unsure_valid(self):
+        
+        ListModel.objects.create(name='test')
+        self.options.update(
+            six_months_feeding='do_not_remember',
+            infant_feeding_reasons= ListModel.objects.all())
+        
+        form_validator = BreastFeedingQuestionnaireFormValidator(cleaned_data=self.options)
+        try:
+            form_validator.validate()
+        except ValidationError as e:
+            self.fail(f'ValidationError unexpectedly raised. Got{e}')        
     
         
         
