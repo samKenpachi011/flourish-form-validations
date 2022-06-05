@@ -1,5 +1,5 @@
 from django.core.exceptions import ValidationError
-from edc_constants.constants import YES
+from edc_constants.constants import YES,NO
 from edc_form_validators import FormValidator
 
 from .crf_form_validator import FormValidatorMixin
@@ -24,6 +24,14 @@ class CaregiverClinicalMeasurementsFormValidator(FormValidatorMixin,
                        'diastolic blood pressure. Please correct.'}
                 self._errors.update(msg)
                 raise ValidationError(msg)
+            
+            
+        confirm_values = self.cleaned_data.get('confirm_values')
+        if confirm_values == NO:
+            message = {'confirm_values':
+                        'Please ensure that you agree with the given values'}
+            self._errors.update(message)
+            raise ValidationError(message)  
 
         self.required_if_true(
             (cleaned_data.get('is_preg') != YES
@@ -34,3 +42,8 @@ class CaregiverClinicalMeasurementsFormValidator(FormValidatorMixin,
             (cleaned_data.get('is_preg') != YES
                 and cleaned_data.get('maternal_visit').visit_code != '2000D'),
             field_required='hip_circ')
+        
+  
+            
+        
+            

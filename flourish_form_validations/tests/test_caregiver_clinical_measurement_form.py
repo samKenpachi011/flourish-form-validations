@@ -2,10 +2,10 @@ from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
 from django.test import TestCase, tag
 from edc_base.utils import get_utcnow
-from edc_constants.constants import YES
+from edc_constants.constants import YES, NOT_APPLICABLE
 
 from ..form_validators import CaregiverClinicalMeasurementsFormValidator
-from .models import SubjectConsent, MaternalVisit, Appointment
+from .models import SubjectConsent, MaternalVisit, Appointment, FlourishConsentVersion
 from .test_model_mixin import TestModeMixin
 
 
@@ -16,11 +16,17 @@ class TestCaregiverClinicalMeasurementsForm(TestModeMixin, TestCase):
         super().__init__(CaregiverClinicalMeasurementsFormValidator, *args, **kwargs)
 
     def setUp(self):
+        
+        FlourishConsentVersion.objects.create(
+            screening_identifier='ABC12345')
+        
         self.subject_consent = SubjectConsent.objects.create(
             subject_identifier='11111111',
+            screening_identifier='ABC12345',
             gender='F',
             dob=(get_utcnow() - relativedelta(years=25)).date(),
-            consent_datetime=get_utcnow())
+            consent_datetime=get_utcnow(),
+            version='1')
 
         appointment = Appointment.objects.create(
             subject_identifier=self.subject_consent.subject_identifier,
@@ -31,12 +37,22 @@ class TestCaregiverClinicalMeasurementsForm(TestModeMixin, TestCase):
             appointment=appointment,
             subject_identifier=self.subject_consent.subject_identifier,
             report_datetime=get_utcnow())
+        
+        self.data = {
+            'maternal_visit': self.maternal_visit,
+            'is_preg': YES,
+            'systolic_bp': 10,
+            'diastolic_bp': 10,
+            'confirm_values': NOT_APPLICABLE,
+        }
+           
+        
 
     def test_waist_circ_required_invalid(self):
         cleaned_data = {
             'maternal_visit': self.maternal_visit,
             'is_preg': YES,
-            'waist_circ': 15
+            'waist_circ': 15,            
         }
         form_validator = CaregiverClinicalMeasurementsFormValidator(
             cleaned_data=cleaned_data)
@@ -87,3 +103,6 @@ class TestCaregiverClinicalMeasurementsForm(TestModeMixin, TestCase):
             form_validator.validate()
         except ValidationError as e:
             self.fail(f'ValidationError unexpectedly raised. Got{e}')
+    
+
+   
