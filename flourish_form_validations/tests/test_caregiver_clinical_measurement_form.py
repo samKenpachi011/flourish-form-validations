@@ -112,6 +112,7 @@ class TestCaregiverClinicalMeasurementsForm(TestModeMixin, TestCase):
         form_validator = CaregiverClinicalMeasurementsFormValidator(cleaned_data=self.options)
 
         self.assertRaises(ValidationError, form_validator.validate)
+        self.assertIn('weight_kg', form_validator._errors)
 
 
     
