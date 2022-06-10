@@ -40,6 +40,10 @@ ALLOWED_HOSTS = []
 
 APP_NAME = 'flourish_form_validations'
 
+DEVICE_ID = 10
+
+DEVICE_ROLE = 'Client'
+
 # Application definition
 
 INSTALLED_APPS = [

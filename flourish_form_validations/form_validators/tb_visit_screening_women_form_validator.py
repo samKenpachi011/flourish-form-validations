@@ -18,54 +18,165 @@ class TbVisitScreeningWomenFormValidator(FormValidatorMixin, FormValidator):
         self.validate_weight_loss()
         self.validate_cough_blood()
         self.validate_enlarged_lymph_nodes()
-        self.validate_have_cough()
+        self.validate_cough()
 
-    def validate_have_cough(self):
+    def validate_cough(self):
+        have_cough_required_field = [
+            'cough_duration_preg',
+            'seek_med_help',
+            'cough_num'
+        ]
+        cough_illness_required_field = [
+            'cough_illness_times',
+            'cough_illness_preg',
+            'cough_illness_med_help'
+        ]
         self.required_if(
             YES,
             field='have_cough',
             field_required='cough_duration'
         )
-
-    def validate_cough_intersects_preg(self):
-
-        self.required_if(
-            YES,
-            field='cough_intersects_preg',
-            field_required='cough_timing'
-        )
+        for field in have_cough_required_field:
+            self.required_if(
+                YES,
+                field='cough_intersects_preg',
+                field_required=field
+            )
+        for field in cough_illness_required_field:
+            self.required_if(
+                YES,
+                field='cough_illness',
+                field_required=field
+            )
 
     def validate_fever(self):
-        self.required_if(
-            YES,
-            field='fever_during_preg',
-            field_required='fever_timing'
-        )
+        fever_during_preg_required_fields = [
+            'fever_illness_times',
+            'fever_illness_preg',
+        ]
+        fever_illness_postpartum_required_fields = [
+            'fever_illness_postpartum_times',
+            'fever_illness_postpartum_preg',
+        ]
+        for field in fever_during_preg_required_fields:
+            self.required_if(
+                YES,
+                field='fever_during_preg',
+                field_required=field
+            )
+        for field in fever_illness_postpartum_required_fields:
+            self.required_if(
+                YES,
+                field='fever_illness_postpartum',
+                field_required=field
+            )
 
     def validate_night_sweats(self):
-        self.required_if(
-            YES,
-            field='night_sweats_postpartum',
-            field_required='night_sweats_timing'
-        )
+        night_sweats_during_preg_required_fields = [
+            'night_sweats_during_preg_times',
+            'night_sweats_during_preg_clinic',
+        ]
+        night_sweats_postpartum_required_fields = [
+            'night_sweats_postpartum_times',
+            'night_sweats_postpartum_clinic',
+        ]
+        for field in night_sweats_during_preg_required_fields:
+            self.required_if(
+                YES,
+                field='night_sweats_during_preg',
+                field_required=field
+            )
+        for field in night_sweats_postpartum_required_fields:
+            self.required_if(
+                YES,
+                field='night_sweats_postpartum',
+                field_required=field
+            )
 
     def validate_weight_loss(self):
-        self.required_if(
-            YES,
-            field='weight_loss_postpartum',
-            field_required='weight_loss_timing'
-        )
-
-    def validate_cough_blood(self):
-        self.required_if(
-            YES,
-            field='cough_blood_postpartum',
-            field_required='cough_blood_timing'
-        )
+        weight_loss_during_preg_required_fields = [
+            'weight_loss_during_preg_times',
+            'weight_loss_during_preg_clinic',
+        ]
+        weight_loss_postpartum_required_fields = [
+            'weight_loss_postpartum_times',
+            'weight_loss_postpartum_clinic',
+        ]
+        for field in weight_loss_during_preg_required_fields:
+            self.required_if(
+                YES,
+                field='weight_loss_during_preg',
+                field_required=field
+            )
+        for field in weight_loss_postpartum_required_fields:
+            self.required_if(
+                YES,
+                field='weight_loss_postpartum',
+                field_required=field
+            )
 
     def validate_enlarged_lymph_nodes(self):
-        self.required_if(
-            YES,
-            field='enlarged_lymph_nodes_postpartum',
-            field_required='lymph_nodes_timing'
-        )
+        enlarged_lymph_nodes_during_preg_required_fields = [
+            'enlarged_lymph_nodes_during_preg_times',
+            'enlarged_lymph_nodes_during_preg_clinic',
+        ]
+        enlarged_lymph_nodes_postpartum_required_fields = [
+            'enlarged_lymph_nodes_postpartum_times',
+            'enlarged_lymph_nodes_postpartum_clinic',
+        ]
+        for field in enlarged_lymph_nodes_during_preg_required_fields:
+            self.required_if(
+                YES,
+                field='enlarged_lymph_nodes_during_preg',
+                field_required=field
+            )
+        for field in enlarged_lymph_nodes_postpartum_required_fields:
+            self.required_if(
+                YES,
+                field='enlarged_lymph_nodes_postpartum',
+                field_required=field
+            )
+
+    def validate_cough_blood(self):
+        cough_blood_during_preg_required_fields = [
+            'cough_blood_during_preg_times',
+            'cough_blood_during_preg_clinic',
+        ]
+        cough_blood_postpartum_required_fields = [
+            'cough_blood_postpartum_times',
+            'cough_blood_postpartum_clinic',
+        ]
+        for field in cough_blood_during_preg_required_fields:
+            self.required_if(
+                YES,
+                field='cough_blood_during_preg',
+                field_required=field
+            )
+        for field in cough_blood_postpartum_required_fields:
+            self.required_if(
+                YES,
+                field='cough_blood_postpartum',
+                field_required=field
+            )
+
+    def validate_unexplained_fatigues(self):
+        unexplained_fatigue_during_preg_required_fields = [
+            'unexplained_fatigue_during_preg_times',
+            'unexplained_fatigue_during_preg_clinic',
+        ]
+        unexplained_fatigue_postpartum_required_fields = [
+            'unexplained_fatigue_postpartum_times',
+            'unexplained_fatigue_postpartum_clinic',
+        ]
+        for field in unexplained_fatigue_during_preg_required_fields:
+            self.required_if(
+                YES,
+                field='unexplained_fatigue_during_preg',
+                field_required=field
+            )
+        for field in unexplained_fatigue_postpartum_required_fields:
+            self.required_if(
+                YES,
+                field='unexplained_fatigue_postpartum',
+                field_required=field
+            )
