@@ -21,7 +21,7 @@ class TbPresenceHouseholdMembersFormValidator(FormValidatorMixin, FormValidator)
 
         self.required_if(
             YES,
-            field='cough_signs',
+            field='tb_in_house',
             field_required='cough_ind_rel')
 
         self.validate_other_specify(
