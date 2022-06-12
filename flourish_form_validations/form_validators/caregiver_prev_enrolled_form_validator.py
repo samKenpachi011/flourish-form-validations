@@ -121,8 +121,8 @@ class CaregiverPrevEnrolledFormValidator(FormValidator):
     def bhp_prior_screening_obj(self):
         try:
             bhp_prior_screening = self.bhp_prior_screening_model_cls.objects.get(
-                screening_identifier=
-                self.subject_consent_obj.screening_identifier)
+                subject_identifier=
+                self.subject_consent_obj.subject_identifier)
         except self.bhp_prior_screening_model_cls.DoesNotExist:
             return None
         else:
@@ -132,8 +132,8 @@ class CaregiverPrevEnrolledFormValidator(FormValidator):
     def maternal_dataset_obj(self):
         try:
             maternal_dataset = self.maternal_dataset_model_cls.objects.get(
-                screening_identifier=
-                self.subject_consent_obj.screening_identifier)
+                subject_identifier=
+                self.subject_consent_obj.subject_identifier)
         except self.maternal_dataset_model_cls.DoesNotExist:
             return None
         else:
