@@ -2,7 +2,7 @@ from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
 from django.test import TestCase, tag
 from edc_base.utils import get_utcnow
-from edc_constants.constants import NO
+from edc_constants.constants import NO, YES
 
 from ..form_validators import TbVisitScreeningWomenFormValidator
 from .models import SubjectConsent, FlourishConsentVersion
@@ -27,35 +27,23 @@ class TestTbVisitScreeningWomen(TestModeMixin, TestCase):
             gender='M', dob=(get_utcnow() - relativedelta(years=25)).date(),
             consent_datetime=get_utcnow(), version='1')
 
-    def test_have_cough(self):
+    def test_cough(self):
         """
         Raise an error if cough duration is captured when the subject did not answer yes
         to have a cough question
         """
 
         cleaned_data = {
-            'have_cough': NO,
-            'cough_duration': None
-        }
-
-        form_validator = TbVisitScreeningWomenFormValidator(
-            cleaned_data=cleaned_data
-        )
-
-        try:
-            form_validator.validate()
-        except ValidationError as e:
-            self.fail(f'ValidationError unexpectedly raised. Got{e}')
-
-    def test_cough_intersects_preg(self):
-        """
-        Raise an error if cough duration is captured when the subject did not answer yes
-        to have a cough question
-        """
-
-        cleaned_data = {
-            'cough_intersects_preg': NO,
-            'cough_timing': 'month'
+            'have_cough': YES,
+            'cough_intersects_preg': YES,
+            'cough_illness': YES,
+            'cough_duration_preg': 'month',
+            'seek_med_help': 'month',
+            'cough_num': 'month',
+            'cough_illness_times': 'month',
+            'cough_illness_preg': 'month',
+            'cough_illness_med_help': 'month',
+            'cough_duration': 'month',
         }
 
         form_validator = TbVisitScreeningWomenFormValidator(
@@ -74,8 +62,12 @@ class TestTbVisitScreeningWomen(TestModeMixin, TestCase):
         """
 
         cleaned_data = {
-            'fever_during_preg': NO,
-            'fever_timing': None
+            'fever_during_preg': YES,
+            'fever_illness_postpartum': YES,
+            'fever_illness_times': "None",
+            'fever_illness_preg': "None",
+            'fever_illness_postpartum_times': "None",
+            'fever_illness_postpartum_preg': "None",
         }
 
         form_validator = TbVisitScreeningWomenFormValidator(
@@ -94,8 +86,12 @@ class TestTbVisitScreeningWomen(TestModeMixin, TestCase):
         """
 
         cleaned_data = {
-            'night_sweats_postpartum': NO,
-            'night_sweats_timing': None
+            'night_sweats_during_preg': YES,
+            'night_sweats_postpartum': YES,
+            'night_sweats_during_preg_times': "None",
+            'night_sweats_during_preg_clinic': "None",
+            'night_sweats_postpartum_times': "None",
+            'night_sweats_postpartum_clinic': "None",
         }
 
         form_validator = TbVisitScreeningWomenFormValidator(
@@ -114,8 +110,12 @@ class TestTbVisitScreeningWomen(TestModeMixin, TestCase):
         """
 
         cleaned_data = {
-            'weight_loss_postpartum': NO,
-            'weight_loss_timing': None
+            'weight_loss_during_preg': YES,
+            'weight_loss_postpartum': YES,
+            'weight_loss_during_preg_times': "None",
+            'weight_loss_during_preg_clinic': "None",
+            'weight_loss_postpartum_times': "None",
+            'weight_loss_postpartum_clinic': "None",
         }
 
         form_validator = TbVisitScreeningWomenFormValidator(
@@ -134,8 +134,12 @@ class TestTbVisitScreeningWomen(TestModeMixin, TestCase):
         """
 
         cleaned_data = {
-            'cough_blood_postpartum': NO,
-            'cough_blood_timing': None
+            'cough_blood_during_preg': YES,
+            'cough_blood_postpartum': YES,
+            'cough_blood_during_preg_times': "None",
+            'cough_blood_during_preg_clinic': "None",
+            'cough_blood_postpartum_times': "None",
+            'cough_blood_postpartum_clinic': "None",
         }
 
         form_validator = TbVisitScreeningWomenFormValidator(
@@ -154,8 +158,12 @@ class TestTbVisitScreeningWomen(TestModeMixin, TestCase):
         """
 
         cleaned_data = {
-            'enlarged_lymph_nodes_postpartum': NO,
-            'lymph_nodes_timing': None
+            'enlarged_lymph_nodes_during_preg': YES,
+            'enlarged_lymph_nodes_postpartum': YES,
+            'enlarged_lymph_nodes_postpartum_times': "None",
+            'enlarged_lymph_nodes_postpartum_clinic': "None",
+            'enlarged_lymph_nodes_during_preg_times': "None",
+            'enlarged_lymph_nodes_during_preg_clinic': "None",
         }
 
         form_validator = TbVisitScreeningWomenFormValidator(

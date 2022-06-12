@@ -15,6 +15,9 @@ class CaregiverClinicalMeasurementsFormValidator(FormValidatorMixin,
             'maternal_visit').subject_identifier
         super().clean()
 
+        self.required_if(YES,
+                         field='weight_available', field_required='weight_kg')
+
         if (cleaned_data.get('systolic_bp') and
                 cleaned_data.get('diastolic_bp')):
             if cleaned_data.get('systolic_bp') < \
