@@ -175,6 +175,7 @@ class CaregiverChildConsentFormValidator(FormValidator):
         child_dob = cleaned_data.get('child_dob')
 
         if child_dob:
+            child_dob = datetime.datetime.strptime(child_dob, "%Y-%m-%d").date()
             child_age = age(child_dob, get_utcnow()).years
             if child_age < 16 and cleaned_data.get(
                     'child_knows_status') in [YES, NO]:
@@ -194,6 +195,7 @@ class CaregiverChildConsentFormValidator(FormValidator):
         child_dob = cleaned_data.get('child_dob')
         if child_dob:
             date_jun_2025 = datetime.datetime.strptime("2025-01-30", "%Y-%m-%d").date()
+            child_dob = datetime.datetime.strptime(child_dob, "%Y-%m-%d").date()
             child_age_at_2025 = age(child_dob, date_jun_2025).years
             if cleaned_data.get('gender') == 'F':
                 if (child_age_at_2025 < 12
