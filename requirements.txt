@@ -6,10 +6,13 @@ git+https://github.com/botswana-harvard/edc-device.git@develop#egg=edc_device
 git+https://github.com/botswana-harvard/edc-form-validators.git@develop#egg=edc_form_validators
 git+https://github.com/botswana-harvard/edc-identifier.git@develop#egg=edc_identifier
 git+https://github.com/botswana-harvard/edc-model-wrapper.git@develop#egg=edc_model_wrapper
+git+https://github.com/botswana-harvard/edc-odk.git@develop#egg=edc-odk
 git+https://github.com/botswana-harvard/edc-prn.git@develop#egg=edc_prn
 git+https://github.com/botswana-harvard/edc-protocol.git@develop#egg=edc_protocol
 git+https://github.com/botswana-harvard/edc-registration.git@develop#egg=edc_registration
-git+https://github.com/flourishbhp/flourish-caregiver.git@develop#egg=flourish_caregiver
+git+https://github.com/botswana-harvard/edc-senaite-interface.git@develop#egg=edc-senaite-interface
+git+https://github.com/botswana-harvard/edc-visit-tracking.git@develop#egg=edc_visit_tracking
 git+https://github.com/flourishbhp/flourish-prn.git@develop#egg=flourish_prn
 coverage
 django-nose
+django-revision

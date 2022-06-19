@@ -3,9 +3,9 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase, tag
 from edc_base.utils import get_utcnow
 
-from ..form_validators import UltrasoundFormValidator
 from .models import SubjectConsent, MaternalVisit, Appointment, FlourishConsentVersion
 from .test_model_mixin import TestModeMixin
+from ..form_validators import UltrasoundFormValidator, AntenatalEnrollmentFormValidator
 
 
 @tag('bpd')
@@ -13,6 +13,8 @@ class TestUltrasoundForm(TestModeMixin, TestCase):
 
     def __init__(self, *args, **kwargs):
         super().__init__(UltrasoundFormValidator, *args, **kwargs)
+        AntenatalEnrollmentFormValidator.antenatal_enrollment_model = \
+            'flourish_form_validator.antenatalenrollment'
 
     def setUp(self):
 
