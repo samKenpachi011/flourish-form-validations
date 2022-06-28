@@ -1,8 +1,8 @@
-from django.apps import apps as django_apps
-from django.core.exceptions import ValidationError
 from edc_form_validators import FormValidator
+from edc_constants.constants import OTHER, YES, POS, NEG
+from edc_form_validators import FormValidator
+
 from .crf_form_validator import FormValidatorMixin
-from edc_constants.constants import OTHER, YES, NO, DWTA, POS, NEG
 
 
 class BreastFeedingQuestionnaireFormValidator(FormValidatorMixin, FormValidator):
@@ -11,7 +11,6 @@ class BreastFeedingQuestionnaireFormValidator(FormValidatorMixin, FormValidator)
         self.validate_during_preg_influencers()
         self.validate_after_delivery_influencers()
         self.validate_infant_feeding_reasons()
-        self.validate_hiv_status_during_preg_required()
         self.validate_influenced_during_preg_required()
         self.validate_influenced_after_delivery_required()
         self.validate_feeding_hiv_status()
@@ -34,11 +33,6 @@ class BreastFeedingQuestionnaireFormValidator(FormValidatorMixin, FormValidator)
         self.m2m_other_specify(OTHER,
                                m2m_field='infant_feeding_reasons',
                                field_other='infant_feeding_other')
-
-    def validate_hiv_status_during_preg_required(self):
-        self.required_if(YES,
-                         field='feeding_hiv_status',
-                         field_required='hiv_status_during_preg', inverse=True)
 
     def validate_hiv_status_during_preg_not_req(self):
         hiv_status = self.cleaned_data.get('hiv_status_during_preg')
