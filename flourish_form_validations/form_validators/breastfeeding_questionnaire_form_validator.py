@@ -79,11 +79,9 @@ class BreastFeedingQuestionnaireFormValidator(FormValidatorMixin, FormValidator)
                               field_required='influenced_after_delivery')
 
     def validate_infant_feeding_reasons_required(self):
-
-        status = self.cleaned_data.get('six_months_feeding')
-        self.required_if_true(status in ['Yes', 'do_not_remember'],
-                              field='six_months_feeding',
-                              field_required='infant_feeding_reasons')
+        self.required_if(YES,
+                         field='six_months_feeding',
+                         field_required='infant_feeding_reasons')
 
     def validate_feeding_hiv_status(self):
 

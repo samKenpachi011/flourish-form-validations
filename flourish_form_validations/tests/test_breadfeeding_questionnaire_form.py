@@ -277,7 +277,7 @@ class TestBreastFeedingQuestionnaireForm(TestModeMixin, TestCase):
     def test_infant_feeding_reasons_unsure_required(self):
 
         self.options.update(
-            six_months_feeding='do_not_remember',
+            six_months_feeding=YES,
             infant_feeding_reasons=None)
 
         form_validator = BreastFeedingQuestionnaireFormValidator(
