@@ -18,6 +18,7 @@ class BreastFeedingQuestionnaireFormValidator(FormValidatorMixin, FormValidator)
         self.validate_hiv_status_during_preg_not_req()
         self.validate_hiv_status_during_preg_applicable()
         self.validate_six_months_feeding_req()
+        self.validate_hiv_status_neg()
 
     def validate_during_preg_influencers(self):
         self.m2m_other_specify(OTHER,
@@ -36,28 +37,34 @@ class BreastFeedingQuestionnaireFormValidator(FormValidatorMixin, FormValidator)
 
     def validate_hiv_status_during_preg_not_req(self):
         hiv_status = self.cleaned_data.get('hiv_status_during_preg')
-        required_fields = ['breastfeeding_duration',
-                           'use_medicines',
-                           'delivery_advice_vl_results',
-                           'father_knew_hiv_status',
-                           'hiv_status_known_by',
-                           'after_delivery_advice_vl_results',
-                           'delivery_advice_on_viralload',
-                           'after_delivery_advice_on_viralload']
-        for required_field in required_fields:
-            self.required_if_true(not hiv_status == NEG,
-                                  field_required=required_field)
+        self.required_if_true(not hiv_status == NEG,
+                              field_required='use_medicines')
 
     def validate_hiv_status_during_preg_applicable(self):
-        required_fields = ['use_medicines',
-                           'training_outcome',
+        hiv_status = self.cleaned_data.get('hiv_status_during_preg')
+        required_fields = ['training_outcome',
                            'feeding_advice', ]
         for required_field in required_fields:
             self.applicable_if(POS,
                                field='hiv_status_during_preg',
                                field_applicable=required_field)
-        self.required_if(POS, field_required='received_training',
-                         field='hiv_status_during_preg')
+        self.required_if_true(not hiv_status == POS,
+                              field_required='received_training', )
+
+    def validate_hiv_status_neg(self):
+        required_fields = [
+            'hiv_status_known_by',
+            'father_knew_hiv_status',
+            'delivery_advice_vl_results',
+            'delivery_advice_on_viralload',
+            'after_delivery_advice_vl_results',
+            'after_delivery_advice_on_viralload',
+            'breastfeeding_duration',
+        ]
+        for field in required_fields:
+            self.required_if(NEG,
+                             field_required=field,
+                             field='hiv_status_during_preg')
 
     def validate_influenced_during_preg_required(self):
         influencers = self.cleaned_data.get('during_preg_influencers')
