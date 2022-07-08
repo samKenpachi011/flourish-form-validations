@@ -195,7 +195,8 @@ class TestBreastFeedingQuestionnaireForm(TestModeMixin, TestCase):
 
         self.options.update(
             hiv_status_during_preg=POS,
-            hiv_status_known_by=None)
+            received_training=None,
+            hiv_status_known_by='blah blah')
 
         form_validator = BreastFeedingQuestionnaireFormValidator(
             cleaned_data=self.options)
@@ -205,8 +206,15 @@ class TestBreastFeedingQuestionnaireForm(TestModeMixin, TestCase):
     def test_hiv_status_known_by_valid(self):
 
         self.options.update(
-            hiv_status_during_preg=POS,
-            hiv_status_known_by='blah')
+            hiv_status_during_preg=NEG,
+            received_training='blah blah',
+            father_knew_hiv_status='blah blah',
+            delivery_advice_on_viralload='blah blah',
+            after_delivery_advice_vl_results='blah blah',
+            after_delivery_advice_on_viralload='blah blah',
+            delivery_advice_vl_results='blah blah',
+            breastfeeding_duration='blah blah',
+            hiv_status_known_by='blah blah')
 
         form_validator = BreastFeedingQuestionnaireFormValidator(
             cleaned_data=self.options)
@@ -269,7 +277,7 @@ class TestBreastFeedingQuestionnaireForm(TestModeMixin, TestCase):
     def test_infant_feeding_reasons_unsure_required(self):
 
         self.options.update(
-            six_months_feeding='do_not_remember',
+            six_months_feeding=YES,
             infant_feeding_reasons=None)
 
         form_validator = BreastFeedingQuestionnaireFormValidator(
@@ -315,20 +323,3 @@ class TestBreastFeedingQuestionnaireForm(TestModeMixin, TestCase):
             cleaned_data=self.options)
         self.assertRaises(ValidationError, form_validator.validate)
         self.assertIn('infant_feeding_reasons', form_validator._errors)
-
-    def test_hiv_status_during_preg_not_req(self):
-        self.options.update(
-            hiv_status_during_preg=NEG,
-            breastfeeding_duration=NO,
-            delivery_advice_vl_results=NO,
-            father_knew_hiv_status=NO,
-            after_delivery_advice_vl_results=NO,
-            delivery_advice_on_viralload=NO,
-            after_delivery_advice_on_viralload=NO,
-            use_medicines=ListModel.objects.all(),
-        )
-
-        form_validator = BreastFeedingQuestionnaireFormValidator(
-            cleaned_data=self.options)
-        self.assertRaises(ValidationError, form_validator.validate)
-        self.assertIn('breastfeeding_duration', form_validator._errors)
