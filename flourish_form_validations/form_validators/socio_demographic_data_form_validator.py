@@ -49,12 +49,8 @@ class SocioDemographicDataFormValidator(FormValidatorMixin, FormValidator):
         
         maternal_visit = self.cleaned_data.get('maternal_visit')
         
-        try:
-            self.maternal_dataset_cls.objects.get(subject_identifier=maternal_visit.subject_identifier)
-        except self.maternal_dataset_cls.DoesNotExist:
-            return False
-        else:
-            return True
+        return self.maternal_dataset_cls.objects.filter(subject_identifier=maternal_visit.subject_identifier).exists()
+
         
 
     @property
