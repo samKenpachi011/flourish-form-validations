@@ -46,9 +46,9 @@ class BreastFeedingQuestionnaireFormValidator(FormValidatorMixin, FormValidator)
                            'hiv_status_known_by',
                            'feeding_advice', ]
         for required_field in required_fields:
-            self.applicable_if(POS,
+            self.required_if(POS,
                                field='hiv_status_during_preg',
-                               field_applicable=required_field)
+                               field_required=required_field)
         self.required_if_true(not hiv_status == POS,
                               field_required='received_training', )
 

@@ -196,6 +196,8 @@ class TestBreastFeedingQuestionnaireForm(TestModeMixin, TestCase):
         self.options.update(
             hiv_status_during_preg=POS,
             received_training=None,
+            training_outcome='blah blah',
+            feeding_advice='blah blah',
             hiv_status_known_by='blah blah')
 
         form_validator = BreastFeedingQuestionnaireFormValidator(
