@@ -43,6 +43,7 @@ class BreastFeedingQuestionnaireFormValidator(FormValidatorMixin, FormValidator)
     def validate_hiv_status_during_preg_applicable(self):
         hiv_status = self.cleaned_data.get('hiv_status_during_preg')
         required_fields = ['training_outcome',
+                           'hiv_status_known_by',
                            'feeding_advice', ]
         for required_field in required_fields:
             self.applicable_if(POS,
@@ -53,7 +54,6 @@ class BreastFeedingQuestionnaireFormValidator(FormValidatorMixin, FormValidator)
 
     def validate_hiv_status_neg(self):
         required_fields = [
-            'hiv_status_known_by',
             'father_knew_hiv_status',
             'delivery_advice_vl_results',
             'delivery_advice_on_viralload',
