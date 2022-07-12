@@ -212,12 +212,12 @@ class TestBreastFeedingQuestionnaireForm(TestModeMixin, TestCase):
         self.options.update(
             hiv_status_during_preg=NEG,
             received_training='blah blah',
-            father_knew_hiv_status='blah blah',
-            delivery_advice_on_viralload='blah blah',
-            after_delivery_advice_vl_results='blah blah',
-            after_delivery_advice_on_viralload='blah blah',
-            delivery_advice_vl_results='blah blah',
-            breastfeeding_duration='blah blah',)
+            father_knew_hiv_status=None,
+            delivery_advice_on_viralload=None,
+            after_delivery_advice_vl_results=None,
+            after_delivery_advice_on_viralload=None,
+            delivery_advice_vl_results=None,
+            breastfeeding_duration=None,)
 
         form_validator = BreastFeedingQuestionnaireFormValidator(
             cleaned_data=self.options)
