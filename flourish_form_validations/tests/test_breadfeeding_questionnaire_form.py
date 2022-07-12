@@ -196,12 +196,16 @@ class TestBreastFeedingQuestionnaireForm(TestModeMixin, TestCase):
         self.options.update(
             hiv_status_during_preg=POS,
             received_training=None,
+            training_outcome='blah blah',
+            feeding_advice='blah blah',
             hiv_status_known_by='blah blah')
 
         form_validator = BreastFeedingQuestionnaireFormValidator(
             cleaned_data=self.options)
-        self.assertRaises(ValidationError, form_validator.validate)
-        self.assertIn('hiv_status_known_by', form_validator._errors)
+        try:
+            form_validator.validate()
+        except ValidationError as e:
+            self.fail(f'ValidationError unexpectedly raised. Got{e}')
 
     def test_hiv_status_known_by_valid(self):
 
@@ -213,8 +217,7 @@ class TestBreastFeedingQuestionnaireForm(TestModeMixin, TestCase):
             after_delivery_advice_vl_results='blah blah',
             after_delivery_advice_on_viralload='blah blah',
             delivery_advice_vl_results='blah blah',
-            breastfeeding_duration='blah blah',
-            hiv_status_known_by='blah blah')
+            breastfeeding_duration='blah blah',)
 
         form_validator = BreastFeedingQuestionnaireFormValidator(
             cleaned_data=self.options)
