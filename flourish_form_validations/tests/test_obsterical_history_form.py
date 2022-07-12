@@ -263,6 +263,9 @@ class TestObstericalHistoryForm(TestModeMixin, TestCase):
         self.assertIn('live_children', form_validator._errors)
         
     def test_delivery_of_triplets(self):
+        """
+        Test for mother with multiple children from a single pregnancy.
+        """
         cleaned_data = {
             'maternal_visit': self.maternal_visit,
             'prev_pregnancies': 6,
@@ -270,6 +273,28 @@ class TestObstericalHistoryForm(TestModeMixin, TestCase):
             'lost_before_24wks': 0,
             'lost_after_24wks': 0,
             'live_children': 10,
+            'children_died_b4_5yrs': 3,
+            'children_deliv_before_37wks': 0,
+            'children_deliv_aftr_37wks': 6}
+        
+        form_validator = ObstericalHistoryFormValidator(
+            cleaned_data=cleaned_data)
+        
+        self.assertRaises(ValidationError, form_validator.validate)
+        
+        self.assertIn('live_children', form_validator._errors)
+        
+    def test_alive_children(self):
+        """
+        Test if children can be zero when some children are still alive
+        """
+        cleaned_data = {
+            'maternal_visit': self.maternal_visit,
+            'prev_pregnancies': 6,
+            'pregs_24wks_or_more': 6,
+            'lost_before_24wks': 0,
+            'lost_after_24wks': 0,
+            'live_children': 0,
             'children_died_b4_5yrs': 3,
             'children_deliv_before_37wks': 0,
             'children_deliv_aftr_37wks': 6}
