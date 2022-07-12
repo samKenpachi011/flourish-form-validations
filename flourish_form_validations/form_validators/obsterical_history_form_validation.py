@@ -113,7 +113,8 @@ class ObstericalHistoryFormValidator(FormValidatorMixin, FormValidator):
                 raise ValidationError('The sum of Q9 and Q10 must be equal to '
                                       f'(Q3 -{offset}) - (Q5 + Q6). Please correct.')
 
-            if live_children != (sum_deliv_37_wks - children_died_b4_5yrs):
+            if live_children > (sum_deliv_37_wks - children_died_b4_5yrs) + 3:
+
                 raise ValidationError({
                     'live_children':
                     'Living children must be equal to pregnancies delivered(Q9 + Q10) '
