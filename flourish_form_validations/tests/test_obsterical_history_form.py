@@ -9,7 +9,7 @@ from .models import UltraSound, AntenatalEnrollment, FlourishConsentVersion
 from .test_model_mixin import TestModeMixin
 
 
-@tag('xxx')
+@tag('obtx')
 class TestObstericalHistoryForm(TestModeMixin, TestCase):
 
     def __init__(self, *args, **kwargs):
@@ -52,6 +52,7 @@ class TestObstericalHistoryForm(TestModeMixin, TestCase):
             'lost_after_24wks': 0,
             'live_children': 0,
             'children_died_b4_5yrs': 0,
+            'children_died_aft_5yrs': 0,
             'children_deliv_before_37wks': 0,
             'children_deliv_aftr_37wks': 0}
         form_validator = ObstericalHistoryFormValidator(
@@ -79,6 +80,7 @@ class TestObstericalHistoryForm(TestModeMixin, TestCase):
             'lost_after_24wks': 0,
             'live_children': 0,
             'children_died_b4_5yrs': 0,
+            'children_died_aft_5yrs': 0,
             'children_deliv_before_37wks': 0,
             'children_deliv_aftr_37wks': 0}
         form_validator = ObstericalHistoryFormValidator(
@@ -104,6 +106,7 @@ class TestObstericalHistoryForm(TestModeMixin, TestCase):
             'lost_after_24wks': 0,
             'live_children': 1,
             'children_died_b4_5yrs': 0,
+            'children_died_aft_5yrs': 0,
             'children_deliv_before_37wks': 0,
             'children_deliv_aftr_37wks': 0}
         form_validator = ObstericalHistoryFormValidator(
@@ -128,6 +131,7 @@ class TestObstericalHistoryForm(TestModeMixin, TestCase):
             'lost_after_24wks': 0,
             'live_children': 0,
             'children_died_b4_5yrs': 0,
+            'children_died_aft_5yrs': 0,
             'children_deliv_before_37wks': 0,
             'children_deliv_aftr_37wks': 0}
         form_validator = ObstericalHistoryFormValidator(
@@ -150,11 +154,12 @@ class TestObstericalHistoryForm(TestModeMixin, TestCase):
         cleaned_data = {
             'maternal_visit': self.maternal_visit,
             'prev_pregnancies': 1,
-            'pregs_24wks_or_more': 0,
+            'pregs_24wks_or_more': 1,
             'lost_before_24wks': 0,
             'lost_after_24wks': 0,
             'live_children': 0,
             'children_died_b4_5yrs': 0,
+            'children_died_aft_5yrs': 0,
             'children_deliv_before_37wks': 0,
             'children_deliv_aftr_37wks': 0}
         form_validator = ObstericalHistoryFormValidator(
@@ -184,6 +189,7 @@ class TestObstericalHistoryForm(TestModeMixin, TestCase):
             'lost_after_24wks': 1,
             'live_children': 0,
             'children_died_b4_5yrs': 0,
+            'children_died_aft_5yrs': 0,
             'children_deliv_before_37wks': 0,
             'children_deliv_aftr_37wks': 0}
         form_validator = ObstericalHistoryFormValidator(
@@ -211,12 +217,15 @@ class TestObstericalHistoryForm(TestModeMixin, TestCase):
             'lost_after_24wks': 0,
             'live_children': 2,
             'children_died_b4_5yrs': 0,
+            'children_died_aft_5yrs': 0,
             'children_deliv_before_37wks': 0,
             'children_deliv_aftr_37wks': 1}
         form_validator = ObstericalHistoryFormValidator(
             cleaned_data=cleaned_data)
-        self.assertRaises(ValidationError, form_validator.validate)
-        self.assertIn('live_children', form_validator._errors)
+        try:
+            form_validator.validate()
+        except ValidationError as e:
+            self.fail(f'ValidationError unexpectedly raised. Got{e}')
 
         ####################################
 
@@ -233,6 +242,7 @@ class TestObstericalHistoryForm(TestModeMixin, TestCase):
             'lost_after_24wks': 0,
             'live_children': 1,
             'children_died_b4_5yrs': 0,
+            'children_died_aft_5yrs': 0,
             'children_deliv_before_37wks': 0,
             'children_deliv_aftr_37wks': 1}
         form_validator = ObstericalHistoryFormValidator(
@@ -254,7 +264,8 @@ class TestObstericalHistoryForm(TestModeMixin, TestCase):
             'lost_before_24wks': 0,
             'lost_after_24wks': 0,
             'live_children': 1,
-            'children_died_b4_5yrs': 0,
+            'children_died_b4_5yrs': 2,
+            'children_died_aft_5yrs': 3,
             'children_deliv_before_37wks': 1,
             'children_deliv_aftr_37wks': 1}
         form_validator = ObstericalHistoryFormValidator(
@@ -274,6 +285,7 @@ class TestObstericalHistoryForm(TestModeMixin, TestCase):
             'lost_after_24wks': 0,
             'live_children': 10,
             'children_died_b4_5yrs': 3,
+            'children_died_aft_5yrs': 3,
             'children_deliv_before_37wks': 0,
             'children_deliv_aftr_37wks': 6}
         
@@ -283,7 +295,8 @@ class TestObstericalHistoryForm(TestModeMixin, TestCase):
         self.assertRaises(ValidationError, form_validator.validate)
         
         self.assertIn('live_children', form_validator._errors)
-        
+
+    @tag('liv')
     def test_alive_children(self):
         """
         Test if children can be zero when some children are still alive
@@ -294,7 +307,7 @@ class TestObstericalHistoryForm(TestModeMixin, TestCase):
             'pregs_24wks_or_more': 6,
             'lost_before_24wks': 0,
             'lost_after_24wks': 0,
-            'live_children': 0,
+            'live_children': 7,
             'children_died_b4_5yrs': 3,
             'children_deliv_before_37wks': 0,
             'children_deliv_aftr_37wks': 6}
