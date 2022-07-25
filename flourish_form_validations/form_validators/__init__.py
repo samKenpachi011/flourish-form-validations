@@ -53,3 +53,4 @@ from .caregiver_social_work_referral_form import CaregiverSocialWorkReferralForm
 from .breastfeeding_questionnaire_form_validator import \
     BreastFeedingQuestionnaireFormValidator
 from .tb_referral_form_validator import TbReferralFormValidator
+from .maternal_delivery_form_validation import MaternalDeliveryFormValidator
