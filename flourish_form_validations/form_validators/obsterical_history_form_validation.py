@@ -38,7 +38,7 @@ class ObstericalHistoryFormValidator(FormValidatorMixin, FormValidator):
 
         try:
             self.antenatal_enrollment_cls.objects.get(
-                subject_identifier=self.subject_identifier,)
+                subject_identifier=self.subject_identifier, )
         except self.antenatal_enrollment_cls.DoesNotExist:
             return 0
         else:
@@ -57,7 +57,7 @@ class ObstericalHistoryFormValidator(FormValidatorMixin, FormValidator):
     def validate_ultrasound(self, cleaned_data=None):
         try:
             self.antenatal_enrollment_cls.objects.get(
-                subject_identifier=self.subject_identifier,)
+                subject_identifier=self.subject_identifier, )
         except self.antenatal_enrollment_cls.DoesNotExist:
             return 0
         else:
@@ -65,20 +65,21 @@ class ObstericalHistoryFormValidator(FormValidatorMixin, FormValidator):
 
             if prev_pregnancies == 1 and self.ultrasound_ga_confirmed > 24:
 
-                    fields = ['lost_before_24wks', 'lost_after_24wks']
+                fields = ['lost_before_24wks', 'lost_after_24wks',
+                          'children_died_aft_5yrs']
 
-                    for field in fields:
-                        if (field in cleaned_data and
-                                cleaned_data.get(field) != 0):
-                            message = {field: 'You indicated previous pregnancies were '
-                                              f'{prev_pregnancies}, {field} should be '
-                                              f'zero as the current pregnancy is more '
-                                              f'than 24 weeks.'}
-                            self._errors.update(message)
-                            raise ValidationError(message)
+                for field in fields:
+                    if (field in cleaned_data and
+                            cleaned_data.get(field) != 0):
+                        message = {field: 'You indicated previous pregnancies were '
+                                          f'{prev_pregnancies}, {field} should be '
+                                          f'zero as the current pregnancy is more '
+                                          f'than 24 weeks.'}
+                        self._errors.update(message)
+                        raise ValidationError(message)
 
             elif prev_pregnancies == 1 and self.ultrasound_ga_confirmed < 24:
-                fields = ['pregs_24wks_or_more', 'lost_after_24wks']
+                fields = ['pregs_24wks_or_more', 'lost_after_24wks', ]
                 for field in fields:
                     if cleaned_data.get(field) != 0:
                         raise ValidationError(
@@ -100,6 +101,7 @@ class ObstericalHistoryFormValidator(FormValidatorMixin, FormValidator):
                                cleaned_data.get('lost_after_24wks'))
 
             children_died_b4_5yrs = cleaned_data.get('children_died_b4_5yrs') or 0
+            children_died_aft_5yrs = cleaned_data.get('children_died_aft_5yrs') or 0
             live_children = cleaned_data.get('live_children') or 0
 
             offset = 0
@@ -109,28 +111,20 @@ class ObstericalHistoryFormValidator(FormValidatorMixin, FormValidator):
 
             if (cleaned_data.get('prev_pregnancies') and
                     sum_deliv_37_wks != ((cleaned_data.get('prev_pregnancies') - offset)
-                                         -sum_lost_24_wks)):
-                raise ValidationError('The sum of Q9 and Q10 must be equal to '
+                                         - sum_lost_24_wks)):
+                raise ValidationError('The sum of Q10 and Q11 must be equal to '
                                       f'(Q3 -{offset}) - (Q5 + Q6). Please correct.')
-            
+
             # allowance to compansate 1 child, twins or triplets
             # because a single pregnancy can contain a single child, twins or triplets 
-            no_of_children_allowance = (sum_deliv_37_wks - children_died_b4_5yrs) + 3
-            
+            no_of_children_allowance = (sum_deliv_37_wks - (children_died_b4_5yrs +
+                                                            children_died_aft_5yrs)) + 3
 
             if live_children > no_of_children_allowance:
-
                 raise ValidationError({
                     'live_children':
-                    'Living children must be equal to pregnancies delivered(Q9 + Q10) '
-                    'and children lost. Please correct.'})
-            
-            # additional check, if some kids are alive
-            # live_children cannot be 0, which in turn is a 'Falsey' value
-            if no_of_children_allowance and not live_children:
-                raise ValidationError({
-                    'live_children':
-                    'Cannot be 0 when some children are still alive.'})
+                        'Living children must be equal to pregnancies delivered(Q9 + '
+                        'Q10) and children lost. Please correct.'})
 
     def validate_prev_pregnancies(self, cleaned_data=None):
 
@@ -154,14 +148,14 @@ class ObstericalHistoryFormValidator(FormValidatorMixin, FormValidator):
 
         if self.ultrasound_ga_confirmed > 24 and pregs_24wks_or_more < 1:
             message = {'pregs_24wks_or_more':
-                       'Pregnancies more than 24 weeks should be '
-                       'more than 1 including the current pregnancy'}
+                           'Pregnancies more than 24 weeks should be '
+                           'more than 1 including the current pregnancy'}
             self._errors.update(message)
             raise ValidationError(message)
 
         if lost_after_24wks > pregs_24wks_or_more:
             message = {'lost_after_24wks':
-                       'Pregnancies lost after 24 weeks cannot be '
-                       'more than pregnancies atleast 24 weeks'}
+                           'Pregnancies lost after 24 weeks cannot be '
+                           'more than pregnancies atleast 24 weeks'}
             self._errors.update(message)
             raise ValidationError(message)
