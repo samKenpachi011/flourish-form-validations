@@ -100,20 +100,6 @@ class TestCaregiverClinicalMeasurementsForm(TestModeMixin, TestCase):
         except ValidationError as e:
             self.fail(f'ValidationError unexpectedly raised. Got{e}')
 
-    def test_weight_required(self):
-        """
-        If weigh is available (YES), then weight_kg is required or else
-        """
-
-        self.options['weight_available'] = YES
-        self.options['weight_kg'] = None
-
-        form_validator = CaregiverClinicalMeasurementsFormValidator(cleaned_data=self.options)
-
-        self.assertRaises(ValidationError, form_validator.validate)
-        self.assertIn('weight_kg', form_validator._errors)
-
-
     @tag('amv')        
     def test_all_clinical_measurements_valid(self):
         appointment = Appointment.objects.create(
