@@ -54,3 +54,5 @@ from .breastfeeding_questionnaire_form_validator import \
     BreastFeedingQuestionnaireFormValidator
 from .tb_referral_form_validator import TbReferralFormValidator
 from .maternal_delivery_form_validation import MaternalDeliveryFormValidator
+# father involvement
+from .relationship_father_involvement_form_validation import RelationshipFatherInvolmentFormValidator
