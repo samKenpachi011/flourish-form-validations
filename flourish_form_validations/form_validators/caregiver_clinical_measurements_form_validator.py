@@ -31,8 +31,6 @@ class CaregiverClinicalMeasurementsFormValidator(FormValidatorMixin,
             for r_field in required_fields_all_measurements:
                 self.required_if(YES,field='all_measurements',field_required=r_field, inverse=True)
 
-            self.required_if(YES,
-                            field='weight_available', field_required='weight_kg')
 
             if (cleaned_data.get('systolic_bp') and
                     cleaned_data.get('diastolic_bp')):
