@@ -20,6 +20,7 @@ class MaternalDiagnosesFormValidator(FormValidatorMixin, FormValidator):
         self.m2m_na_validation(
             field='new_diagnoses',
             m2m_field='diagnoses',
+            na_response='mdiag_na',
             msg=('Participant has new diagnoses, '
                  'please give a diagnosis'),
             na_msg=('Participant has no new diagnoses, '
@@ -39,6 +40,7 @@ class MaternalDiagnosesFormValidator(FormValidatorMixin, FormValidator):
         self.m2m_na_validation(
             field='has_who_dx',
             m2m_field='who',
+            na_response='who_na',
             msg=('WHO Stage III/IV cannot have Not Applicable in the list. '
                  'Please correct.'),
             na_msg=('WHO diagnoses is {}, WHO Stage III/IV should be Not '
@@ -46,23 +48,23 @@ class MaternalDiagnosesFormValidator(FormValidatorMixin, FormValidator):
         )
 
     def m2m_na_validation(self, field=None, m2m_field=None, msg=None,
-                          na_msg=None):
+                          na_msg=None, na_response=None):
         qs = self.cleaned_data.get(m2m_field).values_list(
             'short_name', flat=True)
         selection = list(qs.all())
         if self.cleaned_data.get(field) == YES:
-            if NOT_APPLICABLE in selection:
+            if na_response in selection:
                 message = {m2m_field: msg}
                 self._errors.update(message)
                 raise ValidationError(message)
         else:
-            if NOT_APPLICABLE not in selection:
+            if na_response not in selection:
                 message = {m2m_field: na_msg}
                 self._errors.update(message)
                 raise ValidationError(message)
 
             self.m2m_single_selection_if(
-                NOT_APPLICABLE,
+                na_response,
                 m2m_field=m2m_field
             )
 
