@@ -38,8 +38,15 @@ class Covid19FormValidator(FormValidator):
                          field='has_tested_positive',
                          field_required='date_of_test_member')
 
-        single_selection_fields = {'isolations_symptoms': 'c19m_iso_nosympt',
-                                   'symptoms_for_past_14days': 'c19m_14d_nosympt'}
+        single_selection_fields = {}
+        if 'maternal_visit' in self.cleaned_data:
+            single_selection_fields = {
+                'isolations_symptoms': 'c19m_iso_nosympt',
+                'symptoms_for_past_14days': 'c19m_14d_nosympt'}
+        else:
+            single_selection_fields = {
+                'isolations_symptoms': 'c19c_iso_nosympt',
+                'symptoms_for_past_14days': 'c19c_14d_nosympt'}
 
         for field, response in single_selection_fields.items():
             self.m2m_single_selection_if(response, m2m_field=field)
@@ -134,9 +141,7 @@ class Covid19FormValidator(FormValidator):
     def validate_visit(self):
         if 'maternal_visit' in self.cleaned_data:
             self.subject_identifier = self.cleaned_data.get(
-            'maternal_visit').subject_identifier
+                'maternal_visit').subject_identifier
         else:
             self.subject_identifier = self.cleaned_data.get(
-            'child_visit').subject_identifier    
-            
-            
+                'child_visit').subject_identifier
