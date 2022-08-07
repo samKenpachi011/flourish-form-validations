@@ -2,7 +2,7 @@ from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
 from django.test import TestCase, tag
 from edc_base.utils import get_utcnow
-from edc_constants.constants import YES, NOT_APPLICABLE
+from edc_constants.constants import YES, NO, NOT_APPLICABLE
 
 from ..form_validators import CaregiverClinicalMeasurementsFormValidator
 from .models import SubjectConsent, MaternalVisit, Appointment, FlourishConsentVersion
@@ -43,7 +43,6 @@ class TestCaregiverClinicalMeasurementsForm(TestModeMixin, TestCase):
             
         }
            
-        
 
     def test_waist_circ_required_invalid(self):
         cleaned_data = {
@@ -101,20 +100,31 @@ class TestCaregiverClinicalMeasurementsForm(TestModeMixin, TestCase):
         except ValidationError as e:
             self.fail(f'ValidationError unexpectedly raised. Got{e}')
 
-    def test_weight_required(self):
-        """
-        If weigh is available (YES), then weight_kg is required or else
-        """
+    @tag('amv')        
+    def test_all_clinical_measurements_valid(self):
+        appointment = Appointment.objects.create(
+            subject_identifier=self.subject_consent.subject_identifier,
+            appt_datetime=get_utcnow(),
+            visit_code='1000')
 
-        self.options['weight_available'] = YES
-        self.options['weight_kg'] = None
+        self.maternal_visit = MaternalVisit.objects.create(
+            appointment=appointment,
+            subject_identifier=self.subject_consent.subject_identifier,
+            report_datetime=get_utcnow())
 
-        form_validator = CaregiverClinicalMeasurementsFormValidator(cleaned_data=self.options)
-
-        self.assertRaises(ValidationError, form_validator.validate)
-        self.assertIn('weight_kg', form_validator._errors)
-
-
-    
+        cleaned_data = {
+            'maternal_visit': self.maternal_visit,
+            'all_measurements': NO,
+            
+        }
+        form_validator = CaregiverClinicalMeasurementsFormValidator(
+            cleaned_data=cleaned_data)
+        try:
+            form_validator.validate()
+        except ValidationError as e:
+            self.fail(f'ValidationError unexpectedly raised. Got{e}') 
+            
+                   
+            
 
    
