@@ -43,7 +43,6 @@ class TestCaregiverClinicalMeasurementsForm(TestModeMixin, TestCase):
             
         }
            
-
     def test_waist_circ_required_invalid(self):
         cleaned_data = {
             'maternal_visit': self.maternal_visit,
@@ -100,7 +99,7 @@ class TestCaregiverClinicalMeasurementsForm(TestModeMixin, TestCase):
         except ValidationError as e:
             self.fail(f'ValidationError unexpectedly raised. Got{e}')
 
-    @tag('amv')        
+      
     def test_all_clinical_measurements_valid(self):
         appointment = Appointment.objects.create(
             subject_identifier=self.subject_consent.subject_identifier,
@@ -124,7 +123,84 @@ class TestCaregiverClinicalMeasurementsForm(TestModeMixin, TestCase):
         except ValidationError as e:
             self.fail(f'ValidationError unexpectedly raised. Got{e}') 
             
-                   
-            
 
-   
+    def test_given_values_all_measurements_not_applicable(self): 
+        appointment = Appointment.objects.create(
+            subject_identifier=self.subject_consent.subject_identifier,
+            appt_datetime=get_utcnow(),
+            visit_code='1000')
+
+        self.maternal_visit = MaternalVisit.objects.create(
+            appointment=appointment,
+            subject_identifier=self.subject_consent.subject_identifier,
+            report_datetime=get_utcnow())
+
+        cleaned_data = {
+            'maternal_visit': self.maternal_visit,
+            'all_measurements': NO,
+            'systolic_bp': 150,    
+            'diastolic_bp': 120
+            
+        }
+        form_validator = CaregiverClinicalMeasurementsFormValidator(
+        cleaned_data=cleaned_data)
+        self.assertRaises(ValidationError, form_validator.validate)
+        self.assertIn('confirm_values', form_validator._errors)
+                         
+                         
+    # validate when all measurements are given
+
+    def test_all_measurement_valid(self):
+        appointment = Appointment.objects.create(
+            subject_identifier=self.subject_consent.subject_identifier,
+            appt_datetime=get_utcnow(),
+            visit_code='1000')
+
+        self.maternal_visit = MaternalVisit.objects.create(
+            appointment=appointment,
+            subject_identifier=self.subject_consent.subject_identifier,
+            report_datetime=get_utcnow())
+        
+        cleaned_data = {
+            'maternal_visit': self.maternal_visit,
+            'height': None,
+            'weight_kg': 70,       
+            'systolic_bp': 150,    
+            'diastolic_bp': 120,
+            'is_preg': NO,
+            'hip_circ': 120,
+            'waist_circ': 100,
+            'all_measurements': NO    
+        }
+        form_validator = CaregiverClinicalMeasurementsFormValidator(
+        cleaned_data=cleaned_data)
+        self.assertRaises(ValidationError, form_validator.validate)
+        self.assertIn('all_measurements', form_validator._errors)
+        
+
+    def test_all_measurement_preg_valid(self):
+        appointment = Appointment.objects.create(
+            subject_identifier=self.subject_consent.subject_identifier,
+            appt_datetime=get_utcnow(),
+            visit_code='1000')
+
+        self.maternal_visit = MaternalVisit.objects.create(
+            appointment=appointment,
+            subject_identifier=self.subject_consent.subject_identifier,
+            report_datetime=get_utcnow())
+        
+        cleaned_data = {
+            'maternal_visit': self.maternal_visit,
+            'height': 1.2,
+            'weight_kg': 70,       
+            'systolic_bp': 150,    
+            'diastolic_bp': 120,
+            'is_preg': YES,
+            'all_measurements': NO    
+        }
+        form_validator = CaregiverClinicalMeasurementsFormValidator(
+        cleaned_data=cleaned_data)
+        self.assertRaises(ValidationError, form_validator.validate)
+        self.assertIn('all_measurements', form_validator._errors)
+        
+            
