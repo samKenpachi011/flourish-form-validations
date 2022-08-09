@@ -50,7 +50,7 @@ class TestMedicalHistoryForm(TestModeMixin, TestCase):
 
         self.subject_identifier = '12345ABC'
 
-        ListModel.objects.create(name=NOT_APPLICABLE, short_name='N/A')
+        ListModel.objects.create(name=NOT_APPLICABLE, short_name='mhist_na')
         ListModel.objects.create(name=YES, short_name='y')
 
         AntenatalEnrollment.objects.create(
@@ -145,7 +145,6 @@ class TestMedicalHistoryForm(TestModeMixin, TestCase):
         '''Assert raises exception if who is provided but
         who_diagnosis is NO.
         '''
-        ListModel.objects.create(name=NOT_APPLICABLE)
         maternal_status = MaternalStatusHelper(status=POS)
         MedicalHistoryFormValidator.maternal_status_helper = maternal_status
         self.cleaned_data.update(
