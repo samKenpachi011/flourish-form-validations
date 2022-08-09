@@ -25,8 +25,6 @@ class CaregiverClinicalMeasurementsFormValidator(FormValidatorMixin,
         for r_field in required_fields_not_pregnant:
             self.required_if_true(obtained_all_measurements==YES and is_preg==NO and visit_code !='2000D',
                                   field='is_preg',field_required=r_field) 
-            # self.required_if_true(is_preg==NO,
-            #                       field='is_preg',field_required=r_field) 
         
         if obtained_all_measurements == YES:
             
@@ -50,8 +48,6 @@ class CaregiverClinicalMeasurementsFormValidator(FormValidatorMixin,
     
  
     def check_bp(self):
-        systolic_bp = self.cleaned_data.get('systolic_bp')     
-        diastolic_bp = self.cleaned_data.get('diastolic_bp') 
         
         field_list = ['systolic_bp','diastolic_bp']
         
@@ -60,7 +56,7 @@ class CaregiverClinicalMeasurementsFormValidator(FormValidatorMixin,
             self.required_if_not_none (
                 field=field,
                 field_required='confirm_values',
-                required_msg='Please ensure that you agree with the given values',
+                required_msg='Cannot be NONE!! Please select either NO or YES ',
                 not_required_msg='Field not required'
             )
         
@@ -93,24 +89,34 @@ class CaregiverClinicalMeasurementsFormValidator(FormValidatorMixin,
     def check_all_cm_valid(self):
         obtained_all_cm = self.cleaned_data.get('all_measurements')
         is_preg = self.cleaned_data.get('is_preg')
+        confirm_values = self.cleaned_data.get('confirm_values')
         
-        
-        if obtained_all_cm and obtained_all_cm == NO:
-            if is_preg == YES and self.get_all_cm_preg == False:
-                message = {'all_measurements':
-                    'All measurements have given please select Yes!'}
-                self._errors.update(message)
-                raise ValidationError(message)
-            pass
-        
-        if is_preg == NO and self.get_all_cm == False:
+        if confirm_values and confirm_values == NO:
+            message = {'confirm_values':
+            'Are you sure about the given values please confirm!'}
+            self._errors.update(message)
+            raise ValidationError(message)
+        else:
             if obtained_all_cm and obtained_all_cm == NO:
-                message = {'all_measurements':
-                    'All measurements have given please select Yes!'}
-                self._errors.update(message)
-                raise ValidationError(message)
-            pass
+                if is_preg == YES and self.get_all_cm_preg == False:
+                    message = {'all_measurements':
+                        'All measurements have given please select Yes!'}
+                    self._errors.update(message)
+                    raise ValidationError(message)
+                pass
+        
+            if is_preg == NO and self.get_all_cm == False:
+                if obtained_all_cm and obtained_all_cm == NO:
+                    message = {'all_measurements':
+                        'All measurements have given please select Yes!'}
+                    self._errors.update(message)
+                    raise ValidationError(message)
+                pass
                 
+            
+        
+        
+
             
 
             
