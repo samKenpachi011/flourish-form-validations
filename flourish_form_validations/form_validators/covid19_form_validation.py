@@ -6,7 +6,7 @@ from edc_form_validators import FormValidator
 class Covid19FormValidator(FormValidator):
 
     def clean(self):
-        
+
         self.validate_visit()
 
         self.validate_booster_vac()
@@ -38,11 +38,18 @@ class Covid19FormValidator(FormValidator):
                          field='has_tested_positive',
                          field_required='date_of_test_member')
 
-        single_selection_fields = ['isolations_symptoms',
-                                   'symptoms_for_past_14days']
+        single_selection_fields = {}
+        if 'maternal_visit' in self.cleaned_data:
+            single_selection_fields = {
+                'isolations_symptoms': 'c19m_iso_nosympt',
+                'symptoms_for_past_14days': 'c19m_14d_nosympt'}
+        else:
+            single_selection_fields = {
+                'isolations_symptoms': 'c19c_iso_nosympt',
+                'symptoms_for_past_14days': 'c19c_14d_nosympt'}
 
-        for field in single_selection_fields:
-            self.m2m_single_selection_if('no_symptoms', m2m_field=field)
+        for field, response in single_selection_fields.items():
+            self.m2m_single_selection_if(response, m2m_field=field)
 
         if self.cleaned_data.get('fully_vaccinated') == YES:
 
@@ -134,9 +141,7 @@ class Covid19FormValidator(FormValidator):
     def validate_visit(self):
         if 'maternal_visit' in self.cleaned_data:
             self.subject_identifier = self.cleaned_data.get(
-            'maternal_visit').subject_identifier
+                'maternal_visit').subject_identifier
         else:
             self.subject_identifier = self.cleaned_data.get(
-            'child_visit').subject_identifier    
-            
-            
+                'child_visit').subject_identifier
