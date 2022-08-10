@@ -228,7 +228,7 @@ class TestCaregiverClinicalMeasurementsForm(TestModeMixin, TestCase):
         self.assertIn('systolic_bp', form_validator._errors)
         
   
-    def test_systolic_bp_required(self):
+    def test_diastolic_bp_required(self):
         appointment = Appointment.objects.create(
             subject_identifier=self.subject_consent.subject_identifier,
             appt_datetime=get_utcnow(),
