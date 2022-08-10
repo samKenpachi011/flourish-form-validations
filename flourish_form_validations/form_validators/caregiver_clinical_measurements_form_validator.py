@@ -28,6 +28,13 @@ class CaregiverClinicalMeasurementsFormValidator(FormValidatorMixin,
                 field_required=r_field)
 
         if obtained_all_measurements == YES:
+            
+            required_fields_am= ['height', 'weight_kg']
+            for r_field in required_fields_am:
+                self.required_if(
+                    YES,
+                    field='all_measurements',
+                    field_required=r_field)
 
             required_fields_all_measurements = ['systolic_bp', 'diastolic_bp']
             for r_field in required_fields_all_measurements:
@@ -72,6 +79,15 @@ class CaregiverClinicalMeasurementsFormValidator(FormValidatorMixin,
 
         return not any(item is None for item in cm_all_not_preg)
 
+    # @property
+    # def check_cm_all(self):
+    #     height = self.cleaned_data.get('height')
+    #     weight_kg = self.cleaned_data.get('weight_kg')
+    #     systolic_bp = self.cleaned_data.get('systolic_bp')
+    #     diastolic_bp = self.cleaned_data.get('diastolic_bp')
+    #     cm_all_is_preg = [height, weight_kg]
+
+        return not any(item is None for item in cm_all_is_preg)
     @property
     def check_cm_is_preg(self):
         height = self.cleaned_data.get('height')
