@@ -146,9 +146,6 @@ class TestCaregiverClinicalMeasurementsForm(TestModeMixin, TestCase):
         cleaned_data=cleaned_data)
         self.assertRaises(ValidationError, form_validator.validate)
         self.assertIn('confirm_values', form_validator._errors)
-                         
-                         
-    # validate when all measurements are given
 
     def test_all_measurement_valid(self):
         appointment = Appointment.objects.create(
@@ -202,5 +199,60 @@ class TestCaregiverClinicalMeasurementsForm(TestModeMixin, TestCase):
         cleaned_data=cleaned_data)
         self.assertRaises(ValidationError, form_validator.validate)
         self.assertIn('all_measurements', form_validator._errors)
+        
+   
+    def test_systolic_bp_required(self):
+        appointment = Appointment.objects.create(
+            subject_identifier=self.subject_consent.subject_identifier,
+            appt_datetime=get_utcnow(),
+            visit_code='1000')
+
+        self.maternal_visit = MaternalVisit.objects.create(
+            appointment=appointment,
+            subject_identifier=self.subject_consent.subject_identifier,
+            report_datetime=get_utcnow())
+        
+        cleaned_data = {
+            'maternal_visit': self.maternal_visit,
+            'height': 1.2,
+            'weight_kg': 70,       
+            'systolic_bp': None,    
+            'diastolic_bp': 120,
+            'is_preg': YES,
+            'confirm_values': YES,
+            'all_measurements': YES    
+        }
+        form_validator = CaregiverClinicalMeasurementsFormValidator(
+        cleaned_data=cleaned_data)
+        self.assertRaises(ValidationError, form_validator.validate)
+        self.assertIn('systolic_bp', form_validator._errors)
+        
+  
+    def test_diastolic_bp_required(self):
+        appointment = Appointment.objects.create(
+            subject_identifier=self.subject_consent.subject_identifier,
+            appt_datetime=get_utcnow(),
+            visit_code='1000')
+
+        self.maternal_visit = MaternalVisit.objects.create(
+            appointment=appointment,
+            subject_identifier=self.subject_consent.subject_identifier,
+            report_datetime=get_utcnow())
+        
+        cleaned_data = {
+            'maternal_visit': self.maternal_visit,
+            'height': 1.2,
+            'weight_kg': 70,       
+            'systolic_bp': 100,    
+            'diastolic_bp': None,
+            'is_preg': YES,
+            'confirm_values': YES,
+            'all_measurements': YES    
+        }
+        form_validator = CaregiverClinicalMeasurementsFormValidator(
+        cleaned_data=cleaned_data)
+        self.assertRaises(ValidationError, form_validator.validate)
+        self.assertIn('diastolic_bp', form_validator._errors)
+            
         
             

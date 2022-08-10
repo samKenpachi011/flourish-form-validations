@@ -29,7 +29,7 @@ class CaregiverClinicalMeasurementsFormValidator(FormValidatorMixin,
 
         if obtained_all_measurements == YES:
 
-            required_fields_all_measurements = ['systolic_bp', 'diastolic_bp']
+            required_fields_all_measurements = ['systolic_bp', 'diastolic_bp', 'height', 'weight_kg']
             for r_field in required_fields_all_measurements:
                 self.required_if(
                     YES,
