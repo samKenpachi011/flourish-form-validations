@@ -1,6 +1,6 @@
 from django.apps import apps as django_apps
 from django.core.exceptions import ValidationError
-from edc_constants.constants import YES, NO, NOT_APPLICABLE, POS, OTHER, NONE
+from edc_constants.constants import YES, NO, NOT_APPLICABLE, POS
 from edc_form_validators import FormValidator
 from flourish_caregiver.helper_classes import MaternalStatusHelper
 
@@ -56,7 +56,7 @@ class MedicalHistoryFormValidator(FormValidatorMixin, FormValidator):
             qs = self.cleaned_data.get('who')
             if qs and qs.count() > 0:
                 selected = {obj.short_name: obj.name for obj in qs}
-                if NOT_APPLICABLE in selected:
+                if 'who_na' in selected:
                     msg = {'who':
                            'Participant indicated that they had WHO stage III '
                            'and IV, list of diagnosis cannot be N/A'}
@@ -66,7 +66,7 @@ class MedicalHistoryFormValidator(FormValidatorMixin, FormValidator):
             m2m = 'who'
             message = ('Participant did not indicate that they have WHO stage'
                        ' III and IV, list of diagnosis must be N/A')
-            self.validate_m2m_na(m2m, message)
+            self.validate_m2m_na(m2m, response='who_na', message=message)
 
     def validate_caregiver_chronic_multiple_selection(self, cleaned_data=None):
         selected = {}
@@ -74,54 +74,53 @@ class MedicalHistoryFormValidator(FormValidatorMixin, FormValidator):
         if qs and qs.count() > 0:
             selected = {obj.short_name: obj.name for obj in qs}
         if cleaned_data.get('chronic_since') == YES:
-            if NOT_APPLICABLE in selected:
+            if 'mhist_na' in selected:
                 msg = {'caregiver_chronic':
                        'Participant indicated that they had chronic'
                        ' conditions list of diagnosis cannot be N/A'}
                 self._errors.update(msg)
                 raise ValidationError(msg)
         elif cleaned_data.get('chronic_since') == NO:
-            if NOT_APPLICABLE not in selected:
+            if 'mhist_na' not in selected:
                 msg = {'caregiver_chronic':
                        'Participant indicated that they had no chronic '
                        'conditions list of diagnosis should be N/A'}
                 self._errors.update(msg)
                 raise ValidationError(msg)
         self.m2m_single_selection_if(
-            NOT_APPLICABLE,
+            'mhist_na',
             m2m_field='caregiver_chronic')
 
     def validate_other_caregiver(self):
         self.m2m_other_specify(
-            OTHER,
+            'mhist_other',
             m2m_field='caregiver_chronic',
             field_other='caregiver_chronic_other')
 
     def validate_caregiver_medications_multiple_selections(self):
-        selections = [NOT_APPLICABLE, NONE]
+        selections = ['mmed_na', 'mmed_none']
         self.m2m_single_selection_if(
             *selections,
             m2m_field='caregiver_medications')
 
     def validate_other_caregiver_medications(self):
-
         self.m2m_other_specify(
-            OTHER,
+            'mmed_other',
             m2m_field='caregiver_medications',
             field_other='caregiver_medications_other')
 
-    def validate_m2m_na(self, m2m_field, message=None):
+    def validate_m2m_na(self, m2m_field, response=NOT_APPLICABLE, message=None):
         qs = self.cleaned_data.get(m2m_field)
         message = message or 'This field is not applicable.'
         if qs and qs.count() > 0:
             selected = {obj.short_name: obj.name for obj in qs}
-            if NOT_APPLICABLE not in selected:
+            if response not in selected:
                 msg = {m2m_field: message}
                 self._errors.update(msg)
                 raise ValidationError(msg)
 
             self.m2m_single_selection_if(
-                NOT_APPLICABLE,
+                response,
                 m2m_field=m2m_field)
 
     @property
