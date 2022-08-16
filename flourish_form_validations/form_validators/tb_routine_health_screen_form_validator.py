@@ -6,8 +6,6 @@ from .crf_form_validator import FormValidatorMixin
 class TbRoutineHealthScreenFormValidator(FormValidatorMixin, FormValidator):
 
     def clean(self):
-        self.subject_identifier = self.cleaned_data.get(
-            'maternal_visit').subject_identifier
         super().clean()
 
         fields_required = ['screen_location', 'pos_screen', 'diagnostic_referral']

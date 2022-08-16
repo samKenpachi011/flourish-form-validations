@@ -51,7 +51,7 @@ class SubjectConsent(UpdatesOrCreatesRegistrationModelMixin, BaseUuidModel):
         editable=False)
 
 
-class SubjectScreening(UpdatesOrCreatesRegistrationModelMixin, BaseUuidModel):
+class ScreeningPregWomen(UpdatesOrCreatesRegistrationModelMixin, BaseUuidModel):
     screening_identifier = models.CharField(max_length=50)
 
     mother_alive = models.CharField(max_length=50)
@@ -257,3 +257,32 @@ class CaregiverContact(BaseUuidModel):
     call_rescheduled = models.CharField(max_length=7)
 
     reason_rescheduled = models.CharField(max_length=7)
+
+
+class ScreeningPriorBhpParticipants(BaseUuidModel):
+
+    screening_identifier = models.CharField(max_length=7)
+
+    report_datetime = models.DateTimeField()
+
+    study_maternal_identifier = models.CharField(max_length=7)
+
+    child_alive = models.CharField(max_length=7)
+
+    mother_alive = models.CharField(max_length=7)
+
+    flourish_participation = models.CharField(max_length=7)
+
+    reason_not_to_participate = models.CharField(max_length=7)
+
+    ineligibility = models.TextField(
+        max_length=150,)
+
+    is_eligible = models.BooleanField(
+        default=False,
+        editable=False)
+
+    # is updated via signal once subject is consented
+    is_consented = models.BooleanField(
+        default=False,
+        editable=False)

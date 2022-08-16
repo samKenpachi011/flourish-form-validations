@@ -4,7 +4,7 @@ from edc_base.utils import get_utcnow, relativedelta
 from edc_constants.constants import YES, OTHER
 
 from ..form_validators import SubjectConsentFormValidator
-from .models import SubjectConsent, SubjectScreening, FlourishConsentVersion
+from .models import SubjectConsent, ScreeningPregWomen, FlourishConsentVersion
 from .test_model_mixin import TestModeMixin
 
 
@@ -18,6 +18,18 @@ class TestSubjectConsentForm(TestModeMixin, TestCase):
 
         self.screening_identifier = 'ABC12345'
         self.study_child_identifier = '1234DCD'
+
+        SubjectConsentFormValidator.prior_screening_model = 'flourish_form_validations' \
+                                                            '.screeningpriorbhpparticipants'
+
+        SubjectConsentFormValidator.subject_consent_model = 'flourish_form_validations' \
+                                                            '.subjectconsent'
+
+        SubjectConsentFormValidator.caregiver_locator_model = 'flourish_form_validations.caregiverlocator'
+
+        SubjectConsentFormValidator.preg_women_screening_model = 'flourish_form_validations.screeningpregwomen'
+
+        SubjectConsentFormValidator.delivery_model = 'flourish_form_validations.maternaldelivery'
 
         FlourishConsentVersion.objects.create(
             screening_identifier='ABC12345')
@@ -71,7 +83,7 @@ class TestSubjectConsentForm(TestModeMixin, TestCase):
 
     @tag('sc1')
     def test_recruit_source_prior_preg_not_required(self):
-        SubjectScreening.objects.create(
+        ScreeningPregWomen.objects.create(
             screening_identifier=self.screening_identifier)
 
         self.consent_options.update(
