@@ -70,7 +70,7 @@ class CaregiverChildConsentFormValidator(FormValidator):
                            MALE: 'Male'}
             gender = gender_dict.get(cleaned_data.get('gender'))
 
-            if gender:
+            if gender and cleaned_data.get('child_dob'):
                 try:
                     self.child_dataset_cls.objects.get(
                         study_child_identifier=cleaned_data.get('study_child_identifier'),
