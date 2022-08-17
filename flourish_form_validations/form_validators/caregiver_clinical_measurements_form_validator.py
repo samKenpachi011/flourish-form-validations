@@ -18,6 +18,7 @@ class CaregiverClinicalMeasurementsFormValidator(FormValidatorMixin,
         self.check_bp()
         self.check_all_cm_valid()
         self.check_all_cm_tb_valid()
+        self.check_all_cm_valid_2000D()
         
         if (cleaned_data.get('systolic_bp') and
             cleaned_data.get('diastolic_bp')):
@@ -40,7 +41,6 @@ class CaregiverClinicalMeasurementsFormValidator(FormValidatorMixin,
 
     def check_bp(self):
         # check bp values
-     
         if self.cleaned_data.get('all_measurements') == YES:
             if self.check_bp_measurements == False:
                 message = {'systolic_bp':
@@ -74,9 +74,8 @@ class CaregiverClinicalMeasurementsFormValidator(FormValidatorMixin,
         weight_kg = self.cleaned_data.get('weight_kg')
         systolic_bp = self.cleaned_data.get('systolic_bp')
         diastolic_bp = self.cleaned_data.get('diastolic_bp')
-        hip_circ = self.cleaned_data.get('hip_circ')
-        waist_circ = self.cleaned_data.get('waist_circ')
-        cm_all_2000D = [weight_kg, systolic_bp, diastolic_bp, hip_circ, waist_circ]
+
+        cm_all_2000D = [weight_kg, systolic_bp, diastolic_bp]
 
         return not any(item is None for item in cm_all_2000D)
     
@@ -92,9 +91,9 @@ class CaregiverClinicalMeasurementsFormValidator(FormValidatorMixin,
     def check_all_cm_tb_valid(self):
         obtained_all_cm = self.cleaned_data.get('all_measurements')
         confirm_values = self.cleaned_data.get('confirm_values')
-        visit_code = self.cleaned_data.get('maternal_visit').visit_code
-        
-        if visit_code == '2100T':
+        visit_schedule = self.cleaned_data.get('maternal_visit').schedule_name
+
+        if visit_schedule == 'tb_2_months_schedule':
             if confirm_values == NO:
                 message = {'confirm_values':
                 'Are you sure about the given values please confirm!'}
@@ -102,7 +101,7 @@ class CaregiverClinicalMeasurementsFormValidator(FormValidatorMixin,
                 raise ValidationError(message)
             
             elif obtained_all_cm == YES:
-                if (self.check_all_cm is False):
+                if (self.check_cm_tb is False):
                     message = {'all_measurements':
                     'Please provide all measurements'}
                     self._errors.update(message)
@@ -118,52 +117,50 @@ class CaregiverClinicalMeasurementsFormValidator(FormValidatorMixin,
     def check_all_cm_valid(self):
         obtained_all_cm = self.cleaned_data.get('all_measurements')
         confirm_values = self.cleaned_data.get('confirm_values')
-        visit_code = self.cleaned_data.get('maternal_visit').visit_code
 
-        if visit_code in ['1000M', '2000M']:
+        visit_schedule = self.cleaned_data.get('maternal_visit').schedule_name
 
+        if visit_schedule == 'b_enrol1_schedule1':
+            breakpoint()
             if confirm_values != YES:
                 message = {'confirm_values':
                 'Are you sure about the given values please confirm!'}
                 self._errors.update(message)
                 raise ValidationError(message)
 
-            elif obtained_all_cm == NO:
-                if (self.check_all_cm is True):
+            elif obtained_all_cm == NO and (self.check_all_cm is True):
                     message = {'all_measurements':
                     'All measurements have been given please select Yes'}
                     self._errors.update(message)
                     raise ValidationError(message)
                 
-            elif obtained_all_cm == YES:
-                if (self.check_all_cm is False):
+            elif obtained_all_cm == YES and self.check_all_cm is False:
                     message = {'all_measurements':
                     'Please provide all measurements'}
                     self._errors.update(message)
                     raise ValidationError(message)    
                 
-    def check_all_cm_valid(self):
+    def check_all_cm_valid_2000D(self):
         obtained_all_cm = self.cleaned_data.get('all_measurements')
         confirm_values = self.cleaned_data.get('confirm_values')
-        visit_code = self.cleaned_data.get('maternal_visit').visit_code
+        visit_schedule = self.cleaned_data.get('maternal_visit').schedule_name
 
-        if visit_code in ['2000D']:
-            if confirm_values != YES:
-                message = {'confirm_values':
-                'Are you sure about the given values please confirm!'}
-                self._errors.update(message)
-                raise ValidationError(message)
-
-            elif obtained_all_cm == NO:
-                if (self.check_all_cm_2000D is True):
+        if visit_schedule == 'a_birth1_schedule1':
+            if obtained_all_cm == NO and self.check_all_cm_2000D is True:
                     message = {'all_measurements':
                     'All measurements have been given please select Yes'}
                     self._errors.update(message)
                     raise ValidationError(message)
                 
-            elif obtained_all_cm == YES:
-                if (self.check_all_cm_2000D is False):
+            elif obtained_all_cm == YES and self.check_all_cm_2000D is False:
                     message = {'all_measurements':
                     'Please provide all measurements'}
                     self._errors.update(message)
-                    raise ValidationError(message)    
+                    raise ValidationError(message)   
+                
+            elif self.check_all_cm_2000D is True and obtained_all_cm == YES and confirm_values != YES:
+                message = {'confirm_values':
+                'Are you sure about the given values please confirm!'}
+                self._errors.update(message)
+                raise ValidationError(message)    
+                 
