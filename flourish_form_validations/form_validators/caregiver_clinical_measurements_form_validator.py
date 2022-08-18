@@ -15,94 +15,147 @@ class CaregiverClinicalMeasurementsFormValidator(FormValidatorMixin,
             'maternal_visit').subject_identifier
         super().clean()
 
-        visit_code = cleaned_data.get('maternal_visit').visit_code
-
-        obtained_all_measurements = self.cleaned_data.get('all_measurements')
-        is_preg = self.cleaned_data.get('is_preg')
-
-        required_fields_not_pregnant = ['waist_circ', 'hip_circ']
-        for r_field in required_fields_not_pregnant:
-            self.required_if_true(
-                obtained_all_measurements == YES and is_preg == NO and visit_code != '2000D',
-                field='is_preg',
-                field_required=r_field)
-
-        if obtained_all_measurements == YES:
-
-            required_fields_all_measurements = ['systolic_bp', 'diastolic_bp', 'height', 'weight_kg']
-            for r_field in required_fields_all_measurements:
-                self.required_if(
-                    YES,
-                    field='all_measurements',
-                    field_required=r_field,
-                    inverse=True)
-
-            if (cleaned_data.get('systolic_bp') and
-                    cleaned_data.get('diastolic_bp')):
-                if cleaned_data.get('systolic_bp') < \
-                        cleaned_data.get('diastolic_bp'):
-                    msg = {'diastolic_bp':
-                        'Systolic blood pressure cannot be lower than the'
-                        'diastolic blood pressure. Please correct.'}
-                    self._errors.update(msg)
-                    raise ValidationError(msg)
-
-        self.check_all_cm_valid()
         self.check_bp()
+        self.check_all_cm_valid()
+        self.check_all_cm_tb_valid()
+        self.check_all_cm_valid_2000D()
+        
+        if (cleaned_data.get('systolic_bp') and
+            cleaned_data.get('diastolic_bp')):
+            if cleaned_data.get('systolic_bp') < \
+                    cleaned_data.get('diastolic_bp'):
+                        msg = {'diastolic_bp':
+                            'Systolic blood pressure cannot be lower than the'
+                            'diastolic blood pressure. Please correct.'}
+                        self._errors.update(msg)
+                        raise ValidationError(msg)
+                    
+        if cleaned_data.get('systolic_bp') is not None or cleaned_data.get('diastolic_bp') is not None :
+            
+            if cleaned_data.get('diastolic_bp') is None or cleaned_data.get('systolic_bp') is None:
+                msg = {'systolic_bp':
+                    'Systolic blood pressure cannot be lower than the'
+                    'diastolic blood pressure. Please correct.'}
+                self._errors.update(msg)
+                raise ValidationError(msg)       
 
     def check_bp(self):
-        field_list = ['systolic_bp', 'diastolic_bp']
-
-        for field in field_list:
-            self.required_if_not_none(
-                field=field,
-                field_required='confirm_values',
-                required_msg='Please select either NO or YES',
-                not_required_msg='Field not required')
+        if self.cleaned_data.get('all_measurements') == YES and self.check_bp_measurements == False:
+            message = {'systolic_bp':
+                        'Please provide all the blood pressure values'}
+            self._errors.update(message)
+            raise ValidationError(message)
 
     @property
-    def check_cm_not_preg(self):
+    def check_bp_measurements(self):
+        systolic_bp = self.cleaned_data.get('systolic_bp')
+        diastolic_bp = self.cleaned_data.get('diastolic_bp')
+        bp_list = [systolic_bp, diastolic_bp]
+        
+        return not any(item is None for item in bp_list)
+
+    @property
+    def check_all_cm(self):
         height = self.cleaned_data.get('height')
         weight_kg = self.cleaned_data.get('weight_kg')
         systolic_bp = self.cleaned_data.get('systolic_bp')
         diastolic_bp = self.cleaned_data.get('diastolic_bp')
         hip_circ = self.cleaned_data.get('hip_circ')
         waist_circ = self.cleaned_data.get('waist_circ')
-        cm_all_not_preg = [height, weight_kg, systolic_bp, diastolic_bp, hip_circ, waist_circ]
+        cm_all = [height, weight_kg, systolic_bp, diastolic_bp, hip_circ, waist_circ]
 
-        return not any(item is None for item in cm_all_not_preg)
-
+        return not any(item is None for item in cm_all)
+    
     @property
-    def check_cm_is_preg(self):
-        height = self.cleaned_data.get('height')
+    def check_all_cm_2000D(self):
         weight_kg = self.cleaned_data.get('weight_kg')
         systolic_bp = self.cleaned_data.get('systolic_bp')
         diastolic_bp = self.cleaned_data.get('diastolic_bp')
-        cm_all_is_preg = [height, weight_kg, systolic_bp, diastolic_bp]
 
-        return not any(item is None for item in cm_all_is_preg)
+        cm_all_2000D = [weight_kg, systolic_bp, diastolic_bp]
+
+        return not any(item is None for item in cm_all_2000D)
+    
+    @property
+    def check_cm_tb(self):
+        weight_kg = self.cleaned_data.get('weight_kg')
+        systolic_bp = self.cleaned_data.get('systolic_bp')
+        diastolic_bp = self.cleaned_data.get('diastolic_bp')
+        cm_all_tb = [weight_kg, systolic_bp, diastolic_bp]
+
+        return not any(item is None for item in cm_all_tb)
+    
+    def check_all_cm_tb_valid(self):
+        obtained_all_cm = self.cleaned_data.get('all_measurements')
+        confirm_values = self.cleaned_data.get('confirm_values')
+        visit_schedule = self.cleaned_data.get('maternal_visit').schedule_name
+
+        if visit_schedule == 'tb_2_months_schedule':
+            if confirm_values == NO:
+                message = {'confirm_values':
+                'Are you sure about the given values please confirm!'}
+                self._errors.update(message)
+                raise ValidationError(message)
+            
+            elif obtained_all_cm == YES and (self.check_cm_tb is False):
+                    message = {'all_measurements':
+                    'Please provide all measurements'}
+                    self._errors.update(message)
+                    raise ValidationError(message)  
+                
+            elif obtained_all_cm == NO and (self.check_cm_tb is True):
+                    message = {'all_measurements':
+                        'All measurements have been given please select Yes.'}
+                    self._errors.update(message)
+                    raise ValidationError(message)
+    
 
     def check_all_cm_valid(self):
         obtained_all_cm = self.cleaned_data.get('all_measurements')
-        is_preg = self.cleaned_data.get('is_preg')
         confirm_values = self.cleaned_data.get('confirm_values')
 
-        if confirm_values and confirm_values == NO:
-            message = {'confirm_values':
-            'Are you sure about the given values please confirm!'}
-            self._errors.update(message)
-            raise ValidationError(message)
-        else:
-            if obtained_all_cm and obtained_all_cm == NO:
-                if (is_preg == YES) and (self.check_cm_is_preg is True):
-                    message = {'all_measurements':
-                    'All pregnancy measurements have been given please select Yes'}
-                    self._errors.update(message)
-                    raise ValidationError(message)
+        visit_schedule = self.cleaned_data.get('maternal_visit').schedule_name
 
-            if (is_preg == NO) and (self.check_cm_not_preg is True):
-                if obtained_all_cm and obtained_all_cm == NO:
+        if visit_schedule == 'b_enrol1_schedule1':
+            if confirm_values != YES:
+                message = {'confirm_values':
+                'Are you sure about the given values please confirm!'}
+                self._errors.update(message)
+                raise ValidationError(message)
+
+            elif obtained_all_cm == NO and (self.check_all_cm is True):
                     message = {'all_measurements':
-                        'All measurements have been given please select Yes'}
+                    'All measurements have been given please select Yes'}
                     self._errors.update(message)
                     raise ValidationError(message)
+                
+            elif obtained_all_cm == YES and self.check_all_cm is False:
+                    message = {'all_measurements':
+                    'Please provide all measurements'}
+                    self._errors.update(message)
+                    raise ValidationError(message)    
+                
+    def check_all_cm_valid_2000D(self):
+        obtained_all_cm = self.cleaned_data.get('all_measurements')
+        confirm_values = self.cleaned_data.get('confirm_values')
+        visit_schedule = self.cleaned_data.get('maternal_visit').schedule_name
+
+        if visit_schedule == 'a_birth1_schedule1':
+            if obtained_all_cm == NO and self.check_all_cm_2000D is True:
+                    message = {'all_measurements':
+                    'All measurements have been given please select Yes'}
+                    self._errors.update(message)
+                    raise ValidationError(message)
+                
+            elif obtained_all_cm == YES and self.check_all_cm_2000D is False:
+                    message = {'all_measurements':
+                    'Please provide all measurements'}
+                    self._errors.update(message)
+                    raise ValidationError(message)   
+                
+            elif self.check_all_cm_2000D is True and obtained_all_cm == YES and confirm_values != YES:
+                message = {'confirm_values':
+                'Are you sure about the given values please confirm!'}
+                self._errors.update(message)
+                raise ValidationError(message)    
+                 
