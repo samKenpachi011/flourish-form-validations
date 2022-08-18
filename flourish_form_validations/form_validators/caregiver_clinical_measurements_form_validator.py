@@ -97,14 +97,13 @@ class CaregiverClinicalMeasurementsFormValidator(FormValidatorMixin,
                 self._errors.update(message)
                 raise ValidationError(message)
             
-            elif obtained_all_cm == YES:
-                if (self.check_cm_tb is False):
+            elif obtained_all_cm == YES and (self.check_cm_tb is False):
                     message = {'all_measurements':
                     'Please provide all measurements'}
                     self._errors.update(message)
                     raise ValidationError(message)  
-            else:
-                if obtained_all_cm == NO and (self.check_cm_tb is True):
+                
+            elif obtained_all_cm == NO and (self.check_cm_tb is True):
                     message = {'all_measurements':
                         'All measurements have been given please select Yes.'}
                     self._errors.update(message)
