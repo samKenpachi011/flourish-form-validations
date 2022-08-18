@@ -40,13 +40,11 @@ class CaregiverClinicalMeasurementsFormValidator(FormValidatorMixin,
                 raise ValidationError(msg)       
 
     def check_bp(self):
-        # check bp values
-        if self.cleaned_data.get('all_measurements') == YES:
-            if self.check_bp_measurements == False:
-                message = {'systolic_bp':
-                         'Please provide all the blood pressure values'}
-                self._errors.update(message)
-                raise ValidationError(message)
+        if self.cleaned_data.get('all_measurements') == YES and self.check_bp_measurements == False:
+            message = {'systolic_bp':
+                        'Please provide all the blood pressure values'}
+            self._errors.update(message)
+            raise ValidationError(message)
 
     @property
     def check_bp_measurements(self):
@@ -55,7 +53,6 @@ class CaregiverClinicalMeasurementsFormValidator(FormValidatorMixin,
         bp_list = [systolic_bp, diastolic_bp]
         
         return not any(item is None for item in bp_list)
-        
 
     @property
     def check_all_cm(self):
@@ -121,7 +118,6 @@ class CaregiverClinicalMeasurementsFormValidator(FormValidatorMixin,
         visit_schedule = self.cleaned_data.get('maternal_visit').schedule_name
 
         if visit_schedule == 'b_enrol1_schedule1':
-            breakpoint()
             if confirm_values != YES:
                 message = {'confirm_values':
                 'Are you sure about the given values please confirm!'}
