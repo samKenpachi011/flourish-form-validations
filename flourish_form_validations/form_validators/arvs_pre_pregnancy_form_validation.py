@@ -75,7 +75,7 @@ class ArvsPrePregnancyFormValidator(FormValidatorMixin, FormValidator):
             *selections,
             m2m_field='prior_arv')
         self.m2m_other_specify(
-            'prior_arv_other',
+            'prior_arv_specify',
             m2m_field='prior_arv',
             field_other='prior_arv_other')
 
