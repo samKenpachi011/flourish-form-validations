@@ -1,4 +1,3 @@
-from black import re
 from edc_form_validators import FormValidator
 from edc_constants.constants import OTHER, YES, POS, NEG, NO
 from edc_form_validators import FormValidator
@@ -10,14 +9,16 @@ class RelationshipFatherInvolmentFormValidator(FormValidatorMixin,FormValidator)
     
     
     def clean(self):
+        super().clean()
+        
         self.validate_why_partner_upsent_required()
         self.validate_not_living_with_partner_required()
         self.validate_discussion_with_partner_required()
         self.validate_disclose_status_required()
         self.validate_times_separated_required()
         self.validate_separation_consideration_required()
-        
-        
+        self.validate_partner_upsent_fields_not_required()
+        self.validate_is_partner_the_father_required()
     
         
         
@@ -104,7 +105,7 @@ class RelationshipFatherInvolmentFormValidator(FormValidatorMixin,FormValidator)
                 NO,
                 field='partner_present',
                 field_required=not_required,
-                # inverse=False)
+                )
         
         
         

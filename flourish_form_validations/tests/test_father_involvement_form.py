@@ -11,7 +11,7 @@ from edc_constants.constants import OTHER
 
 
 
-@tag('rfi')
+@tag('rfi') 
 class TestRelationshipFatherInvolment(TestModeMixin,TestCase):
     
     def __init__(self, *args, **kwargs):
@@ -41,7 +41,6 @@ class TestRelationshipFatherInvolment(TestModeMixin,TestCase):
 
         self.options = {
             'maternal_visit': self.maternal_visit,
-
         }
         
         # self.data = {
@@ -84,6 +83,35 @@ class TestRelationshipFatherInvolment(TestModeMixin,TestCase):
         """Test criteria's
         -form valid
                 """
+        self.data = {
+            'maternal_visit': self.maternal_visit,
+            'partner_present': YES,
+            'is_partner_the_father': YES,
+            
+        }
+                
+        """ Validations
+        
+        -If ‘Yes’ to Q1, continue to Q2, 
+        -If “No” to Q1, provide short answer stem question “Why not?” (allow free text) otherwise skip to Q23
+        -If “No” to Q5, provide short answer stem question “Why not?” (allow free text) otherwise skip to Q6
+        -If “Yes” on Q6 go to Q7
+            If “No” skip to Q8
+        -If “Yes” to Q10, continue to Q11. Otherwise skip to Q12
+
+
+        -test validate_why_partner_upsent_required on YES and NO --done
+        -test validate_why_not_living_with_partner --done
+        -test validate_is_partner_the_father_required
+        -test validate_not_living_with_partner_required
+        -test validate_discussion_with_partner_required
+        -test validate_disclose_status_required
+        -test validate_times_separated_required
+        -test validate_separation_consideration_required
+
+
+        """  
+              
     def test_father_involvement_form_valid(self):
         
         cleaned_data = {
@@ -96,10 +124,10 @@ class TestRelationshipFatherInvolment(TestModeMixin,TestCase):
             'living_with_partner':YES,
             'disclosure_to_partner':YES,
             'discussion_with_partner': 'easy',
-            'disclose_status':YES,
+            # 'disclose_status':YES,
             'partners_support':'supportive',
             'ever_separated':YES,
-            'times_separated':'twice',
+            # 'times_separated':'twice',
             'separation_consideration':'occasionally',
             
             'after_fight':'occasionally',
@@ -113,7 +141,7 @@ class TestRelationshipFatherInvolment(TestModeMixin,TestCase):
             
             'happiness_in_relationship':'happy',
             'future_relationship':'happy',
-            'father_child_contact':'every_day',
+            # 'father_child_contact':None,
             'fathers_financial_support':'supportive',
             'child_left_alone':3,
             'read_books':'mother',
@@ -131,33 +159,103 @@ class TestRelationshipFatherInvolment(TestModeMixin,TestCase):
         except ValidationError as e:
             self.fail(f'ValidationError unexpectedly raised. Got{e}') 
         
+
+    def test_father_involvement_partner_upresent_form_valid(self):
         
-        """ Validations
+        cleaned_data = {
+            'maternal_visit': self.maternal_visit,
+            'partner_present':NO,
+            'why_partner_upsent':'test',
+            'father_child_contact':'test',
+            'fathers_financial_support':'supportive',
+            'child_left_alone':3,
+            'read_books':'mother',
+            'told_stories':'mother',
+            'sang_songs':'mother',
+            'took_child_outside':'mother',
+            'played_with_child':'mother',
+            'named_with_child':'mother',
+        } 
+            
+        form_validator = RelationshipFatherInvolmentFormValidator(
+            cleaned_data=cleaned_data)
+        try:
+            form_validator.validate()
+        except ValidationError as e:
+            self.fail(f'ValidationError unexpectedly raised. Got{e}') 
+           
+    def test_is_partner_the_father_invalid(self):
         
-        -If ‘Yes’ to Q1, continue to Q2, 
-        -If “No” to Q1, provide short answer stem question “Why not?” (allow free text) otherwise skip to Q23
-        -If “No” to Q5, provide short answer stem question “Why not?” (allow free text) otherwise skip to Q6
-        -If “Yes” on Q6 go to Q7
-            If “No” skip to Q8
-        -If “Yes” to Q10, continue to Q11. Otherwise skip to Q12
-
-
-        -test validate_why_partner_upsent_required on YES and NO
-        -test validate_why_not_living_with_partner
-        -test validate_is_partner_the_father_required
-        -test validate_not_living_with_partner_required
-        -test validate_discussion_with_partner_required
-        -test validate_disclose_status_required
-        -test validate_times_separated_required
-        -test validate_separation_consideration_required
-
-
-        """
-
+        cleaned_data = {
+            'maternal_visit': self.maternal_visit,
+            'partner_present': YES,
+            'is_partner_the_father': None
+        }
+        
+        form_validator = RelationshipFatherInvolmentFormValidator(cleaned_data=cleaned_data)
+        self.assertRaises(ValidationError, form_validator.validate)
+        self.assertIn('is_partner_the_father', form_validator._errors)
+       
+    def test_is_partner_the_father_valid(self):
+        
+        cleaned_data = {
+            'maternal_visit': self.maternal_visit,
+            'partner_present': YES,
+            'is_partner_the_father': YES
+        }
+        
+        form_validator = RelationshipFatherInvolmentFormValidator(cleaned_data=cleaned_data)
+        try:
+            form_validator.validate()
+        except ValidationError as e:
+            self.fail(f'ValidationError unexpectedly raised. Got{e}') 
+         
+        
+    def test_why_not_living_with_partner_invalid(self):
+        
+        cleaned_data = {
+            'maternal_visit': self.maternal_visit,
+            'partner_present': YES,
+            'living_with_partner': NO,
+            'is_partner_the_father':YES,
+            'why_not_living_with_partner': None
+        }
+        
+        form_validator = RelationshipFatherInvolmentFormValidator(cleaned_data=cleaned_data)
+        self.assertRaises(ValidationError, form_validator.validate)
+        self.assertIn('why_not_living_with_partner', form_validator._errors)
     
+    def test_why_not_living_with_partner_valid(self):
+        
+        cleaned_data = {
+            'maternal_visit': self.maternal_visit,
+            'partner_present': YES,
+            'living_with_partner': NO,
+            'is_partner_the_father':YES,
+            'why_not_living_with_partner': 'test',
+        }
+        
+        form_validator = RelationshipFatherInvolmentFormValidator(cleaned_data=cleaned_data)
+        try:
+            form_validator.validate()
+        except ValidationError as e:
+            self.fail(f'ValidationError unexpectedly raised. Got{e}') 
+    
+    # validate_is_partner_the_father_required
+    
+    
+    
+        
+    # @tag('rfi') 
+    # def test_is_partner_the_father_invalid(self):
+    #     field_name = 'is_partner_the_father'
+    #     self.data[field_name] = None
 
+    #     form_validator = RelationshipFatherInvolmentFormValidator(cleaned_data=self.data)
+
+    #     self.assertRaises(ValidationError, form_validator.validate)
+    #     self.assertIn(field_name, form_validator._errors)    
         
         
-        
-        
+     
         
