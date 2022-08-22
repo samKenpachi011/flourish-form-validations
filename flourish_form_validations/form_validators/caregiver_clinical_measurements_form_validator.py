@@ -129,7 +129,7 @@ class CaregiverClinicalMeasurementsFormValidator(FormValidatorMixin,
 
         if visit_code == '1000M':
 
-            if confirm_values != YES:
+            if self.check_all_cm_1000 is True and obtained_all_cm == YES and confirm_values != YES:
                 message = {'confirm_values':
                 'Are you sure about the given values please confirm!'}
                 self._errors.update(message)

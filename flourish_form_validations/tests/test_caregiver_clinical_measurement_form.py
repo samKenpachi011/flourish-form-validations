@@ -118,8 +118,6 @@ class TestCaregiverClinicalMeasurementsForm(TestModeMixin, TestCase):
             'systolic_bp': None,    
             'diastolic_bp': None,
             'confirm_values':YES,
-            'hip_circ': None,
-            'waist_circ': None,
             'all_measurements': NO    
         }
         
@@ -380,4 +378,31 @@ class TestCaregiverClinicalMeasurementsForm(TestModeMixin, TestCase):
             form_validator.validate()
         except ValidationError as e:
             self.fail(f'ValidationError unexpectedly raised. Got{e}')        
+    @tag('ccmt')    
+    def test_all_no_cm_1000_valid(self):
+        appointment = Appointment.objects.create(
+            subject_identifier=self.subject_consent.subject_identifier,
+            appt_datetime=get_utcnow(),
+            visit_code='1000M')
+
+        self.maternal_visit = MaternalVisit.objects.create(
+            appointment=appointment,
+            subject_identifier=self.subject_consent.subject_identifier,
+            report_datetime=get_utcnow())
         
+        cleaned_data = {
+            'maternal_visit': self.maternal_visit,
+            'height': 120,
+            'weight_kg': 70,       
+            'systolic_bp': None,    
+            'diastolic_bp': None,
+            'confirm_values':None,
+            'all_measurements': NO    
+        }
+        
+        form_validator = CaregiverClinicalMeasurementsFormValidator(
+            cleaned_data=cleaned_data)
+        try:
+            form_validator.validate()
+        except ValidationError as e:
+            self.fail(f'ValidationError unexpectedly raised. Got{e}')
