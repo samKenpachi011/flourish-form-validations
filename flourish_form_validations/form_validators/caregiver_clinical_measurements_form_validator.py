@@ -16,7 +16,6 @@ class CaregiverClinicalMeasurementsFormValidator(FormValidatorMixin,
         super().clean()
 
         self.check_bp()
-        # self.check_all_cm_valid()
         self.check_all_cm_tb_valid()
         self.check_all_cm_valid_1000M()
         self.check_all_cm_valid_2000M()
