@@ -57,25 +57,25 @@ class ArvsPrePregnancyFormValidator(FormValidatorMixin, FormValidator):
         if qs and qs.count() >= 1:
             selected = {obj.short_name: obj.name for obj in qs}
             if (self.cleaned_data.get('prior_preg') != NOT_APPLICABLE and
-                    NOT_APPLICABLE in selected):
+                    'prior_arv_na' in selected):
                 message = {
                     'prior_arv':
                         'This field is applicable.'}
                 self._errors.update(message)
                 raise ValidationError(message)
             elif (self.cleaned_data.get('prior_preg') == NOT_APPLICABLE and
-                  NOT_APPLICABLE not in selected):
+                  'prior_arv_na' not in selected):
                 message = {
                     'prior_arv':
                         'This field is not applicable.'}
 
     def validate_other_mother(self):
-        selections = [NOT_APPLICABLE]
+        selections = ['prior_arv_na']
         self.m2m_single_selection_if(
             *selections,
             m2m_field='prior_arv')
         self.m2m_other_specify(
-            'Other, specify',
+            'prior_arv_specify',
             m2m_field='prior_arv',
             field_other='prior_arv_other')
 

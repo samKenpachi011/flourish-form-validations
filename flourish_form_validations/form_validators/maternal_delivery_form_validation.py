@@ -139,12 +139,12 @@ class MaternalDeliveryFormValidator(FormValidatorMixin,
                 field=field,
                 other_specify_field=other
             )
-        selections = [OTHER, NONE]
+        selections = ['delivery_comp_other', 'delivery_comp_none']
         self.m2m_single_selection_if(
             *selections,
             m2m_field='delivery_complications')
         self.m2m_other_specify(
-            'Other',
+            'delivery_comp_other',
             m2m_field='delivery_complications',
             field_other='delivery_complications_other')
 
