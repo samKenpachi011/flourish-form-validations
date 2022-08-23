@@ -29,23 +29,16 @@ class RelationshipFatherInvolmentFormValidator(FormValidatorMixin,FormValidator)
                          field='partner_present',
                          field_required='is_partner_the_father')
         
-    def validate_why_not_living_with_partner_required(self):
-        self.required_if(YES,
-                         field='living_with_partner',
-                         field_required='why_not_living_with_partner') 
-        
     def validate_discussion_with_partner_required(self):
         self.required_if(YES,
                          field='disclosure_to_partner',
                          field_required='discussion_with_partner')      
         
-    def validate_separation_consideration_required(self):
+    def validate_times_separated_required(self):
         self.required_if(YES,
                          field='ever_separated',
-                         field_required='separation_consideration')      
+                         field_required='times_separated')      
                
-        
-        
     #If “No” to Q1, provide short answer stem question “Why not?”
     def validate_why_partner_upsent_required(self):
         required_fields = ['why_partner_upsent', 'father_child_contact']
@@ -67,10 +60,10 @@ class RelationshipFatherInvolmentFormValidator(FormValidatorMixin,FormValidator)
         
     # If “Yes” to Q10, continue to Q11. Otherwise skip to Q12 
     
-    def validate_times_separated_required(self):
+    def validate_separation_consideration_required(self):
         self.required_if(NO,
                          field='ever_separated',
-                         field_required='times_separated')  
+                         field_required='separation_consideration')  
         
         
     # validate on Q1 no
@@ -98,6 +91,9 @@ class RelationshipFatherInvolmentFormValidator(FormValidatorMixin,FormValidator)
                                'engage_in_interests',
                                'happiness_in_relationship',
                                'future_relationship',
+                                'interview_participation',
+                                'contact_info',
+                                'partner_cell'
                                ]
 
         for not_required in not_required_fields:
@@ -105,8 +101,10 @@ class RelationshipFatherInvolmentFormValidator(FormValidatorMixin,FormValidator)
                 NO,
                 field='partner_present',
                 field_required=not_required,
-                )
-        
-        
-        
-        
+            )
+            
+    def validate_partner_cell_required(self):
+        self.required_if(YES,
+                         field='contact_info',
+                         field_required='partner_cell')  
+               
