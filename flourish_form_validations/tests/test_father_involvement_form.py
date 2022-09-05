@@ -49,18 +49,15 @@ class TestRelationshipFatherInvolment(TestModeMixin,TestCase):
             If “No” skip to Q8
         -If “Yes” to Q10, continue to Q11. Otherwise skip to Q12
 
-
-        -test validate_why_partner_upsent_required on YES and NO --done
-        -test validate_why_not_living_with_partner --done
-        -test validate_is_partner_the_father_required --done
-        -test validate_not_living_with_partner_required --done
-        -test validate_discussion_with_partner_required --done
-        -test validate_disclose_status_required  --done
-        -test validate_times_separated_required --done
-        -test validate_separation_consideration_required --done
-        -test partner_cell  --done
-
-
+        -test validate_why_partner_upsent_required on YES and NO 
+        -test validate_why_not_living_with_partner 
+        -test validate_is_partner_the_father_required 
+        -test validate_not_living_with_partner_required 
+        -test validate_discussion_with_partner_required
+        -test validate_disclose_status_required 
+        -test validate_times_separated_required 
+        -test validate_separation_consideration_required
+        -test partner_cell
         """  
               
     def test_father_involvement_form_valid(self):

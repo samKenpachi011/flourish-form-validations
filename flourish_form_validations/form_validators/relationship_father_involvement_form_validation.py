@@ -20,10 +20,6 @@ class RelationshipFatherInvolmentFormValidator(FormValidatorMixin,FormValidator)
         self.validate_partner_upsent_fields_not_required()
         self.validate_is_partner_the_father_required()
     
-        
-        
-    # On yes    
-        
     def validate_is_partner_the_father_required(self):
         self.required_if(YES,
                          field='partner_present',
@@ -39,7 +35,6 @@ class RelationshipFatherInvolmentFormValidator(FormValidatorMixin,FormValidator)
                          field='ever_separated',
                          field_required='times_separated')      
                
-    #If “No” to Q1, provide short answer stem question “Why not?”
     def validate_why_partner_upsent_required(self):
         required_fields = ['why_partner_upsent', 'father_child_contact']
         for field in required_fields:
@@ -51,22 +46,17 @@ class RelationshipFatherInvolmentFormValidator(FormValidatorMixin,FormValidator)
         self.required_if(NO,
                          field='living_with_partner',
                          field_required='why_not_living_with_partner') 
-           
-    # If “Yes” on Q6 go to Q7  If “No” skip to Q8    
+  
     def validate_disclose_status_required(self):
         self.required_if(NO,
                          field='disclosure_to_partner',
                          field_required='disclose_status')  
-        
-    # If “Yes” to Q10, continue to Q11. Otherwise skip to Q12 
     
     def validate_separation_consideration_required(self):
         self.required_if(NO,
                          field='ever_separated',
                          field_required='separation_consideration')  
-        
-        
-    # validate on Q1 no
+
     def validate_partner_upsent_fields_not_required(self):
         not_required_fields = ['is_partner_the_father',
                                'duration_with_partner_months',
