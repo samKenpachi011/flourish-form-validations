@@ -49,7 +49,7 @@ class TestRelationshipFatherInvolment(TestModeMixin,TestCase):
             If “No” skip to Q8
         -If “Yes” to Q10, continue to Q11. Otherwise skip to Q12
 
-        -test validate_why_partner_upsent_required on YES and NO 
+        -test validate_why_partner_absent_required on YES and NO 
         -test validate_why_not_living_with_partner 
         -test validate_is_partner_the_father_required 
         -test validate_not_living_with_partner_required 
@@ -75,7 +75,7 @@ class TestRelationshipFatherInvolment(TestModeMixin,TestCase):
             'partners_support':'supportive',
             'ever_separated': YES,
             'times_separated': '4',
-            'after_fight':'occasionally',
+            'leave_after_fight':'occasionally',
             'relationship_progression':'occasionally',
             'confide_in_partner':'occasionally',
             'relationship_regret':'occasionally',
@@ -107,12 +107,12 @@ class TestRelationshipFatherInvolment(TestModeMixin,TestCase):
             self.fail(f'ValidationError unexpectedly raised. Got{e}') 
         
 
-    def test_father_involvement_partner_upresent_form_valid(self):
+    def test_father_involvement_partner_absent_form_valid(self):
         
         cleaned_data = {
             'maternal_visit': self.maternal_visit,
             'partner_present':NO,
-            'why_partner_upsent':'test',
+            'why_partner_absent':'test',
             'father_child_contact':'test',
             'fathers_financial_support':'supportive',
             'child_left_alone':3,

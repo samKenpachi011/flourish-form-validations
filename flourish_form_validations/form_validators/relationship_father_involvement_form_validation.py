@@ -11,53 +11,43 @@ class RelationshipFatherInvolmentFormValidator(FormValidatorMixin,FormValidator)
     def clean(self):
         super().clean()
         
-        self.validate_why_partner_upsent_required()
-        self.validate_not_living_with_partner_required()
-        self.validate_discussion_with_partner_required()
-        self.validate_disclose_status_required()
-        self.validate_times_separated_required()
-        self.validate_separation_consideration_required()
-        self.validate_partner_upsent_fields_not_required()
-        self.validate_is_partner_the_father_required()
+        self.validate_partner_absent_fields_not_required()
     
-    def validate_is_partner_the_father_required(self):
         self.required_if(YES,
                          field='partner_present',
                          field_required='is_partner_the_father')
         
-    def validate_discussion_with_partner_required(self):
         self.required_if(YES,
                          field='disclosure_to_partner',
                          field_required='discussion_with_partner')      
         
-    def validate_times_separated_required(self):
         self.required_if(YES,
                          field='ever_separated',
-                         field_required='times_separated')      
+                         field_required='times_separated')     
+
+        self.required_if(YES,
+                    field='contact_info',
+                    field_required='partner_cell')   
                
-    def validate_why_partner_upsent_required(self):
-        required_fields = ['why_partner_upsent', 'father_child_contact']
+        required_fields = ['why_partner_absent', 'father_child_contact']
         for field in required_fields:
             self.required_if(NO,
                             field='partner_present',
                             field_required=field)
         
-    def validate_not_living_with_partner_required(self):
         self.required_if(NO,
                          field='living_with_partner',
                          field_required='why_not_living_with_partner') 
   
-    def validate_disclose_status_required(self):
         self.required_if(NO,
                          field='disclosure_to_partner',
                          field_required='disclose_status')  
     
-    def validate_separation_consideration_required(self):
         self.required_if(NO,
                          field='ever_separated',
                          field_required='separation_consideration')  
 
-    def validate_partner_upsent_fields_not_required(self):
+    def validate_partner_absent_fields_not_required(self):
         not_required_fields = ['is_partner_the_father',
                                'duration_with_partner_months',
                                'duration_with_partner_years',
@@ -71,7 +61,7 @@ class RelationshipFatherInvolmentFormValidator(FormValidatorMixin,FormValidator)
                                'ever_separated',
                                'times_separated',
                                'separation_consideration',
-                               'after_fight',
+                               'leave_after_fight',
                                'relationship_progression',
                                'confide_in_partner',
                                'relationship_regret',
@@ -92,9 +82,4 @@ class RelationshipFatherInvolmentFormValidator(FormValidatorMixin,FormValidator)
                 field='partner_present',
                 field_required=not_required,
             )
-            
-    def validate_partner_cell_required(self):
-        self.required_if(YES,
-                         field='contact_info',
-                         field_required='partner_cell')  
                
