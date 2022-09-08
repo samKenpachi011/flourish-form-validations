@@ -2,7 +2,7 @@ from django.test import TestCase, tag
 from django.core.exceptions import ValidationError
 from edc_base.utils import get_utcnow
 from edc_constants.constants import YES, NO, NOT_APPLICABLE, POS, NEG
-from ..form_validators import RelationshipFatherInvolmentFormValidator
+from ..form_validators import RelationshipFatherInvolvementFormValidator
 from flourish_form_validations.tests.test_model_mixin import TestModeMixin
 from .models import (FlourishConsentVersion, SubjectConsent,
                      Appointment, MaternalVisit, ListModel)
@@ -12,10 +12,10 @@ from edc_constants.constants import OTHER
 
 
 @tag('rfi') 
-class TestRelationshipFatherInvolment(TestModeMixin,TestCase):
+class TestRelationshipFatherInvolvement(TestModeMixin,TestCase):
     
     def __init__(self, *args, **kwargs):
-        super().__init__(RelationshipFatherInvolmentFormValidator, *args, **kwargs)
+        super().__init__(RelationshipFatherInvolvementFormValidator, *args, **kwargs)
         
     def setUp(self):
         FlourishConsentVersion.objects.create(
