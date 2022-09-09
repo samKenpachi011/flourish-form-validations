@@ -19,7 +19,8 @@ class MaternalArvDuringPregFormValidator(FormValidatorMixin, FormValidator):
         self.subject_identifier = self.cleaned_data.get(
             'maternal_visit').subject_identifier
         super().clean()
-
+    
+    
         self.applicable_if(
             YES,
             field='took_arv',

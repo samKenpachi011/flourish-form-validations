@@ -62,7 +62,7 @@ class TestTBCaregiverAdolescentScreeningForm(TestModeMixin,TestCase):
         """
         cleaned_data = {
             'tb_caregiver_participation': NO,
-            'reason_for_not_participating': None,
+            'reason_for_not_participating': NOT_APPLICABLE,
         }
 
         form_validator = TBCaregiverAdolescentScreeningFormValidator(
@@ -79,6 +79,23 @@ class TestTBCaregiverAdolescentScreeningForm(TestModeMixin,TestCase):
             'tb_caregiver_participation': NO,
             'reason_for_not_participating': OTHER,
             'reason_for_not_participating_other': None
+        }
+
+        form_validator = TBCaregiverAdolescentScreeningFormValidator(
+            cleaned_data=cleaned_data
+        )
+
+        self.assertRaises(ValidationError, form_validator.validate)
+        self.assertIn('reason_for_not_participating_other', form_validator._errors)
+        
+    def test_reason_for_not_participating_other_not_required(self):
+        """
+        checks if the field for other reasons is not required
+        """
+        cleaned_data = {
+            'tb_caregiver_participation': NO,
+            'reason_for_not_participating': NOT_APPLICABLE,
+            'reason_for_not_participating_other': 'test'
         }
 
         form_validator = TBCaregiverAdolescentScreeningFormValidator(
