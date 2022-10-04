@@ -38,17 +38,17 @@ class ObstericalHistoryFormValidator(FormValidatorMixin, FormValidator):
 
         try:
             self.antenatal_enrollment_cls.objects.get(
-                subject_identifier=self.subject_identifier, )
+                subject_identifier=self.subject_identifier,)
         except self.antenatal_enrollment_cls.DoesNotExist:
             return 0
         else:
             try:
 
                 ultrasound = self.maternal_ultrasound_cls.objects.get(
-                    maternal_visit__subject_identifier=subject_identifier,
-                    maternal_visit=maternal_visit)
+                    maternal_visit__subject_identifier=subject_identifier)
 
             except self.maternal_ultrasound_cls.DoesNotExist:
+
                 message = 'Please complete ultrasound form first.'
                 raise ValidationError(message)
             else:
@@ -57,7 +57,7 @@ class ObstericalHistoryFormValidator(FormValidatorMixin, FormValidator):
     def validate_ultrasound(self, cleaned_data=None):
         try:
             self.antenatal_enrollment_cls.objects.get(
-                subject_identifier=self.subject_identifier, )
+                subject_identifier=self.subject_identifier,)
         except self.antenatal_enrollment_cls.DoesNotExist:
             return 0
         else:
@@ -111,12 +111,12 @@ class ObstericalHistoryFormValidator(FormValidatorMixin, FormValidator):
 
             if (cleaned_data.get('prev_pregnancies') and
                     sum_deliv_37_wks != ((cleaned_data.get('prev_pregnancies') - offset)
-                                         - sum_lost_24_wks)):
+                                         -sum_lost_24_wks)):
                 raise ValidationError('The sum of Q10 and Q11 must be equal to '
                                       f'(Q3 -{offset}) - (Q5 + Q6). Please correct.')
 
             # allowance to compansate 1 child, twins or triplets
-            # because a single pregnancy can contain a single child, twins or triplets 
+            # because a single pregnancy can contain a single child, twins or triplets
             no_of_children_allowance = (sum_deliv_37_wks - (children_died_b4_5yrs +
                                                             children_died_aft_5yrs)) + 3
 
