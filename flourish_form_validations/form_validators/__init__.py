@@ -46,9 +46,11 @@ from .substance_use_during_form_validator import \
 from .substance_use_prior_form_validator import SubstanceUsePriorFormValidator
 from .tb_engagement_form_validator import TbEngagementFormValidator
 from .tb_history_preg_form_validator import TbHistoryPregFormValidator
+from .tb_knowledge_form_validator import TbKnowledgeFormValidator
 from .tb_presence_household_members_form_validator import \
     TbPresenceHouseholdMembersFormValidator
 from .tb_referral_form_validator import TbReferralFormValidator
+from .tb_referral_outcomes_form_validator import TbReferralOutcomesFormValidator
 from .tb_routine_health_screen_form_validator import \
     TbRoutineHealthScreenFormValidator
 from .tb_screen_preg_form_validator import TbScreenPregFormValidator
