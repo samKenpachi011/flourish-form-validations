@@ -19,3 +19,8 @@ class TbRoutineHealthScreenFormValidator(FormValidatorMixin, FormValidator):
             field='screen_location',
             other_specify_field='screen_location_other',
         )
+
+        self.required_if(
+                YES,
+                field='diagnostic_referral',
+                field_required='referral_reason')
