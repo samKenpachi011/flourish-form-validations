@@ -44,6 +44,7 @@ from .subject_consent_form_validation import SubjectConsentFormValidator
 from .substance_use_during_form_validator import \
     SubstanceUseDuringPregFormValidator
 from .substance_use_prior_form_validator import SubstanceUsePriorFormValidator
+from .tb_adol_eligibility_form_validator import TbAdolEligibilityFormValidator
 from .tb_engagement_form_validator import TbEngagementFormValidator
 from .tb_history_preg_form_validator import TbHistoryPregFormValidator
 from .tb_interview_form_validator import TbInterviewFormValidator
