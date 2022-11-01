@@ -35,7 +35,7 @@ from .maternal_interim_idcc_form_validation import \
     MaternalIterimIdccFormValidator
 from .medical_history_form_validation import MedicalHistoryFormValidator
 from .obsterical_history_form_validation import ObstericalHistoryFormValidator
-from .relationship_father_involvement_form_validation import RelationshipFatherInvolmentFormValidator
+from .relationship_father_involvement_form_validation import RelationshipFatherInvolvementFormValidator
 from .screening_prior_bhp_participants_form_validator import \
     ScreeningPriorBhpParticipantsFormValidator
 from .socio_demographic_data_form_validator import \
