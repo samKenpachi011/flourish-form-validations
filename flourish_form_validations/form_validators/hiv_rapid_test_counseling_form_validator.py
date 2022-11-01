@@ -1,6 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
-from edc_constants.constants import YES
+from edc_constants.constants import YES, NO
 from edc_form_validators import FormValidator
 
 from .crf_form_validator import FormValidatorMixin
@@ -34,6 +34,14 @@ class HIVRapidTestCounselingFormValidator(FormValidatorMixin, FormValidator):
             inverse=True)
 
         self.validate_test_date(self.cleaned_data.get('result_date'))
+
+        self.required_if(
+            NO,
+            field='rapid_test_done',
+            field_required='comments',
+            required_msg=('If a rapid test was not processed, kindly provide a comment as '
+                          'to why it did not occur.'),
+            inverse=False)
 
     def validate_test_date(self, test_date=None):
         maternal_visit = self.cleaned_data.get('maternal_visit')
