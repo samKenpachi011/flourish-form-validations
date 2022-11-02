@@ -128,9 +128,3 @@ class RelationshipFatherInvolvementFormValidator(FormValidatorMixin,FormValidato
 
                 for field in fields:
                     self.required_if_true(True, field_required=field)
-                    
-        
-                
-        else:
-            pass
-            
