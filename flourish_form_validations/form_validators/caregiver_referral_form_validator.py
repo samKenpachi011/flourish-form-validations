@@ -1,4 +1,4 @@
-from edc_constants.constants import NO, YES
+from edc_constants.constants import NO, YES, OTHER
 from edc_form_validators import FormValidator
 
 from .crf_form_validator import FormValidatorMixin
@@ -35,7 +35,8 @@ class CaregiverReferralFormValidator(FormValidatorMixin, FormValidator):
                              field='emo_support',
                              m2m_field='emo_support_type')
 
-        self.m2m_other_specify(m2m_field='emo_support_type',
+        self.m2m_other_specify(OTHER,
+                               m2m_field='emo_support_type',
                                field_other='emo_support_type_other')
 
         emo_fields = ['emo_health_improved', 'percieve_counselor',
