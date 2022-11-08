@@ -2,7 +2,7 @@ from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
 from django.test import TestCase, tag
 from edc_base.utils import get_utcnow
-from edc_constants.constants import YES, NO, NOT_APPLICABLE
+from edc_constants.constants import YES, NO
 
 from ..form_validators import CaregiverClinicalMeasurementsFormValidator
 from .models import SubjectConsent, MaternalVisit, Appointment, FlourishConsentVersion
@@ -16,10 +16,10 @@ class TestCaregiverClinicalMeasurementsForm(TestModeMixin, TestCase):
         super().__init__(CaregiverClinicalMeasurementsFormValidator, *args, **kwargs)
 
     def setUp(self):
-        
+
         FlourishConsentVersion.objects.create(
             screening_identifier='ABC12345')
-        
+
         self.subject_consent = SubjectConsent.objects.create(
             subject_identifier='11111111',
             screening_identifier='ABC12345',
@@ -37,17 +37,17 @@ class TestCaregiverClinicalMeasurementsForm(TestModeMixin, TestCase):
             appointment=appointment,
             subject_identifier=self.subject_consent.subject_identifier,
             report_datetime=get_utcnow())
-        
+
         self.options = {
             'maternal_visit': self.maternal_visit,
-            
+
         }
-           
+
     def test_waist_circ_required_invalid(self):
         cleaned_data = {
             'maternal_visit': self.maternal_visit,
             'is_preg': YES,
-            'waist_circ': 15,            
+            'waist_circ': 15,
         }
         form_validator = CaregiverClinicalMeasurementsFormValidator(
             cleaned_data=cleaned_data)
@@ -98,7 +98,6 @@ class TestCaregiverClinicalMeasurementsForm(TestModeMixin, TestCase):
             form_validator.validate()
         except ValidationError as e:
             self.fail(f'ValidationError unexpectedly raised. Got{e}')
-    
 
     def test_all_cm_valid(self):
         appointment = Appointment.objects.create(
@@ -110,25 +109,24 @@ class TestCaregiverClinicalMeasurementsForm(TestModeMixin, TestCase):
             appointment=appointment,
             subject_identifier=self.subject_consent.subject_identifier,
             report_datetime=get_utcnow())
-        
+
         cleaned_data = {
             'maternal_visit': self.maternal_visit,
             'height': None,
-            'weight_kg': None,       
-            'systolic_bp': None,    
+            'weight_kg': None,
+            'systolic_bp': None,
             'diastolic_bp': None,
-            'confirm_values':YES,
-            'all_measurements': NO    
+            'confirm_values': None,
+            'all_measurements': NO
         }
-        
+
         form_validator = CaregiverClinicalMeasurementsFormValidator(
             cleaned_data=cleaned_data)
         try:
             form_validator.validate()
         except ValidationError as e:
             self.fail(f'ValidationError unexpectedly raised. Got{e}')
-            
-      
+
     def test_all_cm_delivery_valid(self):
         appointment = Appointment.objects.create(
             subject_identifier=self.subject_consent.subject_identifier,
@@ -139,23 +137,23 @@ class TestCaregiverClinicalMeasurementsForm(TestModeMixin, TestCase):
             appointment=appointment,
             subject_identifier=self.subject_consent.subject_identifier,
             report_datetime=get_utcnow())
-        
+
         cleaned_data = {
             'maternal_visit': self.maternal_visit,
-            'weight_kg': None,       
-            'systolic_bp': None,    
+            'weight_kg': None,
+            'systolic_bp': None,
             'diastolic_bp': None,
-            'confirm_values':None,
-            'all_measurements': NO    
+            'confirm_values': None,
+            'all_measurements': NO
         }
-        
+
         form_validator = CaregiverClinicalMeasurementsFormValidator(
             cleaned_data=cleaned_data)
         try:
             form_validator.validate()
         except ValidationError as e:
             self.fail(f'ValidationError unexpectedly raised. Got{e}')
-            
+
     def test_all_cm_tb_valid(self):
         appointment = Appointment.objects.create(
             subject_identifier=self.subject_consent.subject_identifier,
@@ -166,24 +164,23 @@ class TestCaregiverClinicalMeasurementsForm(TestModeMixin, TestCase):
             appointment=appointment,
             subject_identifier=self.subject_consent.subject_identifier,
             report_datetime=get_utcnow())
-        
+
         cleaned_data = {
             'maternal_visit': self.maternal_visit,
-            'weight_kg': None,       
-            'systolic_bp': None,    
+            'weight_kg': None,
+            'systolic_bp': None,
             'diastolic_bp': None,
-            'confirm_values':None,
-            'all_measurements': NO    
+            'confirm_values': None,
+            'all_measurements': NO
         }
-        
+
         form_validator = CaregiverClinicalMeasurementsFormValidator(
             cleaned_data=cleaned_data)
         try:
             form_validator.validate()
         except ValidationError as e:
             self.fail(f'ValidationError unexpectedly raised. Got{e}')
-    
-                
+
     def test_all_cm_yes_delivery_valid(self):
         appointment = Appointment.objects.create(
             subject_identifier=self.subject_consent.subject_identifier,
@@ -194,23 +191,23 @@ class TestCaregiverClinicalMeasurementsForm(TestModeMixin, TestCase):
             appointment=appointment,
             subject_identifier=self.subject_consent.subject_identifier,
             report_datetime=get_utcnow())
-        
+
         cleaned_data = {
             'maternal_visit': self.maternal_visit,
-            'weight_kg': 80,       
-            'systolic_bp': 120,    
+            'weight_kg': 80,
+            'systolic_bp': 120,
             'diastolic_bp': 100,
-            'confirm_values':YES,
-            'all_measurements': YES    
+            'confirm_values': YES,
+            'all_measurements': YES
         }
-        
+
         form_validator = CaregiverClinicalMeasurementsFormValidator(
             cleaned_data=cleaned_data)
         try:
             form_validator.validate()
         except ValidationError as e:
             self.fail(f'ValidationError unexpectedly raised. Got{e}')
-                       
+
     def test_all_cm_yes_tb_valid(self):
         appointment = Appointment.objects.create(
             subject_identifier=self.subject_consent.subject_identifier,
@@ -221,24 +218,23 @@ class TestCaregiverClinicalMeasurementsForm(TestModeMixin, TestCase):
             appointment=appointment,
             subject_identifier=self.subject_consent.subject_identifier,
             report_datetime=get_utcnow())
-        
+
         cleaned_data = {
             'maternal_visit': self.maternal_visit,
-            'weight_kg': 80,       
-            'systolic_bp': 120,    
+            'weight_kg': 80,
+            'systolic_bp': 120,
             'diastolic_bp': 100,
-            'confirm_values':YES,
-            'all_measurements': YES    
+            'confirm_values': YES,
+            'all_measurements': YES
         }
-        
+
         form_validator = CaregiverClinicalMeasurementsFormValidator(
             cleaned_data=cleaned_data)
         try:
             form_validator.validate()
         except ValidationError as e:
             self.fail(f'ValidationError unexpectedly raised. Got{e}')
-    
-           
+
     def test_all_cm_no_tb_invalid(self):
         """Validate bp measurements for the TB visit
         """
@@ -251,20 +247,20 @@ class TestCaregiverClinicalMeasurementsForm(TestModeMixin, TestCase):
             appointment=appointment,
             subject_identifier=self.subject_consent.subject_identifier,
             report_datetime=get_utcnow())
-        
+
         cleaned_data = {
             'maternal_visit': self.maternal_visit,
-            'weight_kg': 80,       
-            'systolic_bp': 120,    
-            'diastolic_bp': None,
-            'confirm_values':NO,
-            'all_measurements': NO    
+            'weight_kg': 80,
+            'systolic_bp': 120,
+            'diastolic_bp': 80,
+            'confirm_values': NO,
+            'all_measurements': YES
         }
         form_validator = CaregiverClinicalMeasurementsFormValidator(
             cleaned_data=cleaned_data)
         self.assertRaises(ValidationError, form_validator.validate)
         self.assertIn('confirm_values', form_validator._errors)
-                   
+
     def test_bp_2000M_invalid(self):
         """Validate bp measurements on visit 2000M
         """
@@ -277,23 +273,23 @@ class TestCaregiverClinicalMeasurementsForm(TestModeMixin, TestCase):
             appointment=appointment,
             subject_identifier=self.subject_consent.subject_identifier,
             report_datetime=get_utcnow())
-        
+
         cleaned_data = {
             'maternal_visit': self.maternal_visit,
-            'height':116,
-            'weight_kg': 80,       
-            'systolic_bp': 120,    
-            'diastolic_bp': None,
+            'height': 116,
+            'weight_kg': 80,
+            'systolic_bp': 120,
+            'diastolic_bp': 80,
             'hip_circ': None,
             'waist_circ': None,
-            'confirm_values':NO,
-            'all_measurements': NO    
+            'confirm_values': NO,
+            'all_measurements': YES
         }
         form_validator = CaregiverClinicalMeasurementsFormValidator(
             cleaned_data=cleaned_data)
         self.assertRaises(ValidationError, form_validator.validate)
         self.assertIn('all_measurements', form_validator._errors)
-        
+
     def test_systolic_bp_required(self):
         appointment = Appointment.objects.create(
             subject_identifier=self.subject_consent.subject_identifier,
@@ -304,23 +300,22 @@ class TestCaregiverClinicalMeasurementsForm(TestModeMixin, TestCase):
             appointment=appointment,
             subject_identifier=self.subject_consent.subject_identifier,
             report_datetime=get_utcnow())
-        
+
         cleaned_data = {
             'maternal_visit': self.maternal_visit,
             'height': 1.2,
-            'weight_kg': 70,       
-            'systolic_bp': None,    
+            'weight_kg': 70,
+            'systolic_bp': None,
             'diastolic_bp': 120,
             'is_preg': YES,
             'confirm_values': YES,
-            'all_measurements': YES    
+            'all_measurements': YES
         }
         form_validator = CaregiverClinicalMeasurementsFormValidator(
-        cleaned_data=cleaned_data)
+            cleaned_data=cleaned_data)
         self.assertRaises(ValidationError, form_validator.validate)
         self.assertIn('systolic_bp', form_validator._errors)
-        
- 
+
     def test_diastolic_bp_required(self):
         appointment = Appointment.objects.create(
             subject_identifier=self.subject_consent.subject_identifier,
@@ -331,23 +326,22 @@ class TestCaregiverClinicalMeasurementsForm(TestModeMixin, TestCase):
             appointment=appointment,
             subject_identifier=self.subject_consent.subject_identifier,
             report_datetime=get_utcnow())
-        
+
         cleaned_data = {
             'maternal_visit': self.maternal_visit,
             'height': 1.2,
-            'weight_kg': 70,       
-            'systolic_bp': 100,    
+            'weight_kg': 70,
+            'systolic_bp': 100,
             'diastolic_bp': None,
             'is_preg': YES,
             'confirm_values': YES,
-            'all_measurements': YES    
+            'all_measurements': NO
         }
         form_validator = CaregiverClinicalMeasurementsFormValidator(
-        cleaned_data=cleaned_data)
+            cleaned_data=cleaned_data)
         self.assertRaises(ValidationError, form_validator.validate)
-        self.assertIn('systolic_bp', form_validator._errors)
-            
-        
+        self.assertIn('diastolic_bp', form_validator._errors)
+
     def test_all_cm_no_2000M_valid(self):
         """Validate empty measurements on visit 2000M
         """
@@ -360,25 +354,26 @@ class TestCaregiverClinicalMeasurementsForm(TestModeMixin, TestCase):
             appointment=appointment,
             subject_identifier=self.subject_consent.subject_identifier,
             report_datetime=get_utcnow())
-        
+
         cleaned_data = {
             'maternal_visit': self.maternal_visit,
-            'height':None,
-            'weight_kg': None,       
-            'systolic_bp': None,    
+            'height': None,
+            'weight_kg': None,
+            'systolic_bp': None,
             'diastolic_bp': None,
-            'confirm_values':None,
+            'confirm_values': None,
             'hip_circ': None,
             'waist_circ': None,
-            'all_measurements': NO    
+            'all_measurements': NO
         }
         form_validator = CaregiverClinicalMeasurementsFormValidator(
             cleaned_data=cleaned_data)
         try:
             form_validator.validate()
         except ValidationError as e:
-            self.fail(f'ValidationError unexpectedly raised. Got{e}')        
-    @tag('ccmt')    
+            self.fail(f'ValidationError unexpectedly raised. Got{e}')
+
+    @tag('ccmt')
     def test_all_no_cm_1000_valid(self):
         appointment = Appointment.objects.create(
             subject_identifier=self.subject_consent.subject_identifier,
@@ -389,17 +384,17 @@ class TestCaregiverClinicalMeasurementsForm(TestModeMixin, TestCase):
             appointment=appointment,
             subject_identifier=self.subject_consent.subject_identifier,
             report_datetime=get_utcnow())
-        
+
         cleaned_data = {
             'maternal_visit': self.maternal_visit,
             'height': 120,
-            'weight_kg': 70,       
-            'systolic_bp': None,    
+            'weight_kg': 70,
+            'systolic_bp': None,
             'diastolic_bp': None,
-            'confirm_values':None,
-            'all_measurements': NO    
+            'confirm_values': None,
+            'all_measurements': NO
         }
-        
+
         form_validator = CaregiverClinicalMeasurementsFormValidator(
             cleaned_data=cleaned_data)
         try:
