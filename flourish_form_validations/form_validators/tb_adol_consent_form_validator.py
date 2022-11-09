@@ -44,32 +44,32 @@ class TbAdolConsentFormValidator(FormValidator, FormValidatorMixin):
         # To avoid errors when running tests because there is an additional model being 
         # used from flourish caregiver
         
-        if settings.APP_NAME != 'flourish_form_validations':
+
         
-            try:
-                flourish_subject_consent = self.subject_consent_cls.objects.filter(
-                    subject_identifier = subject_identifier
-                ).latest()
+        try:
+            flourish_subject_consent = self.subject_consent_cls.objects.filter(
+                subject_identifier = subject_identifier
+            ).last()
+            
+        except self.subject_consent_cls.DoesNotExist:
+            raise ValidationError("Flourish Consent Doesn't exist")
+        else:
+            
+            
+            for field in fields:
+                flourish_consent_value = flourish_subject_consent.__dict__.get(field, None)
+                tb_consent_values = self.cleaned_data.get(field, None)
                 
-            except self.subject_consent_cls.DoesNotExist:
-                raise ValidationError("Flourish Consent Doesn't exist")
-            else:
+                if not flourish_subject_consent:
+                    raise ValidationError({field: "Value specified in does not exist in flourish consent, please fill it"})
                 
+                if not tb_consent_values:
+                    raise ValidationError({field: "Please fill the value"})
                 
-                for field in fields:
-                    flourish_consent_value = flourish_subject_consent.__dict__.get(field, None)
-                    tb_consent_values = self.cleaned_data.get(field, None)
-                    
-                    if not flourish_subject_consent:
-                        raise ValidationError({field: "Value specified in does not exist in flourish consent, please fill it"})
-                    
-                    if not tb_consent_values:
-                        raise ValidationError({field: "Please fill the value"})
-                    
-                    if tb_consent_values != flourish_consent_value:
-                        raise ValidationError({
-                            field : "TB Consent value not the same as the flourish consent"
-                        })
+                if tb_consent_values != flourish_consent_value:
+                    raise ValidationError({
+                        field : "TB Consent value not the same as the flourish consent"
+                    })
                     
                     
             
