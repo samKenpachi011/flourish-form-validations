@@ -75,12 +75,7 @@ class RelationshipFatherInvolvementFormValidator(FormValidatorMixin, FormValidat
             'fathers_financial_support',
         ]
 
-        # check if a field is available in the current context
-        # incase if some fields are stem questions
-        available_required_fields = [
-            f for f in required_fields if f in self.cleaned_data.keys()]
-
-        for field in available_required_fields:
+        for field in required_fields:
             self.not_required_if(
                 NO, PNTA, field='biological_father_alive', field_required=field)
 
