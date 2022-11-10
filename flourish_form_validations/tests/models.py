@@ -43,12 +43,37 @@ class SubjectConsent(UpdatesOrCreatesRegistrationModelMixin, BaseUuidModel):
                                     null=True)
 
     dob = models.DateField()
+    
+    first_name = models.CharField(max_length=25, blank=True, null=True)
+    
+    last_name = models.CharField(max_length=25, blank=True, null=True)
+    
+    initials = models.CharField(max_length=25, blank=True, null=True)
+    
+    is_dob_estimated = models.CharField(max_length=50, blank=True, null=True)
+    
+    citizen = models.CharField(max_length=25, blank=True, null=True)
+    
+    identity = models.CharField(max_length=25, blank=True, null=True)
+    
+    confirm_identity = models.CharField(max_length=25, blank=True, null=True)
 
     consent_datetime = models.DateTimeField()
 
     version = models.CharField(
         max_length=10,
         editable=False)
+    
+class TbAdolConsent(BaseUuidModel):
+    first_name = models.CharField(max_length=50, blank=True, null=True)
+    last_name = models.CharField(max_length=50, blank=True, null=True)
+    initials = models.CharField(max_length=50, blank=True, null=True)
+    is_literate = models.CharField(max_length=50, blank=True, null=True)
+    dob = models.CharField(max_length=50, blank=True, null=True)
+    is_dob_estimated = models.CharField(max_length=50, blank=True, null=True)
+    citizen = models.CharField(max_length=50, blank=True, null=True)
+    identity = models.CharField(max_length=50, blank=True, null=True)
+    confirm_identity = models.CharField(max_length=50, blank=True, null=True)
 
 
 class ScreeningPregWomen(UpdatesOrCreatesRegistrationModelMixin, BaseUuidModel):
