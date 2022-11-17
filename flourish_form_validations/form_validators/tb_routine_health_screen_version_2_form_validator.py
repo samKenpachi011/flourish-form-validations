@@ -19,5 +19,5 @@ class TbRoutineHealthScreenVersionTwoFormValidator(FormValidatorMixin, FormValid
 
         self.validate_other_specify(
             field='screen_location',
-            other_specify_field='screen_location'
+            other_specify_field='screen_location_other'
         )
