@@ -21,13 +21,14 @@ class MaternalArvPostAdherenceFormValidator(FormValidatorMixin, FormValidator):
 
         if (self.cleaned_data.get('missed_arv') == 0 and
                 self.cleaned_data.get('interruption_reason') in reason):
-            message = {'interruption_reason': 'ERROR'}
+            message = {'interruption_reason': 'can\'t choose this option when participant has no missed arvs'}
             self._errors.update(message)
             raise ValidationError(message)
 
         elif (self.cleaned_data.get('missed_arv') >= 1 and
               self.cleaned_data.get('interruption_reason') in [NOT_APPLICABLE, 'TOXICITY_SELF']):
-            message = {'interruption_reason': 'ERROR1'}
+            message = {'interruption_reason': 'can\'t choose this option'
+                                              ' when participant has more than one misses'}
             self._errors.update(message)
             raise ValidationError(message)
 
