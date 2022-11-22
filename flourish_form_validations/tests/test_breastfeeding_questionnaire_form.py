@@ -1,16 +1,17 @@
-from django.test import TestCase, tag
-from django.core.exceptions import ValidationError
-from edc_base.utils import get_utcnow
-from edc_constants.constants import YES, NO, NOT_APPLICABLE, POS, NEG
-from ..form_validators import BreastFeedingQuestionnaireFormValidator
-from flourish_form_validations.tests.test_model_mixin import TestModeMixin
-from .models import (FlourishConsentVersion, SubjectConsent,
-                     Appointment, MaternalVisit, ListModel)
 from dateutil.relativedelta import relativedelta
+from django.core.exceptions import ValidationError
+from django.test import TestCase, tag
+from edc_base.utils import get_utcnow
 from edc_constants.constants import OTHER
+from edc_constants.constants import YES, NO, POS, NEG
+from flourish_form_validations.tests.test_model_mixin import TestModeMixin
+
+from ..form_validators import BreastFeedingQuestionnaireFormValidator
+from .models import (FlourishConsentVersion, SubjectConsent,
+                     Appointment, MaternalVisit, ListModel, OnSchedule)
 
 
-@tag('breastfeeding')
+@tag('bfd')
 class TestBreastFeedingQuestionnaireForm(TestModeMixin, TestCase):
 
     def __init__(self, *args, **kwargs):
