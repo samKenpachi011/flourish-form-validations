@@ -11,8 +11,8 @@ class TbRoutineHealthScreenVersionTwoFormValidator(FormValidatorMixin, FormValid
         fields_required = ['tb_screened', 'diagnostic_referral']
 
         for field in fields_required:
-            self.required_if(
-                *['1', '2', '3', '4', '6'],
+            self.not_required_if(
+                '0',
                 field='tb_health_visits',
                 field_required=field
             )
