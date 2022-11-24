@@ -3,7 +3,7 @@ from edc_form_validators import FormValidator
 from .crf_form_validator import FormValidatorMixin
 
 
-class TbRoutineHealthScreenVersionTwoFormValidator(FormValidatorMixin, FormValidator):
+class TbRoutineHealthScreenV2FormValidator(FormValidatorMixin, FormValidator):
 
     def clean(self):
         super().clean()
