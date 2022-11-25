@@ -1,6 +1,6 @@
 from django.apps import apps as django_apps
 from django.forms import ValidationError
-from edc_constants.constants import OTHER, YES, POS, NEG, NO
+from edc_constants.constants import OTHER, YES, POS, NEG
 from edc_form_validators import FormValidator
 
 from .crf_form_validator import FormValidatorMixin
@@ -88,9 +88,8 @@ class BreastFeedingQuestionnaireFormValidator(FormValidatorMixin, FormValidator)
             else:
                 if (infant_feeding_obj.child_visit.visit_code
                         <= self.cleaned_data.get('maternal_visit').visit_code[:4]):
-                    if (infant_feeding_obj.took_formula in [YES, NO]
-                            and infant_feeding_obj.took_formula != self.cleaned_data.get(
-                                'six_months_feeding')):
+                    if infant_feeding_obj.rec_liquids != self.cleaned_data.get(
+                            'six_months_feeding'):
                         message = {
                             'six_months_feeding': ('Value does not match that of the infant '
                                                    'feeding form at 6 months. Kindly correct')}
