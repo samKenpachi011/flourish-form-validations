@@ -134,3 +134,4 @@ dmypy.json
 crypto_fields/
 .vscode/
 .idea/
+flourish_form_validations.egg-info
