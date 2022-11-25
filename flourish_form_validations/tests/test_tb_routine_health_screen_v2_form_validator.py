@@ -4,7 +4,7 @@ from django.test import TestCase, tag
 from edc_base.utils import get_utcnow
 from edc_constants.constants import YES, NO
 
-from ..form_validators import TbRoutineHealthScreenVersionTwoFormValidator
+from ..form_validators import TbRoutineHealthScreenV2FormValidator
 from .models import FlourishConsentVersion, SubjectConsent
 from .test_model_mixin import TestModeMixin
 
@@ -13,7 +13,7 @@ from .test_model_mixin import TestModeMixin
 class TestTbRoutineHealthScreening(TestModeMixin, TestCase):
 
     def __init__(self, *args, **kwargs):
-        super().__init__(TbRoutineHealthScreenVersionTwoFormValidator, *args, **kwargs)
+        super().__init__(TbRoutineHealthScreenV2FormValidator, *args, **kwargs)
 
     def setUp(self):
 
@@ -41,7 +41,7 @@ class TestTbRoutineHealthScreening(TestModeMixin, TestCase):
             'diagnostic_referral': YES
         }
 
-        form_validator = TbRoutineHealthScreenVersionTwoFormValidator(
+        form_validator = TbRoutineHealthScreenV2FormValidator(
             cleaned_data=cleaned_data
         )
         try:
@@ -60,7 +60,7 @@ class TestTbRoutineHealthScreening(TestModeMixin, TestCase):
             'screen_location_other': 'some place'
         }
 
-        form_validator = TbRoutineHealthScreenVersionTwoFormValidator(
+        form_validator = TbRoutineHealthScreenV2FormValidator(
             cleaned_data=cleaned_data
         )
 
