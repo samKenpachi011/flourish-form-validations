@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models.deletion import PROTECT
+from django.db.models.deletion import PROTECT, CASCADE
 from django_crypto_fields.fields import FirstnameField, LastnameField
 from edc_base.model_mixins import BaseUuidModel, ListModelMixin
 from edc_base.utils import get_utcnow
@@ -44,11 +44,37 @@ class SubjectConsent(UpdatesOrCreatesRegistrationModelMixin, BaseUuidModel):
 
     dob = models.DateField()
 
+    first_name = models.CharField(max_length=25, blank=True, null=True)
+
+    last_name = models.CharField(max_length=25, blank=True, null=True)
+
+    initials = models.CharField(max_length=25, blank=True, null=True)
+
+    is_dob_estimated = models.CharField(max_length=50, blank=True, null=True)
+
+    citizen = models.CharField(max_length=25, blank=True, null=True)
+
+    identity = models.CharField(max_length=25, blank=True, null=True)
+
+    confirm_identity = models.CharField(max_length=25, blank=True, null=True)
+
     consent_datetime = models.DateTimeField()
 
     version = models.CharField(
         max_length=10,
         editable=False)
+
+
+class TbAdolConsent(BaseUuidModel):
+    first_name = models.CharField(max_length=50, blank=True, null=True)
+    last_name = models.CharField(max_length=50, blank=True, null=True)
+    initials = models.CharField(max_length=50, blank=True, null=True)
+    is_literate = models.CharField(max_length=50, blank=True, null=True)
+    dob = models.CharField(max_length=50, blank=True, null=True)
+    is_dob_estimated = models.CharField(max_length=50, blank=True, null=True)
+    citizen = models.CharField(max_length=50, blank=True, null=True)
+    identity = models.CharField(max_length=50, blank=True, null=True)
+    confirm_identity = models.CharField(max_length=50, blank=True, null=True)
 
 
 class ScreeningPregWomen(UpdatesOrCreatesRegistrationModelMixin, BaseUuidModel):
