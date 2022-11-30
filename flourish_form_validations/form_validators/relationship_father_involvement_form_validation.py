@@ -43,7 +43,7 @@ class RelationshipFatherInvolvementFormValidator(FormValidatorMixin, FormValidat
         if is_partner_the_father and biological_father_alive and \
             is_partner_the_father != biological_father_alive:
                 raise ValidationError({
-                    'biological_father_alive': 'On Q5, the the father is still alive'
+                    'biological_father_alive': 'Currently living with the father, check question 5 '
                 })
 
 
