@@ -36,6 +36,15 @@ class RelationshipFatherInvolvementFormValidator(FormValidatorMixin, FormValidat
         self.required_if(YES,
                          field='contact_info',
                          field_required='partner_cell')
+        
+        is_partner_the_father = self.cleaned_data.get('is_partner_the_father', None)
+        biological_father_alive = self.cleaned_data.get('biological_father_alive', None)
+        
+        if is_partner_the_father and biological_father_alive and \
+            is_partner_the_father != biological_father_alive:
+                raise ValidationError({
+                    'biological_father_alive': 'Currently living with the father, check question 5 '
+                })
 
 
         self.validate_father_involvement()

@@ -150,7 +150,8 @@ class TestRelationshipFatherInvolvement(TestModeMixin,TestCase):
         
         self.assertRaises(ValidationError, form_validator.validate)
         self.assertIn('why_partner_absent', form_validator._errors)
-        
+    
+    
     def test_why_not_living_with_partner_required(self):
         
         self.clean_data.update({'partner_present': YES,
@@ -270,3 +271,11 @@ class TestRelationshipFatherInvolvement(TestModeMixin,TestCase):
 
         self.assertRaises(ValidationError, form_validator.validate)
         self.assertIn('took_child_outside', form_validator._errors)
+        
+    def test_father_alive(self):
+        self.clean_data['biological_father_alive'] = NO
+        
+        form_validator = RelationshipFatherInvolvementFormValidator(cleaned_data=self.clean_data)
+
+        self.assertRaises(ValidationError, form_validator.validate)
+        self.assertIn('biological_father_alive', form_validator._errors)
