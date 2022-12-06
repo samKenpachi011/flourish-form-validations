@@ -7,11 +7,10 @@ class TbReferralOutcomesFormValidator(FormValidatorMixin, FormValidator):
 
     def clean(self):
 
-        self.required_if(
+        self.m2m_required_if(
             NO,
             field='referral_clinic_appt',
-            field_required='further_tb_eval',
-            inverse=False)
+            m2m_field='tb_diagnostics')
 
         self.m2m_required_if(
             YES,
@@ -37,3 +36,22 @@ class TbReferralOutcomesFormValidator(FormValidatorMixin, FormValidator):
             NO,
             field='tb_treat_start',
             field_required='tb_prev_therapy_start')
+
+        required_fields = ['tb_diagnostic_perf', 'tb_treat_start', 'tb_prev_therapy_start']
+        for field in required_fields:
+            self.required_if(
+                YES,
+                field='referral_clinic_appt',
+                field_required=field,
+            )
+
+        field_not_applicable = ['further_tb_eval', 'tb_eval_comments',
+                                'tb_diagnose_pos', 'tb_diagnostic_perf',
+                                'tb_test_results', 'tb_treat_start',
+                                'tb_prev_therapy_start']
+        for field in field_not_applicable:
+            self.not_applicable_if(
+                NO,
+                field='referral_clinic_appt',
+                field_applicable=field
+            )

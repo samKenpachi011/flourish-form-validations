@@ -9,7 +9,6 @@ class TbRoutineHealthScreenV2FormValidator(FormValidatorMixin, FormValidator):
         super().clean()
 
         fields_required = ['tb_screened', 'diagnostic_referral']
-
         for field in fields_required:
             self.not_required_if(
                 '0',

@@ -9,8 +9,8 @@ from .models import FlourishConsentVersion, SubjectConsent
 from .test_model_mixin import TestModeMixin
 
 
-@tag('tbhe')
-class TestTbRoutineHealthScreening(TestModeMixin, TestCase):
+@tag('tbrh')
+class TestTbRoutineHealthScreeningV2(TestModeMixin, TestCase):
 
     def __init__(self, *args, **kwargs):
         super().__init__(TbRoutineHealthScreenV2FormValidator, *args, **kwargs)
@@ -52,11 +52,11 @@ class TestTbRoutineHealthScreening(TestModeMixin, TestCase):
     def test_screen_location(self):
         """
         Raise an error if the screen location other specify field is null
-        when screen location is set to other specify
+        when screen location is set to None
         """
 
         cleaned_data = {
-            'screen_location': None,
+            'screen_location': 'Other, specify',
             'screen_location_other': 'some place'
         }
 
