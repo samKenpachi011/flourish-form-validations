@@ -46,12 +46,12 @@ class TbReferralOutcomesFormValidator(FormValidatorMixin, FormValidator):
             )
 
         field_not_applicable = ['further_tb_eval', 'tb_eval_comments',
-                                'tb_diagnose_pos', 'tb_diagnostic_perf',
-                                'tb_test_results', 'tb_treat_start',
-                                'tb_prev_therapy_start']
+                                'tb_diagnose_pos', 'tb_test_results',
+                                ]
         for field in field_not_applicable:
-            self.not_applicable_if(
+            self.not_required_if(
                 NO,
                 field='referral_clinic_appt',
-                field_applicable=field
+                field_applicable=field,
+                inverse=True
             )
