@@ -6,11 +6,14 @@ from .crf_form_validator import FormValidatorMixin
 class TbReferralOutcomesFormValidator(FormValidatorMixin, FormValidator):
 
     def clean(self):
-
-        self.m2m_required_if(
-            YES,
-            field='referral_clinic_appt',
-            m2m_field='tb_diagnostics')
+        required_fields = ['further_tb_eval', 'tb_diagnostic_perf',
+                           'tb_treat_start', 'tb_prev_therapy_start']
+        for field in required_fields:
+            self.required_if(
+                YES,
+                field='referral_clinic_appt',
+                field_required=field,
+            )
 
         self.m2m_required_if(
             YES,
@@ -31,27 +34,3 @@ class TbReferralOutcomesFormValidator(FormValidatorMixin, FormValidator):
             YES,
             field='tb_diagnose_pos',
             field_required='tb_test_results')
-
-        self.required_if(
-            NO,
-            field='tb_treat_start',
-            field_required='tb_prev_therapy_start')
-
-        required_fields = ['tb_diagnostic_perf', 'tb_treat_start',
-                           'tb_prev_therapy_start']
-        for field in required_fields:
-            self.required_if(
-                YES,
-                field='referral_clinic_appt',
-                field_required=field,
-            )
-
-        field_not_applicable = ['further_tb_eval', 'tb_eval_comments',
-                                'tb_diagnose_pos', 'tb_test_results']
-        for field in field_not_applicable:
-            self.not_required_if(
-                NO,
-                field='referral_clinic_appt',
-                field_required=field,
-                inverse=False
-            )
