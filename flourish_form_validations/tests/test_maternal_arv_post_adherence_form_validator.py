@@ -49,6 +49,7 @@ class TestMaternalArvPostAdherenceForm(TestModeMixin, TestCase):
         form_validator = MaternalArvPostAdherenceFormValidator(
             cleaned_data=cleaned_data)
         self.assertRaises(ValidationError, form_validator.validate)
+        self.assertIn('interruption_reason', form_validator._errors)
 
     def test_medication_interrupted_valid(self):
         """Assert raises if arvs was missed not missed
@@ -65,7 +66,7 @@ class TestMaternalArvPostAdherenceForm(TestModeMixin, TestCase):
         try:
             form_validator.validate()
         except ValidationError as e:
-            self.assertRaises(ValidationError, form_validator.validate)
+            self.fail(f'ValidationError unexpectedly raised. Got{e}')
 
     def test_interruption_reason_valid(self):
         """
