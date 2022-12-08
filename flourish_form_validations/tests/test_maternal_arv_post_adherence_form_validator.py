@@ -4,12 +4,12 @@ from django.test import TestCase, tag
 from edc_base.utils import get_utcnow
 from edc_constants.constants import YES, NO, NOT_APPLICABLE
 from ..form_validators import MaternalArvPostAdherenceFormValidator
-from .models import ArvsPrePregnancy, SubjectConsent, FlourishConsentVersion
+from .models import SubjectConsent, FlourishConsentVersion
 from .models import MaternalVisit, Appointment
 from .test_model_mixin import TestModeMixin
 
 
-@tag('mdp')
+@tag('mapa')
 class TestMaternalArvPostAdherenceForm(TestModeMixin, TestCase):
 
     def __init__(self, *args, **kwargs):
@@ -51,7 +51,7 @@ class TestMaternalArvPostAdherenceForm(TestModeMixin, TestCase):
         self.assertRaises(ValidationError, form_validator.validate)
 
     def test_medication_interrupted_valid(self):
-        '''Assert raises if arvs was missed more than once
+        '''Assert raises if arvs was not
          but interruption reason is not applicable
         '''
         cleaned_data = {
@@ -65,4 +65,4 @@ class TestMaternalArvPostAdherenceForm(TestModeMixin, TestCase):
         try:
             form_validator.validate()
         except ValidationError as e:
-            self.asser(f'ValidationError unexpectedly raised. Got{e}')
+            self.assertRaises(ValidationError, form_validator.validate)
