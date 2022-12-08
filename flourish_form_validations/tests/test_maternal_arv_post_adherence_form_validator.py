@@ -2,7 +2,7 @@ from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
 from django.test import TestCase, tag
 from edc_base.utils import get_utcnow
-from edc_constants.constants import YES, NO, NOT_APPLICABLE
+from edc_constants.constants import YES, NO, NOT_APPLICABLE, OTHER
 from ..form_validators import MaternalArvPostAdherenceFormValidator
 from .models import SubjectConsent, FlourishConsentVersion
 from .models import MaternalVisit, Appointment
@@ -37,9 +37,9 @@ class TestMaternalArvPostAdherenceForm(TestModeMixin, TestCase):
             subject_identifier=self.subject_consent.subject_identifier)
 
     def test_medication_interrupted_invalid_reason(self):
-        '''Assert raises if arvs was missed more than once
+        """Assert raises if arvs was missed more than once
          but interruption reason is not applicable
-        '''
+        """
         cleaned_data = {
             'maternal_visit': self.maternal_visit,
             'missed_arv': 2,
@@ -51,9 +51,9 @@ class TestMaternalArvPostAdherenceForm(TestModeMixin, TestCase):
         self.assertRaises(ValidationError, form_validator.validate)
 
     def test_medication_interrupted_valid(self):
-        '''Assert raises if arvs was not
+        """Assert raises if arvs was missed not missed
          but interruption reason is not applicable
-        '''
+        """
         cleaned_data = {
             'maternal_visit': self.maternal_visit,
             'missed_arv': 0,
@@ -66,3 +66,37 @@ class TestMaternalArvPostAdherenceForm(TestModeMixin, TestCase):
             form_validator.validate()
         except ValidationError as e:
             self.assertRaises(ValidationError, form_validator.validate)
+
+    def test_interruption_reason_valid(self):
+        """
+        Assert raises if interruption reason is other and other is not provided
+        """
+        cleaned_data = {
+            'maternal_visit': self.maternal_visit,
+            'missed_arv': 2,
+            'interruption_reason': OTHER,
+            'interruption_reason_other': "reason",
+            'comment': 'comment',
+        }
+        form_validator = MaternalArvPostAdherenceFormValidator(
+            cleaned_data=cleaned_data)
+        try:
+            form_validator.validate()
+        except ValidationError as e:
+            self.fail(f'ValidationError unexpectedly raised. Got{e}')
+
+    def test_interruption_reason_invalid(self):
+        """
+        Assert raises if interruption reason is other and other is not provided
+        """
+        cleaned_data = {
+            'maternal_visit': self.maternal_visit,
+            'missed_arv': 2,
+            'interruption_reason': OTHER,
+            'interruption_reason_other': None,
+            'comment': 'comment',
+        }
+        form_validator = MaternalArvPostAdherenceFormValidator(
+            cleaned_data=cleaned_data)
+        self.assertRaises(ValidationError, form_validator.validate)
+        self.assertIn('interruption_reason_other', form_validator._errors)
