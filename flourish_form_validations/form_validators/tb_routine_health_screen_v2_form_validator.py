@@ -1,4 +1,4 @@
-from edc_constants.constants import YES
+from edc_constants.constants import YES, OTHER
 from edc_form_validators import FormValidator
 from .crf_form_validator import FormValidatorMixin
 
@@ -8,15 +8,17 @@ class TbRoutineHealthScreenV2FormValidator(FormValidatorMixin, FormValidator):
     def clean(self):
         super().clean()
 
-        fields_required = ['tb_screened', 'diagnostic_referral']
-        for field in fields_required:
-            self.not_required_if(
-                '0',
-                field='tb_health_visits',
-                field_required=field
-            )
-
-        self.validate_other_specify(
-            field='screen_location',
-            other_specify_field='screen_location_other'
+        self.m2m_other_specify(
+            OTHER,
+            m2m_field='screen_location',
+            field_other='screen_location_other')
+        self.required_if(
+            YES,
+            field='tb_screened',
+            field_required='pos_screen'
+        )
+        self.required_if(
+            YES,
+            field='pos_screen',
+            field_required='diagnostic_referral'
         )
