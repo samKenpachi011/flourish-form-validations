@@ -1,43 +1,29 @@
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
 from django.test import TestCase, tag
-from edc_base.utils import get_utcnow
-from edc_constants.constants import YES, NO
+from edc_constants.constants import YES, OTHER
 
 from ..form_validators import TbRoutineHealthScreenV2FormValidator
-from .models import FlourishConsentVersion, SubjectConsent
+from .models import ListModel
 from .test_model_mixin import TestModeMixin
 
 
-@tag('tbrh')
+@tag('tbrhsv2')
 class TestTbRoutineHealthScreeningV2(TestModeMixin, TestCase):
 
     def __init__(self, *args, **kwargs):
         super().__init__(TbRoutineHealthScreenV2FormValidator, *args, **kwargs)
 
-    def setUp(self):
-
-        FlourishConsentVersion.objects.create(
-            screening_identifier='ABC12345')
-
-        self.subject_identifier = '11111111'
-
-        self.subject_consent = SubjectConsent.objects.create(
-            subject_identifier='11111111', screening_identifier='ABC12345',
-            gender='M', dob=(get_utcnow() - relativedelta(years=25)).date(),
-            consent_datetime=get_utcnow(), version='1')
-
-    def test_tb_health_visits(self):
+    def test_screen_location_valid(self):
         """
-        Raise an error if tb_health_visits has a response of 1 or greater
-        and other fields are required
+        Raise an error if screen_location is not selected
         """
-
+        ListModel.objects.create(short_name="sputum")
         cleaned_data = {
-            'tb_health_visits': '1',
             'tb_screened': YES,
-            'screen_location': None,
-            'screen_location_other': 'some place',
+            'screen_location': ListModel.objects.all(),
+            'screen_location_other': None,
+            'pos_screen': YES,
             'diagnostic_referral': YES
         }
 
@@ -49,15 +35,37 @@ class TestTbRoutineHealthScreeningV2(TestModeMixin, TestCase):
         except ValidationError as e:
             self.fail(f'ValidationError unexpectedly raised. Got{e}')
 
-    def test_screen_location(self):
+    def test_screen_location_invalid(self):
+        """
+        Raise an error if screen_location is not selected
+        """
+        ListModel.objects.create(short_name="sputum")
+        cleaned_data = {
+            'tb_screened': YES,
+            'screen_location': None,
+            'screen_location_other': None,
+            'pos_screen': YES,
+            'diagnostic_referral': YES
+        }
+
+        form_validator = TbRoutineHealthScreenV2FormValidator(
+            cleaned_data=cleaned_data
+        )
+        self.assertRaises(ValidationError, form_validator.validate)
+        self.assertIn('screen_location', form_validator._errors)
+
+    def test_screen_location_other(self):
         """
         Raise an error if the screen location other specify field is null
         when screen location is set to None
         """
-
+        ListModel.objects.create(short_name=OTHER)
         cleaned_data = {
-            'screen_location': 'Other, specify',
-            'screen_location_other': 'some place'
+            'tb_screened': YES,
+            'screen_location': ListModel.objects.all(),
+            'screen_location_other': 'some place',
+            'pos_screen': YES,
+            'diagnostic_referral': YES
         }
 
         form_validator = TbRoutineHealthScreenV2FormValidator(
@@ -68,4 +76,3 @@ class TestTbRoutineHealthScreeningV2(TestModeMixin, TestCase):
             form_validator.validate()
         except ValidationError as e:
             self.fail(f'ValidationError unexpectedly raised. Got{e}')
-
