@@ -104,7 +104,7 @@ class TestTbReferralOutcomesFormValidator(TestModeMixin, TestCase):
 
     def test_referral_tb_diagnostic_perf_required(self):
         """
-        Raise error if tb_diagnostic_perf is Yes and tb_diagnose_pos is provided
+        Raise error if tb_diagnostic_perf is Yes and tb_diagnose_pos is not provided
         """
         ListModel.objects.create(short_name="sputum")
         cleaned_data = {
@@ -113,7 +113,7 @@ class TestTbReferralOutcomesFormValidator(TestModeMixin, TestCase):
             'tb_diagnostic_perf': YES,
             'tb_treat_start': NO,
             'tb_prev_therapy_start': YES,
-            'tb_diagnose_pos': YES,
+            'tb_diagnose_pos': None,
             'tb_test_results': "thiiis ",
             'tb_diagnostics': ListModel.objects.all(),
             'tb_diagnostics_other': None,
@@ -121,10 +121,8 @@ class TestTbReferralOutcomesFormValidator(TestModeMixin, TestCase):
 
         form_validator = TbReferralOutcomesFormValidator(
             cleaned_data=cleaned_data)
-        try:
-            form_validator.validate()
-        except ValidationError as e:
-            self.fail(f'ValidationError unexpectedly raised. Got{e}')
+        self.assertRaises(ValidationError, form_validator.validate)
+        self.assertIn('tb_diagnose_pos', form_validator._errors)
 
     def test_referral_tb_diagnose_pos_required(self):
         """
