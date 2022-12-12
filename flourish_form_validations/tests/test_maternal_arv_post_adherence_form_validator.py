@@ -68,7 +68,22 @@ class TestMaternalArvPostAdherenceForm(TestModeMixin, TestCase):
         except ValidationError as e:
             self.fail(f'ValidationError unexpectedly raised. Got{e}')
 
-    def test_interruption_reason_valid(self):
+    def test_medication_interrupted_invalid(self):
+        """Assert raises if arvs was missed not missed
+         but interruption reason is not applicable
+        """
+        cleaned_data = {
+            'maternal_visit': self.maternal_visit,
+            'missed_arv': 1,
+            'interruption_reason': NOT_APPLICABLE,
+            'comment': 'comment',
+        }
+        form_validator = MaternalArvPostAdherenceFormValidator(
+            cleaned_data=cleaned_data)
+        self.assertRaises(ValidationError, form_validator.validate)
+        self.assertIn('interruption_reason', form_validator._errors)
+
+    def test_interruption_reason_other_valid(self):
         """
         Assert raises if interruption reason is other and other is not provided
         """
