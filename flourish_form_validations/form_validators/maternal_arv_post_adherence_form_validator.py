@@ -30,7 +30,7 @@ class MaternalArvPostAdherenceFormValidator(FormValidatorMixin, FormValidator):
             raise ValidationError(message)
 
         elif (self.cleaned_data.get('missed_arv') >= 1 and
-              self.cleaned_data.get('interruption_reason') in [NOT_APPLICABLE, ]):
+              self.cleaned_data.get('interruption_reason') == NOT_APPLICABLE):
 
             message = {'interruption_reason': 'can\'t choose this option'
                                               ' when participant has more than one misses'}
