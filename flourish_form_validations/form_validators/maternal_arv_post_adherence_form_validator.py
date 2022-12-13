@@ -15,7 +15,7 @@ class MaternalArvPostAdherenceFormValidator(FormValidatorMixin, FormValidator):
         )
 
     def validate_interruption_reason_against_missed_arv(self, cleaned_data):
-        if cleaned_data.get('missed_arv'):
+        if cleaned_data.get('missed_arv') is not None:
             self.applicable_if_true(
                 cleaned_data.get('missed_arv') >= 1,
                 field_applicable='interruption_reason',
