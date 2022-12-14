@@ -279,3 +279,14 @@ class TestRelationshipFatherInvolvement(TestModeMixin,TestCase):
 
         self.assertRaises(ValidationError, form_validator.validate)
         self.assertIn('biological_father_alive', form_validator._errors)
+
+    def test_father_alive_valid(self):
+        self.clean_data['is_partner_the_father'] = NO
+        self.clean_data['biological_father_alive'] = 'PNTA'
+        self.clean_data['father_child_contact'] = None
+        self.clean_data['fathers_financial_support'] = None
+        form_validator = RelationshipFatherInvolvementFormValidator(cleaned_data=self.clean_data)
+        try:
+            form_validator.validate()
+        except ValidationError as e:
+            self.fail(f'ValidationError unexpectedly raised. Got{e}')
