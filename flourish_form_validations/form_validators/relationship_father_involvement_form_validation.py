@@ -25,6 +25,10 @@ class RelationshipFatherInvolvementFormValidator(FormValidatorMixin, FormValidat
                              field='partner_present',
                              field_required='disclosure_to_partner')
 
+        self.not_required_if(NO,
+                             field='partner_present',
+                             field_required='discussion_with_partner')
+
         self.required_if(NO,
                          field='living_with_partner',
                          field_required='why_not_living_with_partner')
