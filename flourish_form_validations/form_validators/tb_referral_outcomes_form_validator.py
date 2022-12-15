@@ -6,14 +6,17 @@ from .crf_form_validator import FormValidatorMixin
 class TbReferralOutcomesFormValidator(FormValidatorMixin, FormValidator):
 
     def clean(self):
-        required_fields = ['further_tb_eval', 'tb_diagnostic_perf',
-                           'tb_treat_start', 'tb_prev_therapy_start']
-        for field in required_fields:
-            self.required_if(
-                YES,
-                field='referral_clinic_appt',
-                field_required=field,
-            )
+
+        self.required_if(
+            YES,
+            field='tb_eval',
+            field_required='tb_eval_location'
+        )
+
+        self.validate_other_specify(
+            field='tb_eval_location',
+            field_required='tb_eval_location_other'
+        )
 
         self.m2m_required_if(
             YES,

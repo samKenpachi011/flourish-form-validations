@@ -12,15 +12,14 @@ class TestTbReferralOutcomesFormValidator(TestModeMixin, TestCase):
     def __init__(self, *args, **kwargs):
         super().__init__(TbReferralOutcomesFormValidator, *args, **kwargs)
 
-    def test_referral_clinic_appt_required_valid(self):
+    def test_tb_eval_location_required_valid(self):
         """
-        Raise error if referral_clinic_appt is Yes and fields further_tb_eval , tb_diagnostic_perf,
-         'tb_treat_start', 'tb_prev_therapy_start' are null
+        Raise error if tb eval is Yes and field tb eval location is not provided
         """
         ListModel.objects.create(short_name="sputum")
         cleaned_data = {
-            'referral_clinic_appt': YES,
-            'further_tb_eval': YES,
+            'tb_eval': YES,
+            'tb_eval_location': None,
             'tb_diagnostic_perf': YES,
             'tb_treat_start': NO,
             'tb_prev_therapy_start': YES,
@@ -31,10 +30,30 @@ class TestTbReferralOutcomesFormValidator(TestModeMixin, TestCase):
 
         form_validator = TbReferralOutcomesFormValidator(
             cleaned_data=cleaned_data)
-        try:
-            form_validator.validate()
-        except ValidationError as e:
-            self.fail(f'ValidationError unexpectedly raised. Got{e}')
+        self.assertRaises(ValidationError, form_validator.validate)
+        self.assertIn('tb_eval_location', form_validator._errors)
+
+    def test_tb_eval_location_other_required_valid(self):
+        """
+        Raise error if tb eval location is other and field tb eval location other is not provided
+        """
+        ListModel.objects.create(short_name="sputum")
+        cleaned_data = {
+            'tb_eval': YES,
+            'tb_eval_location': OTHER,
+            'tb_eval_location_other': None,
+            'tb_diagnostic_perf': YES,
+            'tb_treat_start': NO,
+            'tb_prev_therapy_start': YES,
+            'tb_diagnose_pos': YES,
+            'tb_test_results': "thiiis ",
+            'tb_diagnostics': ListModel.objects.all()
+        }
+
+        form_validator = TbReferralOutcomesFormValidator(
+            cleaned_data=cleaned_data)
+        self.assertRaises(ValidationError, form_validator.validate)
+        self.assertIn('tb_eval_location_other', form_validator._errors)
 
     def test_referral_clinic_appt_required_invalid(self):
         """
