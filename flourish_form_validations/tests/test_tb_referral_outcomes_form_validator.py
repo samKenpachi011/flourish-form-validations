@@ -55,28 +55,26 @@ class TestTbReferralOutcomesFormValidator(TestModeMixin, TestCase):
         self.assertRaises(ValidationError, form_validator.validate)
         self.assertIn('tb_eval_location_other', form_validator._errors)
 
-    def test_referral_clinic_appt_required_invalid(self):
+    def test_tb_diag_perf_treat_start_required(self):
         """
-        Raise error if referral_clinic_appt is No and fields further_tb_eval , tb_diagnostic_perf,
-         'tb_treat_start', 'tb_prev_therapy_start' are not null
+        Raise error if tb_diag is No and field tb_treat_start is null
         """
         ListModel.objects.create(short_name="sputum")
         cleaned_data = {
-            'referral_clinic_appt': NO,
-            'further_tb_eval': None,
-            'tb_diagnostic_perf': YES,
-            'tb_treat_start': NO,
+            'tb_eval': YES,
+            'tb_eval_location': "Place",
+            'tb_eval_location_other': None,
+            'tb_diagnostic_perf': NO,
+            'tb_treat_start': None,
             'tb_prev_therapy_start': YES,
-            'tb_diagnose_pos': YES,
             'tb_test_results': "thiiis ",
-            'tb_diagnostics': ListModel.objects.all()
         }
 
         form_validator = TbReferralOutcomesFormValidator(
             cleaned_data=cleaned_data)
 
         self.assertRaises(ValidationError, form_validator.validate)
-        self.assertIn('tb_diagnostic_perf', form_validator._errors)
+        self.assertIn('tb_treat_start', form_validator._errors)
 
     def test_tb_diagnostics_other_specify(self):
         """
