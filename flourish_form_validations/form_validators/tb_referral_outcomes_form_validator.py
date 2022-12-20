@@ -1,4 +1,4 @@
-from edc_constants.constants import NO, YES, OTHER
+from edc_constants.constants import NO, YES, OTHER, NOT_APPLICABLE
 from edc_form_validators import FormValidator
 from .crf_form_validator import FormValidatorMixin
 
@@ -34,6 +34,21 @@ class TbReferralOutcomesFormValidator(FormValidatorMixin, FormValidator):
             field_required='tb_diagnose_pos')
 
         self.required_if(
+            NO,
+            field='tb_diagnostic_perf',
+            field_required='tb_treat_start')
+
+        self.required_if(
             YES,
             field='tb_diagnose_pos',
             field_required='tb_test_results')
+
+        self.required_if(
+            *[NO, 'unable_to_determine'],
+            field='tb_diagnose_pos',
+            field_required='tb_treat_start')
+
+        self.required_if(
+            NO,
+            field='tb_treat_start',
+            field_required='tb_prev_therapy_start')
