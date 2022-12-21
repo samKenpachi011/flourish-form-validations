@@ -34,11 +34,6 @@ class TbReferralOutcomesFormValidator(FormValidatorMixin, FormValidator):
             field_required='tb_diagnose_pos')
 
         self.required_if(
-            NO,
-            field='tb_diagnostic_perf',
-            field_required='tb_treat_start')
-
-        self.required_if(
             YES,
             field='tb_diagnose_pos',
             field_required='tb_test_results')
@@ -46,6 +41,11 @@ class TbReferralOutcomesFormValidator(FormValidatorMixin, FormValidator):
         self.required_if(
             *[NO, 'unable_to_determine'],
             field='tb_diagnose_pos',
+            field_required='tb_treat_start')
+
+        self.required_if(
+            NO,
+            field='tb_diagnostic_perf',
             field_required='tb_treat_start')
 
         self.required_if(
