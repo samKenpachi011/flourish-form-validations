@@ -6,7 +6,6 @@ from .crf_form_validator import FormValidatorMixin
 class TbReferralOutcomesFormValidator(FormValidatorMixin, FormValidator):
 
     def clean(self):
-
         self.required_if(
             YES,
             field='tb_eval',
@@ -41,12 +40,16 @@ class TbReferralOutcomesFormValidator(FormValidatorMixin, FormValidator):
         self.required_if(
             *[NO, 'unable_to_determine'],
             field='tb_diagnose_pos',
-            field_required='tb_treat_start')
+            field_required='tb_treat_start',
+            inverse=False
+        )
 
         self.required_if(
             NO,
             field='tb_diagnostic_perf',
-            field_required='tb_treat_start')
+            field_required='tb_treat_start',
+            inverse=False
+        )
 
         self.required_if(
             NO,

@@ -175,11 +175,13 @@ class TestTbReferralOutcomesFormValidator(TestModeMixin, TestCase):
             'tb_diagnostics': ListModel.objects.all(),
             'tb_diagnose_pos': NO,
             'tb_test_results': None,
-            'tb_treat_start': None,
+            'tb_treat_start': YES,
             'tb_prev_therapy_start': None,
         }
 
         form_validator = TbReferralOutcomesFormValidator(
             cleaned_data=cleaned_data)
-        self.assertRaises(ValidationError, form_validator.validate)
-        self.assertIn('tb_treat_start', form_validator._errors)
+        try:
+            form_validator.validate()
+        except ValidationError as e:
+            self.fail(f'ValidationError unexpectedly raised. Got{e}')
