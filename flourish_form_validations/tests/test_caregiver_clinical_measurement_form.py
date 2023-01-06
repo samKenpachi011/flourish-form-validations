@@ -401,3 +401,48 @@ class TestCaregiverClinicalMeasurementsForm(TestModeMixin, TestCase):
             form_validator.validate()
         except ValidationError as e:
             self.fail(f'ValidationError unexpectedly raised. Got{e}')
+
+    def test_measurement_validator_hip_circ_not_required(self):
+        cleaned_data = {
+            'maternal_visit': self.maternal_visit,
+            'height': 120,
+            'weight_kg': 70,
+            'hip_circ': 60,
+            'hip_circ_second': 60.2,
+            'hip_circ_third': 60,
+            'all_measurements': NO
+        }
+        form_validator = CaregiverClinicalMeasurementsFormValidator(
+            cleaned_data=cleaned_data)
+        self.assertRaises(ValidationError, form_validator.validate)
+        self.assertIn('hip_circ_third', form_validator._errors)
+
+    def test_measurement_validator_hip_circ_required(self):
+        cleaned_data = {
+            'maternal_visit': self.maternal_visit,
+            'height': 120,
+            'weight_kg': 70,
+            'hip_circ': 60,
+            'hip_circ_second': 62,
+            'hip_circ_third': None,
+            'all_measurements': NO
+        }
+        form_validator = CaregiverClinicalMeasurementsFormValidator(
+            cleaned_data=cleaned_data)
+        self.assertRaises(ValidationError, form_validator.validate)
+        self.assertIn('hip_circ_third', form_validator._errors)
+
+    def test_measurement_validator_hip_circ_required(self):
+        cleaned_data = {
+            'maternal_visit': self.maternal_visit,
+            'height': 120,
+            'weight_kg': 70,
+            'hip_circ': 60,
+            'hip_circ_second': 62,
+            'hip_circ_third': None,
+            'all_measurements': NO
+        }
+        form_validator = CaregiverClinicalMeasurementsFormValidator(
+            cleaned_data=cleaned_data)
+        self.assertRaises(ValidationError, form_validator.validate)
+        self.assertIn('hip_circ_third', form_validator._errors)
