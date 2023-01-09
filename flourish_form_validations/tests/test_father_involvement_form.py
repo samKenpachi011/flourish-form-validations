@@ -279,7 +279,7 @@ class TestRelationshipFatherInvolvement(TestModeMixin, TestCase):
         except ValidationError as e:
             self.fail(f'ValidationError unexpectedly raised. Got{e}')
 
-    def test_disclosure_not_required(self):
+    def test_disclosure_not_applicable(self):
         self.clean_data['partner_present'] = NO
 
         self.clean_data.update({
@@ -312,7 +312,7 @@ class TestRelationshipFatherInvolvement(TestModeMixin, TestCase):
         self.assertRaises(ValidationError, form_validator.validate)
         self.assertIn('disclosure_to_partner', form_validator._errors)
 
-    def test_disclosure_not_required(self):
+    def test_discussion_with_partner_not_applicable(self):
         self.clean_data['partner_present'] = NO
 
         self.clean_data.update({
@@ -322,8 +322,8 @@ class TestRelationshipFatherInvolvement(TestModeMixin, TestCase):
             'partner_age_in_years': None,
             'living_with_partner': None,
             'why_not_living_with_partner': None,
-            'disclosure_to_partner': None,
-            'discussion_with_partner': 'easy',
+            'disclosure_to_partner': NOT_APPLICABLE,
+            'discussion_with_partner': None,
             'disclose_status': None,
             'partners_support': None,
             'ever_separated': None,
@@ -344,3 +344,36 @@ class TestRelationshipFatherInvolvement(TestModeMixin, TestCase):
 
         self.assertRaises(ValidationError, form_validator.validate)
         self.assertIn('discussion_with_partner', form_validator._errors)
+
+    def test_disclose_status_not_applicable(self):
+        self.clean_data['partner_present'] = NO
+
+        self.clean_data.update({
+            'why_partner_absent': 'sa',
+            'is_partner_the_father': None,
+            'duration_with_partner': None,
+            'partner_age_in_years': None,
+            'living_with_partner': None,
+            'why_not_living_with_partner': None,
+            'disclosure_to_partner': NOT_APPLICABLE,
+            'discussion_with_partner': NOT_APPLICABLE,
+            'disclose_status': None,
+            'partners_support': None,
+            'ever_separated': None,
+            'times_separated': None,
+            'separation_consideration': None,
+            'leave_after_fight': None,
+            'relationship_progression': None,
+            'confide_in_partner': None,
+            'relationship_regret': None,
+            'quarrel_frequency': None,
+            'bothering_partner': None,
+            'kissing_partner': None,
+            'engage_in_interests': None,
+            'happiness_in_relationship': None,
+            'future_relationship': None,
+        })
+        form_validator = RelationshipFatherInvolvementFormValidator(cleaned_data=self.clean_data)
+
+        self.assertRaises(ValidationError, form_validator.validate)
+        self.assertIn('disclose_status', form_validator._errors)
