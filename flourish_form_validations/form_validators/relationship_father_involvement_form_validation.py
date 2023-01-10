@@ -27,13 +27,12 @@ class RelationshipFatherInvolvementFormValidator(FormValidatorMixin, FormValidat
                                    field_applicable=fields)
 
         self.required_if(YES, field='disclosure_to_partner',
-                         field_required='discussion_with_partner',
-                         inverse=False
+                         field_required='discussion_with_partner'
                          )
         
         self.required_if(NO, field='disclosure_to_partner',
                          field_required='disclose_status',
-                         inverse=False)
+                         )
 
         self.required_if(NO,
                          field='living_with_partner',
