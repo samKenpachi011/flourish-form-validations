@@ -15,19 +15,25 @@ class RelationshipFatherInvolvementFormValidator(FormValidatorMixin, FormValidat
 
         self.validate_required_fields()
 
-        self.validate_positive_mother()
-
         self.required_if(NO,
                          field='partner_present',
                          field_required='why_partner_absent')
 
-        self.not_required_if(NO,
-                             field='partner_present',
-                             field_required='disclosure_to_partner')
+        non_applicable_fields = ['disclosure_to_partner', 'discussion_with_partner', 'disclose_status']
+        
+        for fields in non_applicable_fields:
+            self.not_applicable_if(NO,
+                                   field='partner_present',
+                                   field_applicable=fields)
 
-        self.not_required_if(NO,
-                             field='partner_present',
-                             field_required='discussion_with_partner')
+        self.required_if(YES, field='disclosure_to_partner',
+                         field_required='discussion_with_partner',
+                         inverse=False
+                         )
+        
+        self.required_if(NO, field='disclosure_to_partner',
+                         field_required='disclose_status',
+                         inverse=False)
 
         self.required_if(NO,
                          field='living_with_partner',
