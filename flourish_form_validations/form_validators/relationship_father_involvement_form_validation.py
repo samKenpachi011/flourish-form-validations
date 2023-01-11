@@ -21,6 +21,18 @@ class RelationshipFatherInvolvementFormValidator(FormValidatorMixin, FormValidat
                          field='partner_present',
                          field_required='why_partner_absent')
 
+        self.not_applicable_if(NO,
+                               field='partner_present',
+                               field_applicable='disclosure_to_partner')
+
+        self.not_applicable_if(NO,
+                               field='partner_present',
+                               field_applicable='discussion_with_partner')
+
+        self.not_applicable_if(NO,
+                               field='partner_present',
+                               field_applicable='disclose_status')
+
         self.required_if(NO,
                          field='living_with_partner',
                          field_required='why_not_living_with_partner')
@@ -36,16 +48,14 @@ class RelationshipFatherInvolvementFormValidator(FormValidatorMixin, FormValidat
         self.required_if(YES,
                          field='contact_info',
                          field_required='partner_cell')
-        
         is_partner_the_father = self.cleaned_data.get('is_partner_the_father', None)
         biological_father_alive = self.cleaned_data.get('biological_father_alive', None)
-        
-        if is_partner_the_father and biological_father_alive and \
-            is_partner_the_father != biological_father_alive:
+
+        if is_partner_the_father and biological_father_alive:
+            if is_partner_the_father == YES and biological_father_alive != YES:
                 raise ValidationError({
                     'biological_father_alive': 'Currently living with the father, check question 5 '
                 })
-
 
         self.validate_father_involvement()
 
@@ -91,7 +101,6 @@ class RelationshipFatherInvolvementFormValidator(FormValidatorMixin, FormValidat
     def validate_positive_mother(self):
         # Checker when running tests so it does require addition modules
         if settings.APP_NAME != 'flourish_form_validations':
-
             partner_present = self.cleaned_data.get('partner_present', None)
             maternal_visit = self.cleaned_data.get('maternal_visit')
             helper = MaternalStatusHelper(
