@@ -46,7 +46,7 @@ class TbChildAdolConsentFormValidator(FormValidator, FormValidatorMixin):
                 raise ValidationError({'adol_lastname': 'Not the same with the flourish child consent'})
             if adol_dob != child_consent.child_dob:
                 raise ValidationError({'adol_dob': 'Not the same with the flourish child consent'})
-            if adol_gender != child_consent.adol_gender:
+            if adol_gender != child_consent.gender:
                 raise ValidationError({'adol_gender': 'Not the same with the flourish child consent'})
             
 
