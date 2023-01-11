@@ -185,3 +185,27 @@ class TestTbReferralOutcomesFormValidator(TestModeMixin, TestCase):
             form_validator.validate()
         except ValidationError as e:
             self.fail(f'ValidationError unexpectedly raised. Got{e}')
+
+    def test_tb_diagnose_pos_tb_treat_start_required_alternate(self):
+        """
+        Raise error if tb_diagnose_pos is No and tb_treat_start is not provided
+        """
+        ListModel.objects.create(short_name="sputum")
+        cleaned_data = {
+            'tb_eval': YES,
+            'tb_eval_location': "place",
+            'tb_eval_location_other': None,
+            'tb_diagnostic_perf': YES,
+            'tb_diagnostics': ListModel.objects.all(),
+            'tb_diagnose_pos': YES,
+            'tb_test_results': "Test",
+            'tb_treat_start': YES,
+            'tb_prev_therapy_start': None,
+        }
+
+        form_validator = TbReferralOutcomesFormValidator(
+            cleaned_data=cleaned_data)
+        try:
+            form_validator.validate()
+        except ValidationError as e:
+            self.fail(f'ValidationError unexpectedly raised. Got{e}')
