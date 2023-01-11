@@ -23,6 +23,10 @@ class RelationshipFatherInvolvementFormValidator(FormValidatorMixin, FormValidat
                                field='partner_present',
                                field_applicable='disclosure_to_partner')
 
+        self.not_applicable_if(NO,
+                               field='partner_present',
+                               field_applicable='disclosure_to_partner')
+
         self.applicable_if(YES, field='disclosure_to_partner',
                            field_applicable='discussion_with_partner'
                            )
