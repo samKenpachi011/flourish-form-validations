@@ -22,8 +22,8 @@ class CaregiverClinicalMeasurementsFormValidator(FormValidatorMixin,
         if (cleaned_data.get('systolic_bp') and cleaned_data.get('diastolic_bp')):
             if cleaned_data.get('systolic_bp') < cleaned_data.get('diastolic_bp'):
                 msg = {'diastolic_bp':
-                       'Systolic blood pressure cannot be lower than the'
-                       'diastolic blood pressure. Please correct.'}
+                           'Systolic blood pressure cannot be lower than the'
+                           'diastolic blood pressure. Please correct.'}
                 self._errors.update(msg)
                 raise ValidationError(msg)
 
@@ -32,6 +32,14 @@ class CaregiverClinicalMeasurementsFormValidator(FormValidatorMixin,
         self.required_if_true(cleaned_data.get('systolic_bp') is not None
                               and cleaned_data.get('diastolic_bp') is not None,
                               field_required='confirm_values')
+
+        measurements = [
+            ('waist_circ', 'waist_circ_second', 'waist_circ_third'),
+            ('hip_circ', 'hip_circ_second', 'hip_circ_third'),
+        ]
+
+        for fields in measurements:
+            self.validate_measurement_margin(*fields)
 
     @property
     def check_all_cm(self):
@@ -75,21 +83,21 @@ class CaregiverClinicalMeasurementsFormValidator(FormValidatorMixin,
             if (self.check_weight_bp_cm
                     and obtained_all_cm == YES and confirm_values == NO):
                 message = {'confirm_values':
-                           'Are you sure about the given values please confirm!'}
+                               'Are you sure about the given values please confirm!'}
                 self._errors.update(message)
                 raise ValidationError(message)
 
             elif obtained_all_cm == YES and not self.check_weight_bp_cm:
-                    message = {'all_measurements':
+                message = {'all_measurements':
                                'Please provide all measurements'}
-                    self._errors.update(message)
-                    raise ValidationError(message)
+                self._errors.update(message)
+                raise ValidationError(message)
 
             elif obtained_all_cm == NO and self.check_weight_bp_cm:
-                    message = {'all_measurements':
+                message = {'all_measurements':
                                'All measurements have been given please select Yes.'}
-                    self._errors.update(message)
-                    raise ValidationError(message)
+                self._errors.update(message)
+                raise ValidationError(message)
 
     def check_all_cm_valid_1000M(self):
         obtained_all_cm = self.cleaned_data.get('all_measurements')
@@ -101,21 +109,21 @@ class CaregiverClinicalMeasurementsFormValidator(FormValidatorMixin,
             if (self.check_all_cm_1000
                     and obtained_all_cm == YES and confirm_values != YES):
                 message = {'confirm_values':
-                           'Are you sure about the given values please confirm!'}
+                               'Are you sure about the given values please confirm!'}
                 self._errors.update(message)
                 raise ValidationError(message)
 
             elif obtained_all_cm == NO and self.check_all_cm_1000:
-                    message = {'all_measurements':
+                message = {'all_measurements':
                                'All measurements have been given please select Yes'}
-                    self._errors.update(message)
-                    raise ValidationError(message)
+                self._errors.update(message)
+                raise ValidationError(message)
 
             elif obtained_all_cm == YES and not self.check_all_cm_1000:
-                    message = {'all_measurements':
+                message = {'all_measurements':
                                'Please provide all measurements'}
-                    self._errors.update(message)
-                    raise ValidationError(message)
+                self._errors.update(message)
+                raise ValidationError(message)
 
     def check_all_cm_valid_2000M(self):
         obtained_all_cm = self.cleaned_data.get('all_measurements')
@@ -126,18 +134,29 @@ class CaregiverClinicalMeasurementsFormValidator(FormValidatorMixin,
 
             if self.check_all_cm and obtained_all_cm == YES and confirm_values != YES:
                 message = {'confirm_values':
-                           'Are you sure about the given values please confirm!'}
+                               'Are you sure about the given values please confirm!'}
                 self._errors.update(message)
                 raise ValidationError(message)
 
             elif obtained_all_cm == NO and self.check_all_cm:
-                    message = {'all_measurements':
+                message = {'all_measurements':
                                'All measurements have been given please select Yes'}
-                    self._errors.update(message)
-                    raise ValidationError(message)
+                self._errors.update(message)
+                raise ValidationError(message)
 
             elif obtained_all_cm == YES and not self.check_all_cm:
-                    message = {'all_measurements':
+                message = {'all_measurements':
                                'Please provide all measurements'}
-                    self._errors.update(message)
-                    raise ValidationError(message)
+                self._errors.update(message)
+                raise ValidationError(message)
+
+    def validate_measurement_margin(self, first_measurement_field, second_measurement_field, third_measurement_field):
+        first_measurement = self.cleaned_data.get(first_measurement_field, None)
+        second_measurement = self.cleaned_data.get(second_measurement_field, None)
+
+        if first_measurement and second_measurement:
+            margin = abs(first_measurement - second_measurement)
+            self.required_if_true(
+                margin >= 1,
+                field_required=third_measurement_field
+            )
