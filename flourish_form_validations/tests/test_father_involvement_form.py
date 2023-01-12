@@ -313,32 +313,14 @@ class TestRelationshipFatherInvolvement(TestModeMixin, TestCase):
         self.assertIn('disclosure_to_partner', form_validator._errors)
 
     def test_discussion_with_partner_not_applicable(self):
-        self.clean_data['partner_present'] = NO
+
+        self.clean_data['partner_present'] = YES
 
         self.clean_data.update({
-            'why_partner_absent': 'sa',
-            'is_partner_the_father': None,
-            'duration_with_partner': None,
-            'partner_age_in_years': None,
-            'living_with_partner': None,
-            'why_not_living_with_partner': None,
-            'disclosure_to_partner': NOT_APPLICABLE,
-            'discussion_with_partner': None,
-            'disclose_status': None,
-            'partners_support': None,
-            'ever_separated': None,
-            'times_separated': None,
-            'separation_consideration': None,
-            'leave_after_fight': None,
-            'relationship_progression': None,
-            'confide_in_partner': None,
-            'relationship_regret': None,
-            'quarrel_frequency': None,
-            'bothering_partner': None,
-            'kissing_partner': None,
-            'engage_in_interests': None,
-            'happiness_in_relationship': None,
-            'future_relationship': None,
+            'disclosure_to_partner': NO,
+            'discussion_with_partner': YES,
+            'disclose_status': NOT_APPLICABLE
+
         })
         form_validator = RelationshipFatherInvolvementFormValidator(cleaned_data=self.clean_data)
 
@@ -346,32 +328,13 @@ class TestRelationshipFatherInvolvement(TestModeMixin, TestCase):
         self.assertIn('discussion_with_partner', form_validator._errors)
 
     def test_disclose_status_not_applicable(self):
-        self.clean_data['partner_present'] = NO
+
+        self.clean_data['partner_present'] = YES
 
         self.clean_data.update({
-            'why_partner_absent': 'sa',
-            'is_partner_the_father': None,
-            'duration_with_partner': None,
-            'partner_age_in_years': None,
-            'living_with_partner': None,
-            'why_not_living_with_partner': None,
-            'disclosure_to_partner': NOT_APPLICABLE,
-            'discussion_with_partner': NOT_APPLICABLE,
+            'disclosure_to_partner': YES,
             'disclose_status': None,
-            'partners_support': None,
-            'ever_separated': None,
-            'times_separated': None,
-            'separation_consideration': None,
-            'leave_after_fight': None,
-            'relationship_progression': None,
-            'confide_in_partner': None,
-            'relationship_regret': None,
-            'quarrel_frequency': None,
-            'bothering_partner': None,
-            'kissing_partner': None,
-            'engage_in_interests': None,
-            'happiness_in_relationship': None,
-            'future_relationship': None,
+
         })
         form_validator = RelationshipFatherInvolvementFormValidator(cleaned_data=self.clean_data)
 
