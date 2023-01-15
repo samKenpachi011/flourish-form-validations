@@ -42,7 +42,7 @@ class TestMaternalArvPostAdherenceForm(TestModeMixin, TestCase):
         """
         cleaned_data = {
             'maternal_visit': self.maternal_visit,
-            'missed_arv': 2,
+            'missed_arv': 1.1,
             'interruption_reason': NOT_APPLICABLE,
             'comment': 'comment',
         }
