@@ -357,5 +357,20 @@ class TestRelationshipFatherInvolvement(TestModeMixin, TestCase):
         self.assertRaises(ValidationError, form_validator.validate)
         self.assertIn('disclosure_to_partner', form_validator._errors)
 
+    def test_discussion_with_partner_not_applicable_hiv_neg(self):
+        maternal_status = MaternalStatusHelper(status=NEG)
+        RelationshipFatherInvolvementFormValidator.maternal_status_helper = maternal_status
+
+        self.clean_data['partner_present'] = YES
+
+        self.clean_data.update({
+            'disclosure_to_partner': NOT_APPLICABLE,
+            'discussion_with_partner': NO,
+        })
+        form_validator = RelationshipFatherInvolvementFormValidator(cleaned_data=self.clean_data)
+
+        self.assertRaises(ValidationError, form_validator.validate)
+        self.assertIn('discussion_with_partner', form_validator._errors)
+
 
 
