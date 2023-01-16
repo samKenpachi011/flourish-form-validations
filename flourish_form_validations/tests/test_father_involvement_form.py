@@ -2,6 +2,8 @@ from django.test import tag, TestCase
 from django.core.exceptions import ValidationError
 from edc_base.utils import get_utcnow
 from edc_constants.constants import YES, NO, NOT_APPLICABLE, POS, NEG
+
+from .test_maternal_delivery_form import MaternalStatusHelper
 from ..form_validators import RelationshipFatherInvolvementFormValidator
 from flourish_form_validations.tests.test_model_mixin import TestModeMixin
 from .models import (FlourishConsentVersion, SubjectConsent,
@@ -337,6 +339,23 @@ class TestRelationshipFatherInvolvement(TestModeMixin, TestCase):
 
         })
         form_validator = RelationshipFatherInvolvementFormValidator(cleaned_data=self.clean_data)
-
         self.assertRaises(ValidationError, form_validator.validate)
         self.assertIn('disclose_status', form_validator._errors)
+
+    def test_disclose_status_not_applicable_hiv_neg(self):
+        maternal_status = MaternalStatusHelper(status=NEG)
+        RelationshipFatherInvolvementFormValidator.maternal_status_helper = maternal_status
+
+        self.clean_data['partner_present'] = YES
+
+        self.clean_data.update({
+            'disclosure_to_partner': NO,
+            'discussion_with_partner': NOT_APPLICABLE,
+        })
+        form_validator = RelationshipFatherInvolvementFormValidator(cleaned_data=self.clean_data)
+
+        self.assertRaises(ValidationError, form_validator.validate)
+        self.assertIn('disclosure_to_partner', form_validator._errors)
+
+
+
