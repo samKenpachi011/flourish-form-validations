@@ -18,23 +18,7 @@ class RelationshipFatherInvolvementFormValidator(FormValidatorMixin, FormValidat
         self.required_if(NO,
                          field='partner_present',
                          field_required='why_partner_absent')
-
-        self.not_applicable_if(NO,
-                               field='partner_present',
-                               field_applicable='disclosure_to_partner')
-
-        self.not_applicable_if(NO,
-                               field='partner_present',
-                               field_applicable='disclosure_to_partner')
-
-        self.applicable_if(YES, field='disclosure_to_partner',
-                           field_applicable='discussion_with_partner'
-                           )
-
-        self.applicable_if(NO, field='disclosure_to_partner',
-                           field_applicable='disclose_status',
-                           )
-
+        self.validate_against_hiv_status(cleaned_data=self.cleaned_data)
         self.required_if(NO,
                          field='living_with_partner',
                          field_required='why_not_living_with_partner')
@@ -100,6 +84,29 @@ class RelationshipFatherInvolvementFormValidator(FormValidatorMixin, FormValidat
             self.not_required_if(
                 NO, PNTA, field='biological_father_alive', field_required=field)
 
+    def validate_against_hiv_status(self, cleaned_data):
+        helper = self.maternal_status_helper
+        fields = ['disclosure_to_partner',
+                  'discussion_with_partner', 'disclose_status']
+        if helper.hiv_status == NEG:
+            for field in fields:
+                if cleaned_data.get(field) and cleaned_data.get(field) != NOT_APPLICABLE:
+                    raise ValidationError({
+                        field: 'This field is not applicable'
+                    })
+        else:
+            self.not_applicable_if(NO,
+                                   field='partner_present',
+                                   field_applicable='disclosure_to_partner')
+
+            self.applicable_if(YES, field='disclosure_to_partner',
+                               field_applicable='discussion_with_partner'
+                               )
+
+            self.applicable_if(NO, field='disclosure_to_partner',
+                               field_applicable='disclose_status',
+                               )
+
     def validate_positive_mother(self):
         # Checker when running tests so it does require addition modules
         if settings.APP_NAME != 'flourish_form_validations':
@@ -120,3 +127,10 @@ class RelationshipFatherInvolvementFormValidator(FormValidatorMixin, FormValidat
                              field_required='discussion_with_partner')
             self.required_if(NO, field='disclosure_to_partner',
                              field_required='disclose_status')
+
+    @property
+    def maternal_status_helper(self):
+        cleaned_data = self.cleaned_data
+        visit_obj = cleaned_data.get('maternal_visit')
+        if visit_obj:
+            return MaternalStatusHelper(visit_obj)
