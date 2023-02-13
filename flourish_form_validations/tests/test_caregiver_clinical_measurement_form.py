@@ -431,3 +431,33 @@ class TestCaregiverClinicalMeasurementsForm(TestModeMixin, TestCase):
             cleaned_data=cleaned_data)
         self.assertRaises(ValidationError, form_validator.validate)
         self.assertIn('hip_circ_third', form_validator._errors)
+        
+
+    def test_all_cm_valid_at_3000(self):
+        appointment = Appointment.objects.create(
+            subject_identifier=self.subject_consent.subject_identifier,
+            appt_datetime=get_utcnow(),
+            visit_code='3000M')
+
+        self.maternal_visit = MaternalVisit.objects.create(
+            appointment=appointment,
+            subject_identifier=self.subject_consent.subject_identifier,
+            report_datetime=get_utcnow())
+
+        cleaned_data = {
+            'maternal_visit': self.maternal_visit,
+            'weight_kg': 70,
+            'hip_circ': 60,
+            'hip_circ_second': 60.2,
+            'hip_circ_third': 60,
+            'all_measurements': NO}
+
+        form_validator = CaregiverClinicalMeasurementsFormValidator(
+            cleaned_data=cleaned_data)
+        
+        
+        self.assertRaises(ValidationError, form_validator.validate)
+        # try:
+        #     form_validator.validate()
+        # except ValidationError as e:
+        #     self.fail(f'ValidationError unexpectedly raised. Got{e}')
