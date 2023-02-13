@@ -433,7 +433,11 @@ class TestCaregiverClinicalMeasurementsForm(TestModeMixin, TestCase):
         self.assertIn('hip_circ_third', form_validator._errors)
         
 
-    def test_all_cm_valid_at_3000(self):
+    def test_all_cm_valid_at_3000(self): 
+        """Should be able to save with all_measurements == Yes and throw
+        and exception if vice versa, and should be able to exclude height at 
+        visit 3000
+        """
         appointment = Appointment.objects.create(
             subject_identifier=self.subject_consent.subject_identifier,
             appt_datetime=get_utcnow(),
