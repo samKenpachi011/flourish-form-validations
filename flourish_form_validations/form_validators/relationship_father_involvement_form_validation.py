@@ -10,16 +10,19 @@ from .crf_form_validator import FormValidatorMixin
 
 class RelationshipFatherInvolvementFormValidator(FormValidatorMixin, FormValidator):
 
-    anc_onschedule_model = 'flourish_caregiver.onschedulecohortaantenatal'
     maternal_delivery_model = 'flourish_caregiver.maternaldelivery'
+    caregiver_child_consent_model = 'flourish_caregiver.caregiverchildconsent'
 
-    @property
-    def anc_onschedule_model_cls(self):
-        return django_apps.get_model(self.anc_onschedule_model)
+    def onschedule_model_cls(self, onschedule_model):
+        return django_apps.get_model(onschedule_model)
 
     @property
     def maternal_delivery_model_cls(self):
         return django_apps.get_model(self.maternal_delivery_model)
+
+    @property
+    def caregiver_child_consent_cls(self):
+        return django_apps.get_model(self.caregiver_child_consent_model)
 
     def clean(self):
 
@@ -146,11 +149,25 @@ class RelationshipFatherInvolvementFormValidator(FormValidatorMixin, FormValidat
     @property
     def has_delivered(self):
         subject_identifier = self.cleaned_data.get('maternal_visit').subject_identifier
+        onschedule_model = self.cleaned_data.get('maternal_visit').schedule.onschedule_model
+        model_cls = self.onschedule_model_cls(onschedule_model)
         try:
-            self.anc_onschedule_model_cls.objects.get(
-                subject_identifier=subject_identifier)
-        except self.anc_onschedule_model_cls.DoesNotExist:
-            return True
+            model_obj = model_cls.objects.get(subject_identifier=subject_identifier)
+        except model_cls.DoesNotExist:
+            raise ValidationError('Onschedule does not exist.')
         else:
-            return self.maternal_delivery_model_cls.objects.filter(
-                subject_identifier=subject_identifier).exists()
+            child_subject_identifier = model_obj.child_subject_identifier
+            if self.is_preg_enrol(child_subject_identifier):
+                return self.maternal_delivery_model_cls.objects.filter(
+                    subject_identifier=subject_identifier).exists()
+            return True
+
+    def is_preg_enrol(self, child_subject_identifier):
+        consents = self.caregiver_child_consent_cls.objects.filter(
+            subject_identifier=child_subject_identifier)
+        try:
+            consent = consents.latest('consent_datetime')
+        except self.caregiver_child_consent_cls.DoesNotExist:
+            raise ValidationError('Caregiver consent on behalf of child does not exist.')
+        else:
+            return consent.preg_enroll
