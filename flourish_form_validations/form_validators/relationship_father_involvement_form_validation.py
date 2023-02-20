@@ -59,6 +59,20 @@ class RelationshipFatherInvolvementFormValidator(FormValidatorMixin, FormValidat
 
         self.validate_father_involvement()
 
+        m2m_fields = ['read_books', 'told_stories', 'sang_songs',
+                      'took_child_outside', 'played_with_child',
+                      'named_with_child', ]
+        condition = self.has_delivered
+        for field in m2m_fields:
+            self.m2m_applicable_if_true(condition, m2m_field=field)
+            self.m2m_single_selection_if(
+                *[NOT_APPLICABLE, PNTA, 'no_one'],
+                m2m_field=field)
+            self.m2m_other_specify(
+                *['other'],
+                m2m_field=field,
+                field_other=f'{field}_other')
+
         super().clean()
 
     def validate_required_fields(self):
@@ -100,6 +114,9 @@ class RelationshipFatherInvolvementFormValidator(FormValidatorMixin, FormValidat
             self.required_if_true(
                 condition and father_alive == YES,
                 field_required=field)
+
+        if not condition and self.cleaned_data.get('child_left_alone') > 0:
+            raise ValidationError('Field can not be > 0, child not delivered.')
 
     def validate_against_hiv_status(self, cleaned_data):
         helper = self.maternal_status_helper
@@ -171,3 +188,18 @@ class RelationshipFatherInvolvementFormValidator(FormValidatorMixin, FormValidat
             raise ValidationError('Caregiver consent on behalf of child does not exist.')
         else:
             return consent.preg_enroll
+
+    def m2m_applicable_if_true(self, field_check, m2m_field=None, ):
+        message = None
+        qs = self.cleaned_data.get(m2m_field)
+        if qs and qs.count() > 0:
+            selected = {obj.short_name: obj.name for obj in qs}
+
+            if field_check and NOT_APPLICABLE in selected:
+                message = {m2m_field: 'This field is applicable'}
+            elif not field_check and NOT_APPLICABLE not in selected:
+                message = {m2m_field: 'This field is not applicable'}
+        if message:
+            self._errors.update(message)
+            raise ValidationError(message)
+        return False
