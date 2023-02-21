@@ -173,10 +173,12 @@ class CaregiverChildConsentFormValidator(FormValidator):
     def validate_child_knows_status(self, cleaned_data):
 
         child_dob = cleaned_data.get('child_dob')
-
-        if child_dob:
+        consent_date = cleaned_data.get('consent_datetime')
+        
+        if child_dob and consent_date:
             child_dob = datetime.datetime.strptime(child_dob, "%Y-%m-%d").date()
-            child_age = age(child_dob, get_utcnow()).years
+            # consent date should be used instead of the time right now
+            child_age = age(child_dob, consent_date).years
             if child_age < 16 and cleaned_data.get(
                     'child_knows_status') in [YES, NO]:
                 msg = {'child_knows_status':

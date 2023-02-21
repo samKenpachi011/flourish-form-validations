@@ -18,6 +18,7 @@ class CaregiverClinicalMeasurementsFormValidator(FormValidatorMixin,
         self.check_all_cm_tb_del_valid()
         self.check_all_cm_valid_1000M()
         self.check_all_cm_valid_2000M()
+        self.check_all_cm_valid_3000M()
 
         if (cleaned_data.get('systolic_bp') and cleaned_data.get('diastolic_bp')):
             if cleaned_data.get('systolic_bp') < cleaned_data.get('diastolic_bp'):
@@ -61,6 +62,16 @@ class CaregiverClinicalMeasurementsFormValidator(FormValidatorMixin,
         diastolic_bp = self.cleaned_data.get('diastolic_bp')
 
         cm_all = [height, weight_kg, systolic_bp, diastolic_bp, ]
+
+        return not any(item is None for item in cm_all)
+    
+    @property
+    def check_all_cm_3000(self):
+        weight_kg = self.cleaned_data.get('weight_kg')
+        systolic_bp = self.cleaned_data.get('systolic_bp')
+        diastolic_bp = self.cleaned_data.get('diastolic_bp')
+
+        cm_all = [ weight_kg, systolic_bp, diastolic_bp, ]
 
         return not any(item is None for item in cm_all)
 
@@ -118,7 +129,7 @@ class CaregiverClinicalMeasurementsFormValidator(FormValidatorMixin,
                                'All measurements have been given please select Yes'}
                 self._errors.update(message)
                 raise ValidationError(message)
-
+            
             elif obtained_all_cm == YES and not self.check_all_cm_1000:
                 message = {'all_measurements':
                                'Please provide all measurements'}
@@ -130,7 +141,7 @@ class CaregiverClinicalMeasurementsFormValidator(FormValidatorMixin,
         confirm_values = self.cleaned_data.get('confirm_values')
         visit_code = self.cleaned_data.get('maternal_visit').visit_code
 
-        if visit_code in ['2000M', '3000M']:
+        if visit_code == '2000M':
 
             if self.check_all_cm and obtained_all_cm == YES and confirm_values != YES:
                 message = {'confirm_values':
@@ -145,6 +156,32 @@ class CaregiverClinicalMeasurementsFormValidator(FormValidatorMixin,
                 raise ValidationError(message)
 
             elif obtained_all_cm == YES and not self.check_all_cm:
+                message = {'all_measurements':
+                               'Please provide all measurements'}
+                self._errors.update(message)
+                raise ValidationError(message)
+            
+    def check_all_cm_valid_3000M(self):
+        obtained_all_cm = self.cleaned_data.get('all_measurements')
+        confirm_values = self.cleaned_data.get('confirm_values')
+        visit_code = self.cleaned_data.get('maternal_visit').visit_code
+
+        if visit_code == '3000M':
+
+            if (self.check_all_cm_3000
+                    and obtained_all_cm == YES and confirm_values != YES):
+                message = {'confirm_values':
+                               'Are you sure about the given values please confirm!'}
+                self._errors.update(message)
+                raise ValidationError(message)
+
+            elif obtained_all_cm == NO and self.check_all_cm_3000:
+                message = {'all_measurements':
+                               'All measurements have been given please select Yes'}
+                self._errors.update(message)
+                raise ValidationError(message) 
+            
+            elif obtained_all_cm == YES and not self.check_all_cm_3000:
                 message = {'all_measurements':
                                'Please provide all measurements'}
                 self._errors.update(message)
