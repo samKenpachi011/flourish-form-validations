@@ -1,7 +1,8 @@
 from django.apps import apps as django_apps
 from django.forms import ValidationError
 from django.conf import settings
-from edc_constants.constants import YES, POS, NEG, NO, NOT_APPLICABLE
+from edc_constants.constants import YES, POS, NEG, NO, NOT_APPLICABLE,\
+    DONT_KNOW
 from edc_form_validators import FormValidator
 from flourish_caregiver.helper_classes import MaternalStatusHelper
 from flourish_caregiver.constants import PNTA
@@ -72,6 +73,11 @@ class RelationshipFatherInvolvementFormValidator(FormValidatorMixin, FormValidat
                 *['other'],
                 m2m_field=field,
                 field_other=f'{field}_other')
+            self.m2m_response_na(
+                [NO, PNTA, DONT_KNOW],
+                field='biological_father_alive',
+                na_response='father',
+                m2m_field=field)
 
         super().clean()
 
@@ -197,9 +203,22 @@ class RelationshipFatherInvolvementFormValidator(FormValidatorMixin, FormValidat
 
             if field_check and NOT_APPLICABLE in selected:
                 message = {m2m_field: 'This field is applicable'}
-            elif not field_check and NOT_APPLICABLE not in selected:
-                message = {m2m_field: 'This field is not applicable'}
+#             elif not field_check and NOT_APPLICABLE not in selected:
+#                 message = {m2m_field: 'This field is not applicable'}
         if message:
             self._errors.update(message)
             raise ValidationError(message)
         return False
+
+    def m2m_response_na(self, responses, na_response, field=None, m2m_field=None):
+        if self.cleaned_data.get(field) in responses:
+            qs = self.cleaned_data.get(m2m_field)
+            if qs and qs.count() > 0:
+                selected = {obj.short_name: obj.name for obj in qs}
+
+                if na_response in selected:
+                    message = {m2m_field:
+                               f'Can not select {na_response} as a response.'
+                               f' {field} is either {", ".join(responses)}.'}
+                    self._errors.update(message)
+                    raise ValidationError(message)
