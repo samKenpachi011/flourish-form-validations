@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.core.exceptions import ValidationError
 from edc_base.utils import get_utcnow
+from edc_constants.constants import YES, NO
 
 from ..form_validators import InterviewFocusGroupInterestFormValidator
 from .models import (FlourishConsentVersion, SubjectConsent,
@@ -9,7 +10,7 @@ from .models import (FlourishConsentVersion, SubjectConsent,
 from dateutil.relativedelta import relativedelta
 
 
-class TestInterviewFocusGroupInterestFormValidatorTest(InterviewFocusGroupInterestFormValidator):
+class CustomInterviewFocusGroupInterestFormValidator(InterviewFocusGroupInterestFormValidator):
 
     def is_preg_enroll(self):
         subject_identifier = self.cleaned_data.get('maternal_visit').subject_identifier
@@ -95,7 +96,7 @@ class TestMaternalDeliveryFormValidator(TestCase):
 
     def test_infant_feeding_group_interest_required(self):
         self.clean_data['infant_feeding_group_interest'] = None
-        form_validator = TestInterviewFocusGroupInterestFormValidatorTest(cleaned_data=self.clean_data)
+        form_validator = CustomInterviewFocusGroupInterestFormValidator(cleaned_data=self.clean_data)
         try:
             form_validator.validate()
         except ValidationError as e:
@@ -104,7 +105,7 @@ class TestMaternalDeliveryFormValidator(TestCase):
     def test_infant_feeding_group_interest_not_required(self):
         self.caregiver_child_consent.preg_enroll = True
         self.caregiver_child_consent.save()
-        form_validator = TestInterviewFocusGroupInterestFormValidatorTest(cleaned_data=self.clean_data)
+        form_validator = CustomInterviewFocusGroupInterestFormValidator(cleaned_data=self.clean_data)
 
         try:
             form_validator.validate()
@@ -117,7 +118,7 @@ class TestMaternalDeliveryFormValidator(TestCase):
         self.caregiver_child_consent.preg_enroll = True
         self.caregiver_child_consent.save()
 
-        form_validator = TestInterviewFocusGroupInterestFormValidatorTest(cleaned_data=self.clean_data)
+        form_validator = CustomInterviewFocusGroupInterestFormValidator(cleaned_data=self.clean_data)
 
         self.assertRaises(ValidationError, form_validator.validate)
         self.assertIn('same_status_comfort', form_validator._errors)
@@ -129,7 +130,7 @@ class TestMaternalDeliveryFormValidator(TestCase):
         self.caregiver_child_consent.preg_enroll = True
         self.caregiver_child_consent.save()
 
-        form_validator = TestInterviewFocusGroupInterestFormValidatorTest(cleaned_data=self.clean_data)
+        form_validator = CustomInterviewFocusGroupInterestFormValidator(cleaned_data=self.clean_data)
 
         self.assertRaises(ValidationError, form_validator.validate)
         self.assertIn('same_status_comfort', form_validator._errors)
