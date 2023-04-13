@@ -1,7 +1,6 @@
-from edc_constants.constants import NO, YES
+from django.core.exceptions import ValidationError
 from edc_form_validators import FormValidator
 from .crf_form_validator import FormValidatorMixin
-from django.forms import ValidationError
 from django.apps import apps as django_apps
 
 
@@ -24,30 +23,33 @@ class InterviewFocusGroupInterestFormValidator(FormValidatorMixin, FormValidator
         self.required_if(
             *['group', 'either'],
             field='discussion_pref',
-            field_required='hiv_group_pref'
+            field_required='hiv_group_pref',
         )
 
+        condition = self.is_preg_enroll()
+
         self.required_if_true(
-            self.is_preg_enrol,
+            condition,
             field_required='infant_feeding_group_interest',
-            required_msg='Infant feeding group interest is required if enrolled pregnant(pregnant or postpartum).'
+            required_msg='Infant feeding group interest is required if enrolled'
+                         ' pregnant(pregnant or postpartum).',
         )
 
         fields = ['same_status_comfort', 'diff_status_comfort']
 
         for field in fields:
             self.required_if_true(
-                self.is_preg_enrol and self.cleaned_data['discussion_pref'] in ['group', 'either'],
-                field_required=field
+                self.is_preg_enroll and self.cleaned_data['discussion_pref'] in ['group', 'either'],
+                field_required=field,
             )
 
-    def is_preg_enrol(self):
+    def is_preg_enroll(self):
         subject_identifier = self.cleaned_data.get('maternal_visit').subject_identifier
         consents = self.caregiver_child_consent_cls.objects.filter(
             subject_identifier=subject_identifier)
-        try:
+
+        if consents.exists():
             consent = consents.latest('consent_datetime')
-        except self.caregiver_child_consent_cls.DoesNotExist:
-            raise ValidationError('Caregiver consent on behalf of child does not exist.')
-        else:
             return consent.preg_enroll
+        else:
+            raise ValidationError('Caregiver consent on behalf of child does not exist.')

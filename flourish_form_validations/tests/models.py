@@ -169,7 +169,6 @@ class MaternalVisit(BaseUuidModel):
 
 
 class MaternalArvDuringPreg(models.Model):
-
     took_arv = models.CharField(
         choices=YES_NO,
         max_length=10)
@@ -244,7 +243,6 @@ class ChildDataset(BaseUuidModel):
 
 
 class FlourishConsentVersion(models.Model):
-
     screening_identifier = models.CharField(max_length=25)
 
     version = models.CharField(max_length=3)
@@ -255,7 +253,6 @@ class FlourishConsentVersion(models.Model):
 
 
 class OffStudy(BaseUuidModel):
-
     subject_identifier = models.CharField(max_length=25)
 
 
@@ -286,7 +283,6 @@ class CaregiverContact(BaseUuidModel):
 
 
 class ScreeningPriorBhpParticipants(BaseUuidModel):
-
     screening_identifier = models.CharField(max_length=7)
 
     report_datetime = models.DateTimeField()
@@ -302,7 +298,7 @@ class ScreeningPriorBhpParticipants(BaseUuidModel):
     reason_not_to_participate = models.CharField(max_length=7)
 
     ineligibility = models.TextField(
-        max_length=150,)
+        max_length=150, )
 
     is_eligible = models.BooleanField(
         default=False,
@@ -312,3 +308,14 @@ class ScreeningPriorBhpParticipants(BaseUuidModel):
     is_consented = models.BooleanField(
         default=False,
         editable=False)
+
+
+class CaregiverChildConsent(BaseUuidModel):
+
+    subject_identifier = models.CharField(max_length=25)
+
+    child_dob = models.DateField()
+
+    preg_enroll = models.BooleanField()
+
+    consent_datetime = models.DateTimeField()
