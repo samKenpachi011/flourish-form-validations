@@ -41,9 +41,10 @@ class InterviewFocusGroupInterestFormValidator(FormValidatorMixin, FormValidator
                 field_required=field
             )
 
-    def is_preg_enrol(self, child_subject_identifier):
+    def is_preg_enrol(self):
+        subject_identifier = self.cleaned_data.get('maternal_visit').subject_identifier
         consents = self.caregiver_child_consent_cls.objects.filter(
-            subject_identifier=child_subject_identifier)
+            subject_identifier=subject_identifier)
         try:
             consent = consents.latest('consent_datetime')
         except self.caregiver_child_consent_cls.DoesNotExist:
