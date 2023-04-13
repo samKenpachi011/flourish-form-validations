@@ -28,7 +28,7 @@ class SocioDemographicDataFormValidator(FormValidatorMixin, FormValidator):
     @property
     def delivery_model_cls(self):
         return django_apps.get_model(self.delivery_model)
-    
+
     @property
     def child_socio_demographic_cls(self):
         return django_apps.get_model(self.child_socio_demographic_model)
@@ -37,7 +37,6 @@ class SocioDemographicDataFormValidator(FormValidatorMixin, FormValidator):
         self.subject_identifier = self.cleaned_data.get(
             'maternal_visit').subject_identifier
         super().clean()
-        
 
         other_specify_fields = ['marital_status', 'ethnicity',
                                 'current_occupation', 'provides_money',
@@ -48,12 +47,10 @@ class SocioDemographicDataFormValidator(FormValidatorMixin, FormValidator):
         if not self.is_from_prev_study:
             self.applicable_if_true(self.is_not_pregnant, 'stay_with_child')
             self.required_if_true(not self.is_not_pregnant, 'number_of_household_members')
-            
         self.validate_child_socio_demographics()
 
     @property
     def is_from_prev_study(self):
-
         maternal_visit = self.cleaned_data.get('maternal_visit')
 
         return self.maternal_dataset_cls.objects.filter(
@@ -76,40 +73,37 @@ class SocioDemographicDataFormValidator(FormValidatorMixin, FormValidator):
                 return False
             else:
                 return True
-            
+
     @property
     def onschedule_cls(self):
         maternal_visit = self.cleaned_data.get('maternal_visit')
         return django_apps.get_model(
             maternal_visit.appointment.schedule.onschedule_model
         )
-    
+
     def validate_child_socio_demographics(self):
-        
-        visit_code = self.cleaned_data.get('maternal_visit').visit_code[:4]
-        
+        maternal_visit = self.cleaned_data.get('maternal_visit')
+        visit_code = maternal_visit.visit_code[:4]
+
         try:
-        
             on_schedule_obj = self.onschedule_cls.objects.get(
-                subject_identifier=self.subject_identifier)
+                subject_identifier=self.subject_identifier,
+                schedule_name=maternal_visit.schedule_name)
         except self.onschedule_cls.DoesNotExist:
             pass
         else:
             child_subject_identifier = on_schedule_obj.child_subject_identifier
-            
+
             try:
                 child_sociodemographics = self.child_socio_demographic_cls.objects.get(
-                    child_visit__visit_code__istartswith = visit_code,
-                    child_visit__subject_identifier = child_subject_identifier,
+                    child_visit__visit_code__istartswith=visit_code,
+                    child_visit__subject_identifier=child_subject_identifier,
                 )
             except self.child_socio_demographic_cls.DoesNotExist:
                 pass
             else:
-                
                 stay_with_child = self.cleaned_data.get('stay_with_child')
-                
                 if child_sociodemographics.stay_with_caregiver != stay_with_child:
-                    raise ValidationError({'stay_with_child': 'The response don\'t match with the '
+                    raise ValidationError({'stay_with_child':
+                                           'The response don\'t match with the '
                                            f' Child Social demographics CRF at visit {child_sociodemographics.visit_code}'})
-        
-        

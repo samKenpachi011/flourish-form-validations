@@ -1,8 +1,9 @@
 from django import forms
 from django.apps import apps as django_apps
 from edc_action_item.site_action_items import site_action_items
-from edc_constants.constants import NO, NEW
+from edc_constants.constants import NO, NEW, NOT_APPLICABLE
 from flourish_prn.action_items import CAREGIVEROFF_STUDY_ACTION
+from django.core.exceptions import ValidationError
 
 
 class FormValidatorMixin:
@@ -101,3 +102,18 @@ class FormValidatorMixin:
 
         if subject_consents:
             return subject_consents.latest('consent_datetime')
+
+    def m2m_applicable_if_true(self, field_check, m2m_field=None, ):
+        message = None
+        qs = self.cleaned_data.get(m2m_field)
+        if qs and qs.count() > 0:
+            selected = {obj.short_name: obj.name for obj in qs}
+
+            if field_check and NOT_APPLICABLE in selected:
+                message = {m2m_field: 'This field is applicable'}
+            elif not field_check and NOT_APPLICABLE not in selected:
+                message = {m2m_field: 'This field is not applicable'}
+        if message:
+            self._errors.update(message)
+            raise ValidationError(message)
+        return False

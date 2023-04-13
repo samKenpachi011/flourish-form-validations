@@ -26,6 +26,7 @@ from .hiv_viralload_cd4_form_validator import HivViralLoadCd4FormValidator
 from .in_person_contact_attempt_form_validator import \
     InPersonContactAttemptFormValidator
 from .locator_logs_validator import LocatorLogEntryFormValidator
+from .maternal_arv_adherence_form_validator import MaternalArvAdherenceFormValidator
 from .maternal_arv_during_preg_form_validation import \
     MaternalArvDuringPregFormValidator
 from .maternal_delivery_form_validation import MaternalDeliveryFormValidator
