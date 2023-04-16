@@ -171,11 +171,14 @@ class RelationshipFatherInvolvementFormValidator(FormValidatorMixin, FormValidat
 
     @property
     def has_delivered(self):
-        subject_identifier = self.cleaned_data.get('maternal_visit').subject_identifier
-        onschedule_model = self.cleaned_data.get('maternal_visit').schedule.onschedule_model
+        maternal_visit = self.cleaned_data.get('maternal_visit')
+        subject_identifier = maternal_visit.subject_identifier
+        onschedule_model = maternal_visit.schedule.onschedule_model
         model_cls = self.onschedule_model_cls(onschedule_model)
         try:
-            model_obj = model_cls.objects.get(subject_identifier=subject_identifier)
+            model_obj = model_cls.objects.get(
+                subject_identifier=subject_identifier,
+                schedule_name=maternal_visit.schedule_name)
         except model_cls.DoesNotExist:
             raise ValidationError('Onschedule does not exist.')
         else:
