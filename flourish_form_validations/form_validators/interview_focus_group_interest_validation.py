@@ -38,8 +38,8 @@ class InterviewFocusGroupInterestFormValidator(FormValidatorMixin, FormValidator
 
         fields = ['same_status_comfort', 'diff_status_comfort']
         condition = (
-                self.is_preg_enroll
-                and self.cleaned_data['discussion_pref'] in ['group', 'either']
+                self.is_preg_enroll()
+                and self.cleaned_data.get('discussion_pref') in ['group', 'either']
                 and self.is_within_first_year_postpartum()
         )
 
@@ -49,30 +49,40 @@ class InterviewFocusGroupInterestFormValidator(FormValidatorMixin, FormValidator
                 field_required=field,
             )
 
-    def is_preg_enroll(self):
-        subject_identifier = self.cleaned_data.get('maternal_visit').subject_identifier
-        consents = self.caregiver_child_consent_cls.objects.filter(
-            subject_identifier=subject_identifier)
+    def get_onschedule_obj(self, subject_identifier, onschedule_model):
+        model_cls = self.onschedule_model_cls(onschedule_model)
+        try:
+            return model_cls.objects.get(subject_identifier=subject_identifier)
+        except model_cls.DoesNotExist:
+            raise ValidationError('Onschedule does not exist.')
 
+    def get_latest_consent(self, child_subject_identifier):
+        consents = self.caregiver_child_consent_cls.objects.filter(subject_identifier=child_subject_identifier)
         if consents.exists():
-            consent = consents.latest('consent_datetime')
-            return consent.preg_enroll
+            return consents.latest('consent_datetime')
         else:
             raise ValidationError('Caregiver consent on behalf of child does not exist.')
 
-    def is_within_first_year_postpartum(self):
-        """Returns True if subject is currently in first year postpartum."""
-
+    def is_preg_enroll(self):
         maternal_visit = self.cleaned_data.get('maternal_visit')
         subject_identifier = maternal_visit.subject_identifier
-        maternal_delivery_objs = self.maternal_delivery_model_cls.objects.filter(
-            subject_identifier=subject_identifier
-        )
-        if maternal_delivery_objs.exists():
-            maternal_delivery_obj = maternal_delivery_objs.first()
-            if maternal_delivery_obj.delivery_datetime:
-                today = get_utcnow().date()
-                delivery_date = maternal_delivery_obj.delivery_datetime.date()
-                return (today - delivery_date) < timedelta(days=365)
-        else:
-            return False
+        onschedule_model = maternal_visit.schedule.onschedule_model
+
+        onschedule_obj = self.get_onschedule_obj(subject_identifier, onschedule_model)
+        child_subject_identifier = onschedule_obj.child_subject_identifier
+        consent = self.get_latest_consent(child_subject_identifier)
+        return consent.preg_enroll
+
+    def is_within_first_year_postpartum(self):
+        """Returns True if subject is currently in first year postpartum."""
+        maternal_visit = self.cleaned_data.get('maternal_visit')
+        subject_identifier = maternal_visit.subject_identifier
+        onschedule_model = maternal_visit.schedule.onschedule_model
+
+        onschedule_obj = self.get_onschedule_obj(subject_identifier, onschedule_model)
+        child_subject_identifier = onschedule_obj.child_subject_identifier
+        consent = self.get_latest_consent(child_subject_identifier)
+
+        today = get_utcnow().date()
+        child_dob = consent.child_dob
+        return (today - child_dob) < timedelta(days=365)
