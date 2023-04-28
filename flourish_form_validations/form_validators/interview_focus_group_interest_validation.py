@@ -49,10 +49,13 @@ class InterviewFocusGroupInterestFormValidator(FormValidatorMixin, FormValidator
                 field_required=field,
             )
 
-    def get_onschedule_obj(self, subject_identifier, onschedule_model):
+    def get_onschedule_obj(self, subject_identifier, onschedule_model, schedule_name):
         model_cls = self.onschedule_model_cls(onschedule_model)
         try:
-            return model_cls.objects.get(subject_identifier=subject_identifier)
+            onschedule_obj = model_cls.objects.get(
+                subject_identifier=subject_identifier,
+                schedule_name=schedule_name)
+            return onschedule_obj
         except model_cls.DoesNotExist:
             raise ValidationError('Onschedule does not exist.')
 
@@ -67,8 +70,11 @@ class InterviewFocusGroupInterestFormValidator(FormValidatorMixin, FormValidator
         maternal_visit = self.cleaned_data.get('maternal_visit')
         subject_identifier = maternal_visit.subject_identifier
         onschedule_model = maternal_visit.schedule.onschedule_model
+        schedule_name = maternal_visit.appointment.schedule_name
 
-        onschedule_obj = self.get_onschedule_obj(subject_identifier, onschedule_model)
+        onschedule_obj = self.get_onschedule_obj(subject_identifier,
+                                                 onschedule_model,
+                                                 schedule_name)
         child_subject_identifier = onschedule_obj.child_subject_identifier
         consent = self.get_latest_consent(child_subject_identifier)
         return consent.preg_enroll
