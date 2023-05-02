@@ -4,7 +4,7 @@ from edc_base.utils import get_utcnow
 from edc_constants.constants import YES, NO
 
 from ..form_validators import InterviewFocusGroupInterestFormValidator
-from .models import (FlourishConsentVersion, SubjectConsent, MaternalDelivery,
+from .models import (FlourishConsentVersion, SubjectConsent,
                      Appointment, MaternalVisit, CaregiverChildConsent)
 
 from dateutil.relativedelta import relativedelta
@@ -12,8 +12,16 @@ from dateutil.relativedelta import relativedelta
 
 class CustomInterviewFocusGroupInterestFormValidator(InterviewFocusGroupInterestFormValidator):
 
-    def caregiver_child_consent_cls(self):
-        return CaregiverChildConsent
+    def is_preg_enroll(self):
+        subject_identifier = self.cleaned_data.get('maternal_visit').subject_identifier
+        consents = CaregiverChildConsent.objects.filter(
+            subject_identifier=subject_identifier)
+
+        if consents.exists():
+            consent = consents.latest('consent_datetime')
+            return consent.preg_enroll
+        else:
+            return False
 
 
 class TestMaternalDeliveryFormValidator(TestCase):
@@ -126,3 +134,6 @@ class TestMaternalDeliveryFormValidator(TestCase):
 
         self.assertRaises(ValidationError, form_validator.validate)
         self.assertIn('same_status_comfort', form_validator._errors)
+
+
+
