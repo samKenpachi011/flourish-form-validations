@@ -91,4 +91,7 @@ class InterviewFocusGroupInterestFormValidator(FormValidatorMixin, FormValidator
 
         today = get_utcnow().date()
         child_dob = consent.child_dob
-        return (today - child_dob) < timedelta(days=365)
+        if child_dob:
+            return (today - child_dob) < timedelta(days=365)
+        else:
+            return False
