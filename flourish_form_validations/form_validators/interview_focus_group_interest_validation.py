@@ -36,18 +36,22 @@ class InterviewFocusGroupInterestFormValidator(FormValidatorMixin, FormValidator
                          ' pregnant(pregnant or postpartum).',
         )
 
-        fields = ['same_status_comfort', 'diff_status_comfort']
         condition = (
                 self.is_preg_enroll()
                 and self.cleaned_data.get('discussion_pref') in ['group', 'either']
                 and self.is_within_first_year_postpartum()
         )
 
-        for field in fields:
-            self.required_if_true(
-                condition,
-                field_required=field,
-            )
+        self.required_if_true(
+            condition,
+            field_required='same_status_comfort',
+        )
+
+        self.required_if(
+            *['group', 'either'],
+            field='discussion_pref',
+            field_required='diff_status_comfort'
+        )
 
     def get_onschedule_obj(self, subject_identifier, onschedule_model, schedule_name):
         model_cls = self.onschedule_model_cls(onschedule_model)
