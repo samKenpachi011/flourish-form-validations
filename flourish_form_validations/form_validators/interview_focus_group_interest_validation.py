@@ -84,8 +84,9 @@ class InterviewFocusGroupInterestFormValidator(FormValidatorMixin, FormValidator
         maternal_visit = self.cleaned_data.get('maternal_visit')
         subject_identifier = maternal_visit.subject_identifier
         onschedule_model = maternal_visit.schedule.onschedule_model
+        schedule_name = maternal_visit.appointment.schedule_name
 
-        onschedule_obj = self.get_onschedule_obj(subject_identifier, onschedule_model)
+        onschedule_obj = self.get_onschedule_obj(subject_identifier, onschedule_model, schedule_name)
         child_subject_identifier = onschedule_obj.child_subject_identifier
         consent = self.get_latest_consent(child_subject_identifier)
 
