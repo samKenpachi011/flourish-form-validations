@@ -23,6 +23,9 @@ class CustomInterviewFocusGroupInterestFormValidator(InterviewFocusGroupInterest
         else:
             return False
 
+    def is_within_first_year_postpartum(self):
+        return True
+
 
 class TestMaternalDeliveryFormValidator(TestCase):
 
@@ -135,5 +138,37 @@ class TestMaternalDeliveryFormValidator(TestCase):
         self.assertRaises(ValidationError, form_validator.validate)
         self.assertIn('same_status_comfort', form_validator._errors)
 
+    def test_same_status_comfort_is_preg_enroll_not_required(self):
+        self.clean_data['discussion_pref'] = 'group'
+        self.clean_data['same_status_comfort'] = "blah"
+        self.clean_data['infant_feeding_group_interest'] = None
+        self.caregiver_child_consent.preg_enroll = False
+        self.caregiver_child_consent.save()
 
+        form_validator = CustomInterviewFocusGroupInterestFormValidator(cleaned_data=self.clean_data)
 
+        self.assertRaises(ValidationError, form_validator.validate)
+        self.assertIn('same_status_comfort', form_validator._errors)
+
+    def test_diff_status_required(self):
+        self.clean_data['discussion_pref'] = 'group'
+        self.clean_data['diff_status_comfort'] = None
+        self.clean_data['infant_feeding_group_interest'] = None
+        self.clean_data['same_status_comfort'] = None
+
+        form_validator = CustomInterviewFocusGroupInterestFormValidator(cleaned_data=self.clean_data)
+
+        self.assertRaises(ValidationError, form_validator.validate)
+        self.assertIn('diff_status_comfort', form_validator._errors)
+
+    def test_diff_status_not_required(self):
+        self.clean_data['discussion_pref'] = 'unsure'
+        self.clean_data['hiv_group_pref'] = None
+        self.clean_data['diff_status_comfort'] = 'blah'
+        self.clean_data['infant_feeding_group_interest'] = None
+        self.clean_data['same_status_comfort'] = None
+
+        form_validator = CustomInterviewFocusGroupInterestFormValidator(cleaned_data=self.clean_data)
+
+        self.assertRaises(ValidationError, form_validator.validate)
+        self.assertIn('diff_status_comfort', form_validator._errors)
