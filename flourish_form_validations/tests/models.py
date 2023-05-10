@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models.deletion import PROTECT, CASCADE
+from django.db.models.deletion import PROTECT
 from django_crypto_fields.fields import FirstnameField, LastnameField
 from edc_base.model_mixins import BaseUuidModel, ListModelMixin
 from edc_base.utils import get_utcnow
@@ -311,7 +311,6 @@ class ScreeningPriorBhpParticipants(BaseUuidModel):
 
 
 class CaregiverChildConsent(BaseUuidModel):
-
     subject_identifier = models.CharField(max_length=25)
 
     child_dob = models.DateField()
@@ -319,3 +318,7 @@ class CaregiverChildConsent(BaseUuidModel):
     preg_enroll = models.BooleanField()
 
     consent_datetime = models.DateTimeField()
+
+
+class ReceivedTrainingOnFeedingList(ListModelMixin, BaseUuidModel):
+    pass
