@@ -39,7 +39,7 @@ class BreastFeedingQuestionnaireFormValidator(FormValidatorMixin, FormValidator)
 
         self.validate_other_specify(field='after_birth_opinion')
 
-        self.validate_received_training_none_not_not_in_responses()
+        self.m2m_single_selection_if(['none'], 'received_training')
 
         self.validate_training_outcome_required()
 
@@ -77,16 +77,6 @@ class BreastFeedingQuestionnaireFormValidator(FormValidatorMixin, FormValidator)
             self.required_if_true(status in ['No', 'rather_not_answer'],
                                   field='feeding_hiv_status',
                                   field_required=field)
-
-    def validate_received_training_none_not_not_in_responses(self):
-        """"Raises a ValidationError if the value None is part of the responses."""
-        responses = self.cleaned_data.get('received_training')
-        if responses and len(responses) > 1:
-            for response in responses:
-                if response.short_name == 'none':
-                    raise ValidationError(
-                        {'received_training': 'None can not be part of many '
-                                              'selections for this field.'})
 
     def validate_training_outcome_required(self):
         responses = self.cleaned_data.get('received_training')
