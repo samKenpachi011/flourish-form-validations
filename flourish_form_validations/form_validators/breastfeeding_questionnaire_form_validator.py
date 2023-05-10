@@ -1,6 +1,6 @@
-from django.apps import apps as django_apps
 from django.forms import ValidationError
-from edc_constants.constants import OTHER, YES, POS, NEG
+from django.forms import ValidationError
+from edc_constants.constants import NEG, OTHER, YES
 from edc_form_validators import FormValidator
 
 from .crf_form_validator import FormValidatorMixin
@@ -29,16 +29,6 @@ class BreastFeedingQuestionnaireFormValidator(FormValidatorMixin, FormValidator)
         self.required_if_true(not hiv_status == NEG,
                               field_required='use_medicines')
 
-        required_fields = ['training_outcome',
-                           'feeding_advice', ]
-        for required_field in required_fields:
-            self.required_if(POS,
-                             field='hiv_status_during_preg',
-                             field_required=required_field)
-
-        self.required_if_true(not hiv_status == POS,
-                              field_required='received_training',)
-
         self.required_if(YES,
                          field='six_months_feeding',
                          field_required='infant_feeding_reasons')
@@ -48,6 +38,10 @@ class BreastFeedingQuestionnaireFormValidator(FormValidatorMixin, FormValidator)
                          field_required='infant_feeding_reasons')
 
         self.validate_other_specify(field='after_birth_opinion')
+
+        self.validate_received_training_none_not_not_in_responses()
+
+        self.validate_training_outcome_required()
 
     def validate_hiv_status_neg(self):
         hiv_status = self.cleaned_data.get('hiv_status_during_preg')
@@ -62,7 +56,7 @@ class BreastFeedingQuestionnaireFormValidator(FormValidatorMixin, FormValidator)
         ]
         for field in required_fields:
             self.required_if_true(not hiv_status == NEG,
-                                  field_required=field,)
+                                  field_required=field, )
 
     def validate_preg_influence_required(self):
         influencers = self.cleaned_data.get('during_preg_influencers')
@@ -83,3 +77,25 @@ class BreastFeedingQuestionnaireFormValidator(FormValidatorMixin, FormValidator)
             self.required_if_true(status in ['No', 'rather_not_answer'],
                                   field='feeding_hiv_status',
                                   field_required=field)
+
+    def validate_received_training_none_not_not_in_responses(self):
+        """"Raises a ValidationError if the value None is part of the responses."""
+        responses = self.cleaned_data.get('received_training')
+        if responses and len(responses) > 1:
+            for response in responses:
+                if response.short_name == 'none':
+                    raise ValidationError(
+                        {'received_training': 'None can not be part of many '
+                                              'selections for this field.'})
+
+    def validate_training_outcome_required(self):
+        responses = self.cleaned_data.get('received_training')
+        training_outcome = self.cleaned_data.get('training_outcome')
+        if responses and len(responses) > 0:
+            for response in responses:
+                if response.short_name != 'none' and training_outcome is None:
+                    raise ValidationError(
+                        {'training_outcome': 'This field is required.'})
+                elif response.short_name == 'none' and training_outcome is not None:
+                    raise ValidationError(
+                        {'training_outcome': 'This field is not required.'})
