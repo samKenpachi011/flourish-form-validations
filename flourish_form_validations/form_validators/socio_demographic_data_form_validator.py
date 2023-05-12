@@ -1,12 +1,12 @@
 from django.apps import apps as django_apps
 from django.forms import ValidationError
+from edc_constants.constants import OTHER, YES
 from edc_form_validators import FormValidator
 
 from .crf_form_validator import FormValidatorMixin
 
 
 class SocioDemographicDataFormValidator(FormValidatorMixin, FormValidator):
-
     antenatal_enrollment_model = 'flourish_caregiver.antenatalenrollment'
     preg_women_screening_model = 'flourish_caregiver.screeningpregwomen'
     delivery_model = 'flourish_caregiver.maternaldelivery'
@@ -37,6 +37,17 @@ class SocioDemographicDataFormValidator(FormValidatorMixin, FormValidator):
         self.subject_identifier = self.cleaned_data.get(
             'maternal_visit').subject_identifier
         super().clean()
+
+        self.required_if(
+            YES,
+            field='contributes_to_expenses',
+            field_required='expense_contributors')
+
+        self.m2m_other_specify(
+            OTHER,
+            m2m_field='expense_contributors',
+            field_other='expense_contributors_other',
+        )
 
         other_specify_fields = ['marital_status', 'ethnicity',
                                 'current_occupation', 'provides_money',
@@ -105,5 +116,7 @@ class SocioDemographicDataFormValidator(FormValidatorMixin, FormValidator):
                 stay_with_child = self.cleaned_data.get('stay_with_child')
                 if child_sociodemographics.stay_with_caregiver != stay_with_child:
                     raise ValidationError({'stay_with_child':
-                                           'The response don\'t match with the '
-                                           f' Child Social demographics CRF at visit {child_sociodemographics.visit_code}'})
+                                               'The response don\'t match with the '
+                                               f' Child Social demographics CRF at '
+                                               f'visit '
+                                               f'{child_sociodemographics.visit_code}'})
