@@ -113,3 +113,17 @@ class TestCaregiverContactForm(TestModeMixin, TestCase):
             form_validator.validate()
         except ValidationError as e:
             self.fail(f'ValidationError unexpectedly raised. Got{e}')
+
+    def test_reason_rescheduled_other(self):
+        """ Assert raises if call reason_rescheduled is 'Other, specify' but call
+         reason_rescheduled_other not provided.
+        """
+        cleaned_data = {
+            'subject_identifier': self.subject_identifier,
+            'reason_rescheduled': OTHER,
+            'reason_rescheduled_other': None
+        }
+        form_validator = CaregiverContactFormValidator(
+            cleaned_data=cleaned_data)
+        self.assertRaises(ValidationError, form_validator.validate)
+        self.assertIn('reason_rescheduled_other', form_validator._errors)

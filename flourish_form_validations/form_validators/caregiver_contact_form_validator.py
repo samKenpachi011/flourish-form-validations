@@ -62,6 +62,11 @@ class CaregiverContactFormValidator(FormValidatorMixin, FormValidator):
             field_required='contact_comment',
             inverse=False)
 
+        self.validate_other_specify(
+            field='reason_rescheduled',
+            other_specify_field='reason_rescheduled_other',
+        )
+
     @property
     def caregiver_locator(self):
         cleaned_data = self.cleaned_data
