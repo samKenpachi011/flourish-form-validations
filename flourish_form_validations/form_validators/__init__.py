@@ -35,6 +35,8 @@ from .maternal_hiv_interim_hx_form_validation import \
     MaternalHivInterimHxFormValidator
 from .maternal_interim_idcc_form_validation import \
     MaternalIterimIdccFormValidator
+from .maternal_interim_idcc_form_version_2_validation import \
+    MaternalIterimIdccFormVersion2Validator
 from .medical_history_form_validation import MedicalHistoryFormValidator
 from .obsterical_history_form_validation import ObstericalHistoryFormValidator
 from .relationship_father_involvement_form_validation import RelationshipFatherInvolvementFormValidator
