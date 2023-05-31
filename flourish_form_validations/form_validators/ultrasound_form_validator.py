@@ -69,7 +69,6 @@ class UltrasoundFormValidator(FormValidatorMixin, FormValidator):
                         msg = {'est_edd_ultrasound':
                                    f'Estimated edd by ultrasound {est_edd_ultrasound} '
                                    'should match GA by ultrasound'}
-                        breakpoint()
                         self._errors.update(msg)
                         raise ValidationError(msg)
 
