@@ -15,8 +15,8 @@ class MaternalIterimIdccFormVersion2Validator(FormValidatorMixin,
         super().clean()
 
         for field in ['laboratory_information_available', 'vl_result_availiable',
-                      'last_visit_result', 'cd4_value_and_date_availiable',
-                      'vl_value_and_date_availiable', 'any_new_diagnoses']:
+                      'cd4_value_and_date_availiable', 'vl_value_and_date_availiable',
+                      'any_new_diagnoses']:
 
             self.required_if(YES,
                              field='info_since_lastvisit',
