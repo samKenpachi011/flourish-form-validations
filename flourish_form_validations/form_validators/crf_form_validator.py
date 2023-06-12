@@ -25,13 +25,14 @@ class FormValidatorMixin:
         return django_apps.get_model(self.subject_consent_model)
 
     def clean(self):
-        if self.cleaned_data.get('maternal_visit'):
+        if self.cleaned_data.get('maternal_visit', None):
             self.subject_identifier = self.cleaned_data.get(
                 'maternal_visit').subject_identifier
             self.validate_against_visit_datetime(
                 self.cleaned_data.get('report_datetime'))
         else:
-            self.subject_identifier = self.cleaned_data.get('subject_identifier')
+            self.subject_identifier = self.cleaned_data.get(
+                'subject_identifier')
 
         self.validate_consent_version_obj()
         super().clean()
@@ -46,8 +47,8 @@ class FormValidatorMixin:
                     "Report datetime cannot be before consent datetime")
         else:
             raise forms.ValidationError(
-                    'Please complete Caregiver Consent form '
-                    f'before proceeding.')
+                'Please complete Caregiver Consent form '
+                f'before proceeding.')
 
     def validate_against_visit_datetime(self, report_datetime):
         if (report_datetime and report_datetime <
@@ -77,7 +78,8 @@ class FormValidatorMixin:
                     'Participant has been taken offstudy. Cannot capture any '
                     'new data.')
         else:
-            self.maternal_visit = self.cleaned_data.get('maternal_visit') or None
+            self.maternal_visit = self.cleaned_data.get(
+                'maternal_visit') or None
             if not self.maternal_visit or self.maternal_visit.require_crfs == NO:
                 raise forms.ValidationError(
                     'Participant is scheduled to be taken offstudy without '
