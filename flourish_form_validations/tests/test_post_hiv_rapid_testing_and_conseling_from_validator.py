@@ -48,6 +48,8 @@ class TestPostHIVRapidTestCounselingFormValidator(TestModeMixin, TestCase):
         }
 
     def test_result_date_within_3months(self):
+        """An exception should be thrown when test results are 3 months and older
+        """
 
         form_validator = PostHIVRapidTestCounselingFormValidator(
             cleaned_data=self.cleaned_data)
