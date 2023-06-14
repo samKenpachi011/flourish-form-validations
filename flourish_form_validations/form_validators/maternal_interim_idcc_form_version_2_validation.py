@@ -15,8 +15,7 @@ class MaternalIterimIdccFormVersion2Validator(FormValidatorMixin,
         super().clean()
 
         for field in ['laboratory_information_available', 'vl_result_availiable',
-                      'cd4_value_and_date_availiable', 'vl_value_and_date_availiable',
-                      'any_new_diagnoses']:
+                      'cd4_value_and_date_availiable', 'vl_value_and_date_availiable',]:
 
             self.required_if(YES,
                              field='info_since_lastvisit',
@@ -30,6 +29,8 @@ class MaternalIterimIdccFormVersion2Validator(FormValidatorMixin,
                          field='last_visit_result',
                          field_required='reason_cd4_not_availiable')
 
+        self.validate_other_specify(field='reason_cd4_not_availiable')
+
         for field in ['recent_cd4', 'recent_cd4_date']:
             self.required_if(YES,
                              field='cd4_value_and_date_availiable',
@@ -37,6 +38,8 @@ class MaternalIterimIdccFormVersion2Validator(FormValidatorMixin,
 
         self.required_if(NO, field='vl_result_availiable',
                          field_required='reason_vl_not_availiable')
+
+        self.validate_other_specify(field='reason_vl_not_availiable')
 
         for field in ['value_vl_size', 'value_vl', 'recent_vl_date']:
             self.required_if(YES,
