@@ -1,6 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
-from edc_constants.constants import YES, NO
+from edc_constants.constants import YES, NO, OTHER
 from edc_form_validators import FormValidator
 
 from .crf_form_validator import FormValidatorMixin
@@ -22,12 +22,15 @@ class PostHIVRapidTestCounselingFormValidator(FormValidatorMixin, FormValidator)
 
         self.validate_test_date(self.cleaned_data.get('result_date'),)
 
-        self.required_if(
-            NO,
+        self.not_required_if(
+            YES,
             field='rapid_test_done',
             field_required='reason_not_tested',)
 
-        self.validate_other_specify(field='reason_not_tested')
+        self.required_if(
+            OTHER,
+            field='reason_not_tested',
+            field_required='reason_not_tested_other')
 
     def validate_test_date(self, test_date=None):
 
