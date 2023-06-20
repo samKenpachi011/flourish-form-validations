@@ -118,8 +118,7 @@ class CaregiverPrevEnrolledFormValidator(FormValidator):
     def flourish_participation_interest(self, flourish_participation):
 
         bhp_prior_screenings = self.bhp_prior_screening_model_cls.objects.filter(
-            subject_identifier=
-            self.subject_consent_obj.subject_identifier)
+            subject_identifier=self.subject_consent_obj.subject_identifier)
 
         if bhp_prior_screenings:
             return flourish_participation in bhp_prior_screenings.values_list(

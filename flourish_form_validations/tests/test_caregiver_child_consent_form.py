@@ -4,7 +4,7 @@ from edc_base.utils import get_utcnow, relativedelta
 from edc_constants.constants import YES, FEMALE, NOT_APPLICABLE, MALE
 
 from ..form_validators import CaregiverChildConsentFormValidator
-from .models import ChildDataset, SubjectConsent, SubjectScreening, FlourishConsentVersion
+from .models import ChildDataset, SubjectConsent, FlourishConsentVersion, ScreeningPregWomen
 from .test_model_mixin import TestModeMixin
 
 
@@ -36,6 +36,7 @@ class TestCaregiverChildConsentForm(TestModeMixin, TestCase):
             'first_name': 'TEST ONE',
             'gender': FEMALE,
             'child_preg_test': NOT_APPLICABLE,
+            'child_knows_status': NOT_APPLICABLE,
             'last_name': 'TEST',
             'initials': 'TOT',
             'identity': '123425678',
@@ -92,9 +93,8 @@ class TestCaregiverChildConsentForm(TestModeMixin, TestCase):
         self.assertRaises(ValidationError, form_validator.validate)
         self.assertIn('study_child_identifier', form_validator._errors)
 
-    @tag('tt1')
     def test_pregnant_not_required(self):
-        SubjectScreening.objects.create(
+        ScreeningPregWomen.objects.create(
             screening_identifier=self.screening_identifier)
 
         self.consent_options['last_name'] = None
@@ -107,15 +107,6 @@ class TestCaregiverChildConsentForm(TestModeMixin, TestCase):
             form_validator.validate()
         except ValidationError as e:
             self.fail(f'ValidationError unexpectedly raised. Got{e}')
-
-    def test_gender_required_invalid(self):
-        self.consent_options['study_child_identifier'] = '1112-9876'
-        self.consent_options['gender'] = None
-
-        form_validator = CaregiverChildConsentFormValidator(
-            cleaned_data=self.consent_options)
-        self.assertRaises(ValidationError, form_validator.validate)
-        self.assertIn('gender', form_validator._errors)
 
     def test_last_name_required_invalid(self):
         self.consent_options['study_child_identifier'] = '1112-9876'

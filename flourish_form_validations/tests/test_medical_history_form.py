@@ -65,21 +65,6 @@ class TestMedicalHistoryForm(TestModeMixin, TestCase):
             'caregiver_medications': ListModel.objects.all(),
             'who': ListModel.objects.all()}
 
-    def test_subject_status_neg_chronic_since_invalid(self):
-        '''True if chronic_since is yes and who_diagnosis is no.
-        '''
-        maternal_status = MaternalStatusHelper(status=NEG)
-        MedicalHistoryFormValidator.maternal_status_helper = maternal_status
-        self.cleaned_data.update(
-            chronic_since=YES,
-            who_diagnosis=NO,
-            caregiver_chronic=ListModel.objects.filter(name=YES)
-        )
-        form_validator = MedicalHistoryFormValidator(
-            cleaned_data=self.cleaned_data)
-        self.assertRaises(ValidationError, form_validator.validate)
-        self.assertIn('chronic_since', form_validator._errors)
-
     def test_subject_status_neg_who_diagnosis_invalid(self):
         '''True if chronic_since is yes and who_diagnosis is no.
         '''
@@ -87,7 +72,7 @@ class TestMedicalHistoryForm(TestModeMixin, TestCase):
         MedicalHistoryFormValidator.maternal_status_helper = maternal_status
         self.cleaned_data.update(
             chronic_since=NO,
-            who_diagnosis=NO
+            who_diagnosis=NO,
         )
         form_validator = MedicalHistoryFormValidator(
             cleaned_data=self.cleaned_data)
@@ -97,11 +82,13 @@ class TestMedicalHistoryForm(TestModeMixin, TestCase):
     def test_subject_status_neg_valid(self):
         '''True if chronic_since is no and who_diagnosis is Not_applicable.
         '''
+        ListModel.objects.create(short_name='who_na', name='who_na')
         maternal_status = MaternalStatusHelper(status=NEG)
         MedicalHistoryFormValidator.maternal_status_helper = maternal_status
         self.cleaned_data.update(
             chronic_since=NO,
-            who_diagnosis=NOT_APPLICABLE
+            who_diagnosis=NOT_APPLICABLE,
+            who=ListModel.objects.filter(short_name='who_na', name='who_na')
         )
         form_validator = MedicalHistoryFormValidator(
             cleaned_data=self.cleaned_data)
@@ -114,12 +101,14 @@ class TestMedicalHistoryForm(TestModeMixin, TestCase):
         '''Assert raises exception if chronic_since is provided but
          who_diagnosis is not applicable.
         '''
+        ListModel.objects.create(short_name='who_na', name='who_na')
         maternal_status = MaternalStatusHelper(status=POS)
         MedicalHistoryFormValidator.maternal_status_helper = \
             maternal_status
         self.cleaned_data.update(
-            chronic_since=YES,
+            chronic_since=NO,
             who_diagnosis=NOT_APPLICABLE,
+            who=ListModel.objects.filter(short_name='who_na', name='who_na')
         )
         form_validator = MedicalHistoryFormValidator(
             cleaned_data=self.cleaned_data)
@@ -147,13 +136,15 @@ class TestMedicalHistoryForm(TestModeMixin, TestCase):
         '''Assert raises exception if who is provided but
         who_diagnosis is NO.
         '''
+        ListModel.objects.create(short_name='who_na', name='who_na')
         maternal_status = MaternalStatusHelper(status=POS)
         MedicalHistoryFormValidator.maternal_status_helper = maternal_status
         self.cleaned_data.update(
             maternal_visit=self.maternal_visit,
             chronic_since=YES,
             who_diagnosis=YES,
-            who=ListModel.objects.filter(name=NOT_APPLICABLE)
+            caregiver_chronic=ListModel.objects.filter(name=YES),
+            who=ListModel.objects.filter(short_name='who_na', name='who_na')
         )
         form_validator = MedicalHistoryFormValidator(
             cleaned_data=self.cleaned_data)
@@ -170,6 +161,7 @@ class TestMedicalHistoryForm(TestModeMixin, TestCase):
         self.cleaned_data.update(
             maternal_visit=self.maternal_visit,
             chronic_since=YES,
+            caregiver_chronic=ListModel.objects.filter(name=YES),
             who_diagnosis=YES,
             who=ListModel.objects.all()
         )

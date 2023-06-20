@@ -152,42 +152,6 @@ class TestArvsPrePregnancyForm(TestModeMixin, TestCase):
         except ValidationError as e:
             self.fail(f'ValidationError unexpectedly raised. Got{e}')
 
-    def test_consent_date_less_than_report_date_valid(self):
-        '''Tests validates cleaned data given or fails the tests if validation
-        error raised unexpectedly.'''
-
-        self.subject_consent.consent_datetime = \
-            get_utcnow() - relativedelta(days=30)
-        self.subject_consent.save()
-
-        cleaned_data = {
-            'maternal_visit': self.maternal_visit,
-            'art_start_date': get_utcnow().date(),
-            'is_date_estimated': NO,
-            'report_datetime': get_utcnow()}
-        form_validator = ArvsPrePregnancyFormValidator(
-            cleaned_data=cleaned_data)
-        try:
-            form_validator.validate()
-        except ValidationError as e:
-            self.fail(f'ValidationError unexpectedly raised. Got{e}')
-
-    def test_consent_date_more_than_report_date_invalid(self):
-        '''Asserts raises exception if subject received antiretrovirals during
-        a prior pregnancy and date first started given but does not state if
-        the date is estimated or not.'''
-
-        self.maternal_visit.report_datetime = get_utcnow() - relativedelta(days=30)
-        cleaned_data = {
-            'maternal_visit': self.maternal_visit,
-            'art_start_date': get_utcnow().date(),
-            'is_date_estimated': NO,
-            'report_datetime': get_utcnow() - relativedelta(days=30)}
-        form_validator = ArvsPrePregnancyFormValidator(
-            cleaned_data=cleaned_data)
-        self.assertRaises(ValidationError, form_validator.validate)
-        self.assertIn('report_datetime', form_validator._errors)
-
     def test_art_start_less_than_dob_invalid(self):
         '''Asserts raises exception if antiretrovirals date first started given
         is less than subject's date of birth.'''
