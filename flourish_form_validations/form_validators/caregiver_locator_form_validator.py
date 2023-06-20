@@ -95,7 +95,7 @@ class CaregiverLocatorFormValidator(FormValidator):
                 inverse=False)
 
         self.required_if_true(
-            self.cleaned_data.get('screening_identifier') and 'P' in self.cleaned_data.get('screening_identifier'),
+            self.cleaned_data.get('subject_identifier') and 'P' in self.cleaned_data.get('subject_identifier'),
             field_required='is_locator_updated'
         )
 
