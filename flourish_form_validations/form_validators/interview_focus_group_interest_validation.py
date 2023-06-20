@@ -65,8 +65,8 @@ class InterviewFocusGroupInterestFormValidator(FormValidatorMixin, FormValidator
 
     def get_latest_consent(self, child_subject_identifier):
         consents = self.caregiver_child_consent_cls.objects.filter(
-            subject_identifier=child_subject_identifier).exists()
-        if consents:
+            subject_identifier=child_subject_identifier)
+        if consents.exists():
             return consents.latest('consent_datetime')
         else:
             raise ValidationError(
