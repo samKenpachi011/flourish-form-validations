@@ -44,7 +44,8 @@ class TestMaternalDeliverylForm(TestModeMixin, TestCase):
             subject_identifier=self.subject_consent.subject_identifier)
 
         self.maternal_arv_durg_preg = MaternalArvDuringPreg.objects.create(
-            took_arv=YES, maternal_visit=maternal_visit)
+            took_arv=YES, maternal_visit=maternal_visit,
+            art_start_date=get_utcnow().date())
         self.maternal_arv = MaternalArv.objects.create(
             maternal_arv_durg_preg=self.maternal_arv_durg_preg,
             arv_code='Tenoforvir',
@@ -171,7 +172,8 @@ class TestMaternalDeliverylForm(TestModeMixin, TestCase):
             self.fail(f'ValidationError unexpectedly raised. Got{e}')
 
     def test_hiv_status_NEG_valid_regiment_duration_NO_invalid(self):
-        self.maternal_arv.delete()
+        MaternalArv.objects.all().delete()
+        self.maternal_arv_durg_preg.delete()
         cleaned_data = {
             'report_datetime': get_utcnow(),
             'subject_identifier': self.subject_consent.subject_identifier,
@@ -181,7 +183,8 @@ class TestMaternalDeliverylForm(TestModeMixin, TestCase):
         self.assertIn('valid_regiment_duration', form_validator._errors)
 
     def test_hiv_status_NEG_valid_regiment_duration_YES_invalid(self):
-        self.maternal_arv.delete()
+        MaternalArv.objects.all().delete()
+        self.maternal_arv_durg_preg.delete()
         cleaned_data = {
             'report_datetime': get_utcnow(),
             'subject_identifier': self.subject_consent.subject_identifier,
@@ -193,7 +196,8 @@ class TestMaternalDeliverylForm(TestModeMixin, TestCase):
         self.assertIn('valid_regiment_duration', form_validator._errors)
 
     def test_hiv_status_NEG_valid_regiment_duration_NA_valid(self):
-        self.maternal_arv.delete()
+        MaternalArv.objects.all().delete()
+        self.maternal_arv_durg_preg.delete()
         cleaned_data = {
             'report_datetime': get_utcnow(),
             'subject_identifier': self.subject_consent.subject_identifier,
@@ -221,7 +225,8 @@ class TestMaternalDeliverylForm(TestModeMixin, TestCase):
         self.assertIn('arv_initiation_date', form_validator._errors)
 
     def test_hiv_status_NEG_arv_init_date_valid(self):
-        self.maternal_arv.delete()
+        MaternalArv.objects.all().delete()
+        self.maternal_arv_durg_preg.delete()
         cleaned_data = {
             'report_datetime': get_utcnow(),
             'subject_identifier': self.subject_consent.subject_identifier,

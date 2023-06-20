@@ -3,7 +3,7 @@ import re
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ValidationError
-from edc_base.utils import age, get_utcnow
+from edc_base.utils import age
 from edc_constants.choices import FEMALE, MALE, YES, NO, NOT_APPLICABLE
 from edc_form_validators import FormValidator
 from edc_form_validators.base_form_validator import NOT_APPLICABLE_ERROR

@@ -14,7 +14,7 @@ class TestUltrasoundForm(TestModeMixin, TestCase):
     def __init__(self, *args, **kwargs):
         super().__init__(UltrasoundFormValidator, *args, **kwargs)
         AntenatalEnrollmentFormValidator.antenatal_enrollment_model = \
-            'flourish_form_validator.antenatalenrollment'
+            'flourish_form_validations.antenatalenrollment'
 
     def setUp(self):
 
@@ -148,7 +148,7 @@ class TestUltrasoundForm(TestModeMixin, TestCase):
         """
         cleaned_data = {
             'maternal_visit': self.maternal_visit,
-            'number_of_gestations': 0,
+            'number_of_gestations': '0',
             'ga_by_lmp': 2,
         }
 
@@ -163,7 +163,7 @@ class TestUltrasoundForm(TestModeMixin, TestCase):
         """
         cleaned_data = {
             'maternal_visit': self.maternal_visit,
-            'number_of_gestations': 0,
+            'number_of_gestations': '0',
             'est_edd_ultrasound': 2,
         }
 

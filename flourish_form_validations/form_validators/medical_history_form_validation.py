@@ -25,7 +25,7 @@ class MedicalHistoryFormValidator(FormValidatorMixin, FormValidator):
 
         self.validate_caregiver_chronic_multiple_selection(
             cleaned_data=self.cleaned_data)
-        self.validate_chronic_since_who_diagnosis_neg(
+        self.validate_who_diagnosis_neg(
             cleaned_data=self.cleaned_data)
         self.validate_who_diagnosis_who_chronic_list(
             cleaned_data=self.cleaned_data)
@@ -36,8 +36,7 @@ class MedicalHistoryFormValidator(FormValidatorMixin, FormValidator):
             self.subject_status == POS,
             field_applicable='know_hiv_status',)
 
-    def validate_chronic_since_who_diagnosis_neg(self, cleaned_data=None):
-
+    def validate_who_diagnosis_neg(self, cleaned_data=None):
         subject_status = self.maternal_status_helper.hiv_status
 
         self.applicable_if_true(
@@ -122,6 +121,10 @@ class MedicalHistoryFormValidator(FormValidatorMixin, FormValidator):
             self.m2m_single_selection_if(
                 response,
                 m2m_field=m2m_field)
+
+    @property
+    def subject_status(self):
+        return self.maternal_status_helper.hiv_status
 
     @property
     def maternal_status_helper(self):

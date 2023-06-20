@@ -287,7 +287,7 @@ class TestMaternalHivInterimHxForm(TestModeMixin, TestCase):
             'has_vl': YES,
             'vl_date': get_utcnow().date(),
             'vl_detectable': NO,
-            'vl_result': None}
+            'vl_result': '400'}
         form_validator = MaternalHivInterimHxFormValidator(
             cleaned_data=cleaned_data)
         try:

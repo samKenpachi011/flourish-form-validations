@@ -1,7 +1,7 @@
 from django.apps import apps as django_apps
 from django.core.exceptions import ValidationError
 from edc_base.utils import relativedelta
-from edc_constants.constants import POS, YES, NOT_APPLICABLE, OTHER, NONE
+from edc_constants.constants import POS, YES, NOT_APPLICABLE
 from edc_form_validators import FormValidator
 from flourish_caregiver.helper_classes import MaternalStatusHelper
 

@@ -10,7 +10,8 @@ class TestMaternalSocialWorkReferralForm(TestCase):
     
     def setUp(self):
         
-        ListModel.objects.create(name='financial_challenges')
+        ListModel.objects.create(
+            name='financial_challenges', short_name='financial_challenges')
         
         self.options = {
             'referral_reason': ListModel.objects.all()
@@ -21,7 +22,7 @@ class TestMaternalSocialWorkReferralForm(TestCase):
         """ Assert that the SocialWork Referral specify raises an error if referral
             reason includes other referral specify, but not specified.
         """
-        ListModel.objects.create(name=OTHER)
+        ListModel.objects.create(name='refer_other', short_name='refer_other')
         self.options.update(
             referral_reason=ListModel.objects.all(),
             reason_other=None)
@@ -35,7 +36,7 @@ class TestMaternalSocialWorkReferralForm(TestCase):
             reason_other is specified, cleaned data validates or fails the
             tests if the Validation Error is raised unexpectedly.
         """
-        ListModel.objects.create(name=OTHER)
+        ListModel.objects.create(name='refer_other', short_name='refer_other')
         self.options.update(
             referral_reason=ListModel.objects.all(),
             reason_other='blah')

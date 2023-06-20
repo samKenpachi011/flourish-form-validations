@@ -64,11 +64,13 @@ class InterviewFocusGroupInterestFormValidator(FormValidatorMixin, FormValidator
             raise ValidationError('Onschedule does not exist.')
 
     def get_latest_consent(self, child_subject_identifier):
-        consents = self.caregiver_child_consent_cls.objects.filter(subject_identifier=child_subject_identifier)
-        if consents.exists():
+        consents = self.caregiver_child_consent_cls.objects.filter(
+            subject_identifier=child_subject_identifier).exists()
+        if consents:
             return consents.latest('consent_datetime')
         else:
-            raise ValidationError('Caregiver consent on behalf of child does not exist.')
+            raise ValidationError(
+                'Caregiver consent on behalf of child does not exist.')
 
     def is_preg_enroll(self):
         maternal_visit = self.cleaned_data.get('maternal_visit')
@@ -90,7 +92,8 @@ class InterviewFocusGroupInterestFormValidator(FormValidatorMixin, FormValidator
         onschedule_model = maternal_visit.schedule.onschedule_model
         schedule_name = maternal_visit.appointment.schedule_name
 
-        onschedule_obj = self.get_onschedule_obj(subject_identifier, onschedule_model, schedule_name)
+        onschedule_obj = self.get_onschedule_obj(
+            subject_identifier, onschedule_model, schedule_name)
         child_subject_identifier = onschedule_obj.child_subject_identifier
         consent = self.get_latest_consent(child_subject_identifier)
 

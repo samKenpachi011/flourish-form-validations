@@ -37,9 +37,9 @@ class MaternalArvDuringPregFormValidator(FormValidatorMixin, FormValidator):
             required_msg='Please give reason for interruption'
         )
         
-        self.validate_avr_pre_pregnancy()
+        self.validate_arv_pre_pregnancy()
         
-    def validate_avr_pre_pregnancy(self,arvs_pre_preg=None):
+    def validate_arv_pre_pregnancy(self,arvs_pre_preg=None):
         try:
             arvs_pre_preg = self.arvs_pre_preg_cls.objects.get(
                 maternal_visit__subject_identifier=self.subject_identifier)

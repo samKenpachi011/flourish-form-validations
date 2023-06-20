@@ -23,6 +23,10 @@ class AntenatalEnrollmentFormValidator(FormValidatorMixin,
     def child_consent_cls(self):
         return django_apps.get_model(self.child_consent_model)
 
+    @property
+    def enrolment_helper_cls(self):
+        return EnrollmentHelper
+
     def clean(self):
 
         super().clean()
@@ -51,9 +55,8 @@ class AntenatalEnrollmentFormValidator(FormValidatorMixin,
             self.cleaned_data.get('report_datetime'),)
 
         self.validate_current_hiv_status()
-        # self.validate_week32_result()
 
-        enrollment_helper = EnrollmentHelper(
+        enrollment_helper = self.enrolment_helper_cls(
             instance_antenatal=self.antenatal_enrollment_cls(
                 **self.cleaned_data),
             exception_cls=forms.ValidationError)
