@@ -32,7 +32,7 @@ class TestCaregiverChildConsentForm(TestModeMixin, TestCase):
             'subject_consent': self.subject_consent,
             'consent_datetime': get_utcnow(),
             'version': 1,
-            'child_dob': '2018-06-20',
+            'child_dob': ((get_utcnow() - relativedelta(years=5)).date()).strftime('%Y-%m-%d'),
             'first_name': 'TEST ONE',
             'gender': FEMALE,
             'child_preg_test': NOT_APPLICABLE,
