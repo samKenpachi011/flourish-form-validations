@@ -3,7 +3,7 @@ from django.apps import apps as django_apps
 from django.test import tag, TestCase
 from django.core.exceptions import ValidationError
 from edc_base.utils import get_utcnow
-from edc_constants.constants import YES, NO, NOT_APPLICABLE, NEG, OTHER, POS
+from edc_constants.constants import YES, NO, NOT_APPLICABLE, NEG, POS
 
 from .test_maternal_delivery_form import MaternalStatusHelper
 from .test_model_mixin import TestModeMixin
