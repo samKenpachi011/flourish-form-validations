@@ -27,6 +27,8 @@ class TestMedicalHistoryForm(TestModeMixin, TestCase):
         super().__init__(MedicalHistoryFormValidator, *args, **kwargs)
 
     def setUp(self):
+        MedicalHistoryFormValidator.subject_status = MaternalStatusHelper(
+            status=POS).hiv_status
         MedicalHistoryFormValidator.antenatal_enrollment_model = \
             'flourish_form_validations.antenatalenrollment'
 

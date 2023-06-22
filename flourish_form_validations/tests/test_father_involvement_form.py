@@ -1,15 +1,13 @@
+from dateutil.relativedelta import relativedelta
 from django.test import tag, TestCase
 from django.core.exceptions import ValidationError
 from edc_base.utils import get_utcnow
-from edc_constants.constants import YES, NO, NOT_APPLICABLE, POS, NEG
+from edc_constants.constants import YES, NO, NOT_APPLICABLE, NEG
 
 from .test_maternal_delivery_form import MaternalStatusHelper
-from ..form_validators import RelationshipFatherInvolvementFormValidator
 from flourish_form_validations.tests.test_model_mixin import TestModeMixin
 from .models import (FlourishConsentVersion, SubjectConsent,
-                     Appointment, MaternalVisit, ListModel)
-from dateutil.relativedelta import relativedelta
-from edc_constants.constants import OTHER
+                     Appointment, MaternalVisit)
 from ..form_validators import RelationshipFatherInvolvementFormValidator
 
 
@@ -371,6 +369,3 @@ class TestRelationshipFatherInvolvement(TestModeMixin, TestCase):
 
         self.assertRaises(ValidationError, form_validator.validate)
         self.assertIn('discussion_with_partner', form_validator._errors)
-
-
-
