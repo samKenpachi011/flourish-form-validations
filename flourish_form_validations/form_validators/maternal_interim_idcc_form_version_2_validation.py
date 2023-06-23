@@ -15,13 +15,13 @@ class MaternalIterimIdccFormVersion2Validator(FormValidatorMixin,
         super().clean()
         
 
-        self.required_if(YES, 
-                         field='info_since_lastvisit', 
-                         field_required='laboratory_information_available')
-        
-        required_fields = ['last_visit_result', 'vl_result_availiable']
+        for field in ['any_new_diagnoses', 'laboratory_information_available']:
+            self.required_if(YES, 
+                            field='info_since_lastvisit', 
+                            field_required=field)
 
-        for field in required_fields:
+
+        for field in ['last_visit_result', 'vl_result_availiable']:
 
             self.required_if(YES,
                                 field='laboratory_information_available',
