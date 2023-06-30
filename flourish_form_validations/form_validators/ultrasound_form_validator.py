@@ -23,7 +23,7 @@ class UltrasoundFormValidator(FormValidatorMixin, FormValidator):
                 field='number_of_gestations',
                 field_required=field,
             )
-        number_fields = ['bpd', 'hc', 'ac', 'fl', 'ga_by_lmp', 'ga_by_ultrasound_wks',
+        number_fields = ['bpd', 'hc', 'ac', 'fl', 'ga_by_ultrasound_wks',
                          'ga_by_ultrasound_days', 'est_fetal_weight', 'ga_confirmed']
         number_of_gestations = cleaned_data.get('number_of_gestations', None)
         for field in number_fields:
