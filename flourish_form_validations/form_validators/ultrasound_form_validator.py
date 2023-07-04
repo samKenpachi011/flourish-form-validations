@@ -24,7 +24,7 @@ class UltrasoundFormValidator(FormValidatorMixin, FormValidator):
                 field_required=field,
             )
         number_fields = ['bpd', 'hc', 'ac', 'fl', 'ga_by_ultrasound_wks',
-                         'ga_by_ultrasound_days', 'est_fetal_weight', 'ga_confirmed']
+                         'ga_by_ultrasound_days', 'est_fetal_weight', ]
         number_of_gestations = cleaned_data.get('number_of_gestations', None)
         for field in number_fields:
             field_required = cleaned_data.get(field, None)
