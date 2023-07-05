@@ -14,9 +14,8 @@ class UltrasoundFormValidator(FormValidatorMixin, FormValidator):
         super().clean()
 
         fields = [
-            'bpd', 'hc', 'ac', 'fl', 'amniotic_fluid_volume',
-            'ga_by_lmp', 'ga_by_ultrasound_wks', 'ga_by_ultrasound_days', 'est_fetal_weight',
-            'est_edd_ultrasound', 'edd_confirmed', 'ga_confirmed', 'ga_confrimation_method',
+            'amniotic_fluid_volume', 'est_edd_ultrasound',
+            'edd_confirmed', 'ga_confrimation_method',
         ]
         for field in fields:
             self.not_required_if(
@@ -24,13 +23,31 @@ class UltrasoundFormValidator(FormValidatorMixin, FormValidator):
                 field='number_of_gestations',
                 field_required=field,
             )
+        number_fields = ['bpd', 'hc', 'ac', 'fl', 'ga_by_ultrasound_wks',
+                         'ga_by_ultrasound_days', 'est_fetal_weight', ]
+        number_of_gestations = cleaned_data.get('number_of_gestations', None)
+        for field in number_fields:
+            field_required = cleaned_data.get(field, None)
+            if number_of_gestations == '0':
+                if not (field_required is None or field_required == ''):
+                    message = {
+                        field: 'This field is not required.'}
+                    self._errors.update(message)
+                    raise ValidationError(message)
+            else:
+                if field_required is None or field_required == '':
+                    message = {
+                        field: 'This field is required.'}
+                    self._errors.update(message)
+                    raise ValidationError(message)
 
         if cleaned_data.get('est_edd_ultrasound') and (
                 cleaned_data.get('est_edd_ultrasound') >
                 cleaned_data.get('report_datetime').date() +
                 relativedelta(weeks=40)):
-            msg = {'est_edd_ultrasound': 'Estimated edd by ultrasound cannot be'
-                                         ' greater than 40 weeks from today'}
+            msg = {'est_edd_ultrasound':
+                   'Estimated edd by ultrasound cannot be'
+                   ' greater than 40 weeks from today'}
             self._errors.update(msg)
             raise ValidationError(msg)
 
