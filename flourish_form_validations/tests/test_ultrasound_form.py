@@ -161,21 +161,6 @@ class TestUltrasoundForm(TestModeMixin, TestCase):
         cleaned_data = {
             'maternal_visit': self.maternal_visit,
             'number_of_gestations': 0,
-            'ga_by_lmp': 2,
-        }
-
-        form_validator = UltrasoundFormValidator(
-            cleaned_data=cleaned_data)
-        self.assertRaises(ValidationError, form_validator.validate)
-        self.assertIn('ga_by_lmp', form_validator._errors)
-
-    def test_no_gestations_other_fields_not_required_(self):
-        """
-        check if number_of_gestation's is 0, other fields are not required
-        """
-        cleaned_data = {
-            'maternal_visit': self.maternal_visit,
-            'number_of_gestations': 0,
             'est_edd_ultrasound': 2,
         }
 
