@@ -44,13 +44,16 @@ class TestMaternalInterimIdccFormVersion2Validator(TestModeMixin, TestCase):
         cleaned_data = {
             'maternal_visit': self.maternal_visit,
             'info_since_lastvisit': YES,
-            'laboratory_information_available': NO,
+            'any_new_diagnoses': NO,
+            'laboratory_information_available': YES,
+            'last_visit_result': YES,
             'vl_result_availiable': YES,
             'vl_value_and_date_availiable': YES,
             'cd4_value_and_date_availiable': NO,
-            'recent_cd4': None,
+            'recent_cd4': '400',
             'value_vl_size': 'equal',
             'value_vl': 250.2,
+            'recent_cd4_date': get_utcnow(),
             'recent_vl_date': None
         }
         form_validator = MaternalIterimIdccFormVersion2Validator(
@@ -66,7 +69,7 @@ class TestMaternalInterimIdccFormVersion2Validator(TestModeMixin, TestCase):
             'maternal_visit': self.maternal_visit,
             'info_since_lastvisit': YES,
             'laboratory_information_available': NO,
-            'vl_result_availiable': YES,
+            'any_new_diagnoses': NO,
             'vl_value_and_date_availiable': YES,
             'cd4_value_and_date_availiable': NO,
             'value_vl_size': 'equal',
@@ -87,8 +90,8 @@ class TestMaternalInterimIdccFormVersion2Validator(TestModeMixin, TestCase):
         cleaned_data = {
             'maternal_visit': self.maternal_visit,
             'info_since_lastvisit': YES,
+            'any_new_diagnoses': NO,
             'laboratory_information_available': NO,
-            'vl_result_availiable': YES,
             'vl_value_and_date_availiable': YES,
             'cd4_value_and_date_availiable': NO,
             'value_vl': 250.2,
@@ -107,8 +110,8 @@ class TestMaternalInterimIdccFormVersion2Validator(TestModeMixin, TestCase):
         cleaned_data = {
             'maternal_visit': self.maternal_visit,
             'info_since_lastvisit': YES,
+            'any_new_diagnoses': NO,
             'laboratory_information_available': NO,
-            'vl_result_availiable': YES,
             'vl_value_and_date_availiable': YES,
             'cd4_value_and_date_availiable': NO,
             'value_vl': 400,
@@ -130,9 +133,9 @@ class TestMaternalInterimIdccFormVersion2Validator(TestModeMixin, TestCase):
             'maternal_visit': self.maternal_visit,
             'info_since_lastvisit': YES,
             'laboratory_information_available': NO,
-            'vl_result_availiable': YES,
             'vl_value_and_date_availiable': YES,
             'cd4_value_and_date_availiable': NO,
+            'any_new_diagnoses': NO,
             'value_vl': 250.2,
             'recent_vl_date': get_utcnow(),
             'value_vl_size': 'greater_than'
@@ -149,8 +152,8 @@ class TestMaternalInterimIdccFormVersion2Validator(TestModeMixin, TestCase):
         cleaned_data = {
             'maternal_visit': self.maternal_visit,
             'info_since_lastvisit': YES,
+            'any_new_diagnoses': NO,
             'laboratory_information_available': NO,
-            'vl_result_availiable': YES,
             'vl_value_and_date_availiable': YES,
             'cd4_value_and_date_availiable': NO,
             'value_vl': 10000000,
