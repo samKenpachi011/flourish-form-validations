@@ -359,3 +359,4 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin,
 
         if age_in_years < 18:
             raise ValidationError({'dob': 'The consented individual is below 18'})
+        
