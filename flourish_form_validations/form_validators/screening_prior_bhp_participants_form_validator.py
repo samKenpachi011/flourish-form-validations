@@ -18,8 +18,8 @@ class ScreeningPriorBhpParticipantsFormValidator(FormValidator):
         if mother_alive and mother_alive in [NO, UNKNOWN]:
             if flourish_participation == 'interested':
                 message = {'flourish_participation':
-                               'The mother from the previous study is not alive, '
-                               'Please correct interest for `another caregiver`. '}
+                           'The mother from the previous study is not alive, '
+                           'Please correct interest for `another caregiver`. '}
                 self._errors.update(message)
                 raise ValidationError(message)
 
