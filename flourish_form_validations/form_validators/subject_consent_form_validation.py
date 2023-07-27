@@ -2,7 +2,7 @@ import re
 from django import forms
 from django.apps import apps as django_apps
 from django.core.exceptions import ValidationError
-from edc_base.utils import relativedelta
+from edc_base.utils import relativedelta, age, get_utcnow
 from edc_constants.constants import FEMALE, MALE, NO, YES, NOT_APPLICABLE
 from edc_form_validators import FormValidator
 
@@ -61,6 +61,7 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin,
         self.validate_breastfeed_intent()
         self.validate_child_consent()
         self.validate_reconsent()
+        self.validate_age()
 
     def validate_reconsent(self):
         try:
@@ -345,3 +346,16 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin,
             else:
                 return True
         return False
+    
+    def validate_age(self):
+        """
+        Validates if the person being consented is an adult
+        """
+
+        dob = self.cleaned_data.get('dob')
+        consent_datetime = self.cleaned_data.get('consent_datetime')
+
+        age_in_years = age(dob, consent_datetime.date()).years
+
+        if age_in_years < 18:
+            raise ValidationError({'dob': 'The consented individual is below 18'})
