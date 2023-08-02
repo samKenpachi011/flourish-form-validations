@@ -38,44 +38,44 @@ class InterviewFocusGroupInterestVersion2FormValidator(FormValidatorMixin, FormV
             'social_issues',
             'covid19',
             'vaccines',
-            'infant_feeding_group_interest',
+
         ]
+
+        eligible_responses = ['group', 'either']
 
         for field in required_fields:
 
             self.required_if(
-                *['group', 'either'],
+                *eligible_responses,
                 field='discussion_pref',
                 field_required=field,
             )
 
         discussion_pref = self.cleaned_data.get('discussion_pref')
 
-        if discussion_pref in ['group', 'either']:
+        is_preg_and_interested = self.is_preg_enroll() and \
+            discussion_pref in eligible_responses
 
-            self.required_if_true(
-                self.is_preg_enroll(),
-                field_required='infant_feeding_group_interest',
-                required_msg='Infant feeding group interest is required if enrolled'
-                            ' pregnant(pregnant or postpartum).',
-            )
+        condition_and_postpartum = (
+            is_preg_and_interested
+            and self.is_within_first_year_postpartum())
 
-            condition = (
-                self.is_preg_enroll()
-                and self.cleaned_data.get('discussion_pref') in ['group', 'either']
-                and self.is_within_first_year_postpartum()
-            )
+        self.required_if_true(
+            is_preg_and_interested,
+            field_required='infant_feeding_group_interest',
+            required_msg='Infant feeding group interest is required if enrolled'
+            ' pregnant(pregnant or postpartum).',)
 
-            self.required_if_true(
-                condition,
-                field_required='same_status_comfort',
-            )
+        self.required_if_true(
+            condition_and_postpartum,
+            field_required='same_status_comfort',
+        )
 
-            self.required_if(
-                *['group', 'either'],
-                field='discussion_pref',
-                field_required='diff_status_comfort'
-            )
+        self.required_if(
+            *eligible_responses,
+            field='discussion_pref',
+            field_required='diff_status_comfort'
+        )
 
     def get_onschedule_obj(self, subject_identifier, onschedule_model, schedule_name):
         model_cls = self.onschedule_model_cls(onschedule_model)
