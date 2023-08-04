@@ -2,7 +2,7 @@ from django.forms import ValidationError
 from flourish_form_validations.form_validators.crf_form_validator import FormValidatorMixin
 
 
-from edc_constants.constants import NO, YES
+from edc_constants.constants import NO, YES, OTHER
 from edc_form_validators import FormValidator
 
 
@@ -13,37 +13,44 @@ class MaternalIterimIdccFormVersion2Validator(FormValidatorMixin,
         self.subject_identifier = self.cleaned_data.get(
             'maternal_visit').subject_identifier
         super().clean()
+        
 
-        for field in ['laboratory_information_available', 'vl_result_availiable',
-                      'cd4_value_and_date_availiable', 'vl_value_and_date_availiable',]:
+        for field in ['any_new_diagnoses', 'laboratory_information_available']:
+            self.required_if(YES, 
+                            field='info_since_lastvisit', 
+                            field_required=field)
+
+
+        for field in ['last_visit_result', 'vl_result_availiable']:
 
             self.required_if(YES,
-                             field='info_since_lastvisit',
-                             field_required=field)
-
-        self.required_if(YES,
-                         field='laboratory_information_available',
-                         field_required='last_visit_result')
+                                field='laboratory_information_available',
+                                field_required=field)
 
         self.required_if(NO,
                          field='last_visit_result',
                          field_required='reason_cd4_not_availiable')
+        
 
-        self.validate_other_specify(field='reason_cd4_not_availiable')
+        self.required_if(OTHER,
+                         field='reason_cd4_not_availiable',
+                         field_required='reason_cd4_not_availiable_other')
+        
 
         for field in ['recent_cd4', 'recent_cd4_date']:
             self.required_if(YES,
-                             field='cd4_value_and_date_availiable',
+                             field='last_visit_result',
                              field_required=field)
 
         self.required_if(NO, field='vl_result_availiable',
                          field_required='reason_vl_not_availiable')
 
-        self.validate_other_specify(field='reason_vl_not_availiable')
+        self.required_if(OTHER, field='reason_vl_not_availiable', 
+        field_required='reason_vl_not_availiable_other')
 
         for field in ['value_vl_size', 'value_vl', 'recent_vl_date']:
             self.required_if(YES,
-                             field='vl_value_and_date_availiable',
+                             field='vl_result_availiable',
                              field_required=field)
 
         self.required_if(YES,

@@ -94,6 +94,11 @@ class CaregiverLocatorFormValidator(FormValidator):
                 field_required=not_required,
                 inverse=False)
 
+        self.required_if_true(
+            self.cleaned_data.get('subject_identifier') and 'P' in self.cleaned_data.get('subject_identifier'),
+            field_required='is_locator_updated'
+        )
+
     @property
     def maternal_dataset_obj(self):
         try:

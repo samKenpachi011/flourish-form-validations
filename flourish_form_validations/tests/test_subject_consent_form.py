@@ -204,3 +204,17 @@ class TestSubjectConsentForm(TestModeMixin, TestCase):
             cleaned_data=self.consent_options)
         self.assertRaises(ValidationError, form_validator.validate)
         self.assertIn('first_name', form_validator._errors)
+
+    
+    def test_age_limit_invalid(self):
+        """
+        Raise an exception if the participant is below 18
+        """
+        self.consent_options.update(
+            {'dob': get_utcnow().date()})
+        
+        form_validator = SubjectConsentFormValidator(
+            cleaned_data=self.consent_options)
+        
+        self.assertRaises(ValidationError, form_validator.validate)
+        self.assertIn('dob', form_validator._errors)
