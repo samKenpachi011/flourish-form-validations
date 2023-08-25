@@ -1,4 +1,4 @@
-from edc_constants.constants import NO, YES, OTHER, NOT_APPLICABLE
+from edc_constants.constants import NO, YES, OTHER
 from edc_form_validators import FormValidator
 from .crf_form_validator import FormValidatorMixin
 

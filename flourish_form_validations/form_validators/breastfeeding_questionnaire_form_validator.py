@@ -1,6 +1,5 @@
 from django.forms import ValidationError
-from django.forms import ValidationError
-from edc_constants.constants import NEG, OTHER, YES
+from edc_constants.constants import NEG, OTHER, YES, NONE
 from edc_form_validators import FormValidator
 
 from .crf_form_validator import FormValidatorMixin
@@ -39,7 +38,7 @@ class BreastFeedingQuestionnaireFormValidator(FormValidatorMixin, FormValidator)
 
         self.validate_other_specify(field='after_birth_opinion')
 
-        self.m2m_single_selection_if(['none'], 'received_training')
+        self.m2m_single_selection_if(*[NONE, ], m2m_field='received_training')
 
         self.validate_training_outcome_required()
 

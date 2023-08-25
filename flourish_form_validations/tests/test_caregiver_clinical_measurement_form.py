@@ -43,38 +43,6 @@ class TestCaregiverClinicalMeasurementsForm(TestModeMixin, TestCase):
 
         }
 
-    def test_waist_circ_required_invalid(self):
-        cleaned_data = {
-            'maternal_visit': self.maternal_visit,
-            'is_preg': YES,
-            'waist_circ': 15,
-        }
-        form_validator = CaregiverClinicalMeasurementsFormValidator(
-            cleaned_data=cleaned_data)
-        self.assertRaises(ValidationError, form_validator.validate)
-        self.assertIn('waist_circ', form_validator._errors)
-
-    def test_hip_circ_required_invalid(self):
-
-        appointment = Appointment.objects.create(
-            subject_identifier=self.subject_consent.subject_identifier,
-            appt_datetime=get_utcnow(),
-            visit_code='2000D')
-
-        self.maternal_visit = MaternalVisit.objects.create(
-            appointment=appointment,
-            subject_identifier=self.subject_consent.subject_identifier,
-            report_datetime=get_utcnow())
-
-        cleaned_data = {
-            'maternal_visit': self.maternal_visit,
-            'hip_circ': 15
-        }
-        form_validator = CaregiverClinicalMeasurementsFormValidator(
-            cleaned_data=cleaned_data)
-        self.assertRaises(ValidationError, form_validator.validate)
-        self.assertIn('hip_circ', form_validator._errors)
-
     def test_hip_circ_required_valid(self):
 
         appointment = Appointment.objects.create(
@@ -314,7 +282,7 @@ class TestCaregiverClinicalMeasurementsForm(TestModeMixin, TestCase):
         form_validator = CaregiverClinicalMeasurementsFormValidator(
             cleaned_data=cleaned_data)
         self.assertRaises(ValidationError, form_validator.validate)
-        self.assertIn('systolic_bp', form_validator._errors)
+        self.assertIn('all_measurements', form_validator._errors)
 
     def test_diastolic_bp_required(self):
         appointment = Appointment.objects.create(

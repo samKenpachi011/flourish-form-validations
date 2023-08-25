@@ -74,9 +74,9 @@ class TestMaternalDeliveryFormValidator(TestCase):
             'social_issues': 'one_on_one',
             'covid19': 'one_on_one',
             'vaccines': 'one_on_one',
-            'infant_feeding_group_interest': 'YES',
-            'same_status_comfort': 'YES',
-            'diff_status_comfort': 'YES',
+            'infant_feeding_group_interest': None,
+            'same_status_comfort': None,
+            'diff_status_comfort': YES,
             'women_discussion_topics': 'Family planning methods',
             'adolescent_discussion_topics': 'Peer pressure and decision-making'
         }
@@ -97,7 +97,7 @@ class TestMaternalDeliveryFormValidator(TestCase):
         self.assertRaises(ValidationError, form_validator.validate)
         self.assertIn('hiv_group_pref', form_validator._errors)
 
-    def test_infant_feeding_group_interest_required(self):
+    def test_infant_feeding_group_interest_not_required(self):
         self.clean_data['infant_feeding_group_interest'] = None
         form_validator = CustomInterviewFocusGroupInterestFormValidator(cleaned_data=self.clean_data)
         try:
@@ -105,33 +105,31 @@ class TestMaternalDeliveryFormValidator(TestCase):
         except ValidationError as e:
             self.fail(f'ValidationError unexpectedly raised. Got{e}')
 
-    def test_infant_feeding_group_interest_not_required(self):
+    def test_infant_feeding_group_interest_required(self):
         self.caregiver_child_consent.preg_enroll = True
         self.caregiver_child_consent.save()
+        self.clean_data.update({
+            'same_status_comfort': YES,
+            'infant_feeding_group_interest': None})
         form_validator = CustomInterviewFocusGroupInterestFormValidator(cleaned_data=self.clean_data)
 
+        self.assertRaises(ValidationError, form_validator.validate)
+        self.assertIn('infant_feeding_group_interest', form_validator._errors)
+
+    def test_same_status_comfort_not_required(self):
+        form_validator = CustomInterviewFocusGroupInterestFormValidator(cleaned_data=self.clean_data)
         try:
             form_validator.validate()
         except ValidationError as e:
             self.fail(f'ValidationError unexpectedly raised. Got{e}')
 
     def test_same_status_comfort_required(self):
-        self.clean_data['hiv_group_pref'] = 'group'
-        self.clean_data['same_status_comfort'] = None
         self.caregiver_child_consent.preg_enroll = True
         self.caregiver_child_consent.save()
-
-        form_validator = CustomInterviewFocusGroupInterestFormValidator(cleaned_data=self.clean_data)
-
-        self.assertRaises(ValidationError, form_validator.validate)
-        self.assertIn('same_status_comfort', form_validator._errors)
-
-    def test_same_status_comfort_not_required(self):
-        self.clean_data['discussion_pref'] = 'unsure'
-        self.clean_data['hiv_group_pref'] = None
-        self.clean_data['same_status_comfort'] = "blah"
-        self.caregiver_child_consent.preg_enroll = True
-        self.caregiver_child_consent.save()
+        self.clean_data.update({
+            'discussion_pref': 'group',
+            'same_status_comfort': None,
+            'infant_feeding_group_interest': YES})
 
         form_validator = CustomInterviewFocusGroupInterestFormValidator(cleaned_data=self.clean_data)
 

@@ -159,6 +159,8 @@ class MaternalVisit(BaseUuidModel):
 
     visit_code_sequence = models.IntegerField(default=0)
 
+    schedule_name = models.CharField(max_length=25, null=True)
+
     report_datetime = models.DateTimeField(
         default=get_utcnow)
 
@@ -313,11 +315,19 @@ class ScreeningPriorBhpParticipants(BaseUuidModel):
 class CaregiverChildConsent(BaseUuidModel):
     subject_identifier = models.CharField(max_length=25)
 
-    child_dob = models.DateField()
+    child_dob = models.DateField(null=True)
 
     preg_enroll = models.BooleanField()
 
     consent_datetime = models.DateTimeField()
+
+
+class CaregiverOnSchedule(BaseUuidModel):
+    subject_identifier = models.CharField(max_length=25)
+
+    schedule_name = models.CharField(max_length=25)
+
+    child_subject_identifier = models.CharField(max_length=25)
 
 
 class ReceivedTrainingOnFeedingList(ListModelMixin, BaseUuidModel):

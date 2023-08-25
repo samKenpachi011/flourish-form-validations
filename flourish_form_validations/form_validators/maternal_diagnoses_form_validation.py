@@ -1,5 +1,5 @@
 from django.core.exceptions import ValidationError
-from edc_constants.constants import YES, NOT_APPLICABLE, POS, OTHER
+from edc_constants.constants import YES, POS, OTHER
 from edc_form_validators.form_validator import FormValidator
 from flourish_caregiver.helper_classes import MaternalStatusHelper
 from .crf_form_validator import FormValidatorMixin
