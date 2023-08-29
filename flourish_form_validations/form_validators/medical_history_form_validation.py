@@ -67,6 +67,11 @@ class MedicalHistoryFormValidator(FormValidatorMixin, FormValidator):
                        ' III and IV, list of diagnosis must be N/A')
             self.validate_m2m_na(m2m, response='who_na', message=message)
 
+        self.m2m_other_specify(
+            'who_other',
+            m2m_field='who',
+            field_other='who_other')
+
     def validate_caregiver_chronic_multiple_selection(self, cleaned_data=None):
         selected = {}
         qs = self.cleaned_data.get('caregiver_chronic')
