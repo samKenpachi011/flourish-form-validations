@@ -14,6 +14,10 @@ class RelationshipFatherInvolvementFormValidator(FormValidatorMixin, FormValidat
     maternal_delivery_model = 'flourish_caregiver.maternaldelivery'
     caregiver_child_consent_model = 'flourish_caregiver.caregiverchildconsent'
 
+    def onschedule_model(self, instance=None):
+        schedule = getattr(instance, 'schedule', None)
+        return getattr(schedule, 'onschedule_model', None)
+
     def onschedule_model_cls(self, onschedule_model):
         return django_apps.get_model(onschedule_model)
 
@@ -173,7 +177,7 @@ class RelationshipFatherInvolvementFormValidator(FormValidatorMixin, FormValidat
     def has_delivered(self):
         maternal_visit = self.cleaned_data.get('maternal_visit')
         subject_identifier = maternal_visit.subject_identifier
-        onschedule_model = maternal_visit.schedule.onschedule_model
+        onschedule_model = self.onschedule_model(instance=maternal_visit)
         model_cls = self.onschedule_model_cls(onschedule_model)
         try:
             model_obj = model_cls.objects.get(

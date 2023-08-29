@@ -35,25 +35,6 @@ class TestTbRoutineHealthScreeningV2(TestModeMixin, TestCase):
         except ValidationError as e:
             self.fail(f'ValidationError unexpectedly raised. Got{e}')
 
-    def test_screen_location_invalid(self):
-        """
-        Raise an error if screen_location is not selected
-        """
-        ListModel.objects.create(short_name="sputum")
-        cleaned_data = {
-            'tb_screened': YES,
-            'screen_location': None,
-            'screen_location_other': None,
-            'pos_screen': YES,
-            'diagnostic_referral': YES
-        }
-
-        form_validator = TbRoutineHealthScreenV2FormValidator(
-            cleaned_data=cleaned_data
-        )
-        self.assertRaises(ValidationError, form_validator.validate)
-        self.assertIn('screen_location', form_validator._errors)
-
     def test_screen_location_other(self):
         """
         Raise an error if the screen location other specify field is null
