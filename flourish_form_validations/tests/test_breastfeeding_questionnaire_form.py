@@ -300,11 +300,10 @@ class TestBreastFeedingQuestionnaireForm(TestModeMixin, TestCase):
         self.assertRaises(ValidationError, form_validator.validate)
         self.assertIn('infant_feeding_reasons', form_validator._errors)
 
-    @tag('received_training')
     def test_none_in_responses(self):
         # Create a mock cleaned data object with 'none' in the responses
-        cleaned_data = {'received_training': [self.training_response1, self.none_response,
-                                              self.training_response2]}
+        cleaned_data = {
+            'received_training': ReceivedTrainingOnFeedingList.objects.all()}
         form_validator = BreastFeedingQuestionnaireFormValidator(
             cleaned_data=cleaned_data)
 
@@ -312,11 +311,11 @@ class TestBreastFeedingQuestionnaireForm(TestModeMixin, TestCase):
         self.assertRaises(ValidationError, form_validator.validate)
         self.assertIn('received_training', form_validator._errors)
 
-    @tag('received_training')
     def test_none_not_in_responses(self):
         # Create a mock cleaned data object without 'none' in the responses
         cleaned_data = {
-            'received_training': [self.training_response1, self.training_response2],
+            'received_training': ReceivedTrainingOnFeedingList.objects.filter(
+                id__in=[self.training_response1.id, self.training_response2.id]),
             'training_outcome': 'Some outcome'}
 
         form_validator = BreastFeedingQuestionnaireFormValidator(
@@ -328,10 +327,11 @@ class TestBreastFeedingQuestionnaireForm(TestModeMixin, TestCase):
         except ValidationError as e:
             self.fail(f'ValidationError unexpectedly raised. Got{e}')
 
-    @tag('received_training')
     def test_single_response_none(self):
         # Create a mock cleaned data object with only 'none' as response
-        cleaned_data = {'received_training': [self.none_response]}
+        cleaned_data = {'received_training':
+                        ReceivedTrainingOnFeedingList.objects.filter(
+                            short_name='none')}
 
         form_validator = BreastFeedingQuestionnaireFormValidator(
             cleaned_data=cleaned_data)
@@ -342,10 +342,9 @@ class TestBreastFeedingQuestionnaireForm(TestModeMixin, TestCase):
         except ValidationError as e:
             self.fail(f'ValidationError unexpectedly raised. Got{e}')
 
-    @tag('received_training')
     def test_empty_responses(self):
         # Create a mock cleaned data object with empty responses
-        cleaned_data = {'received_training': []}
+        cleaned_data = {'received_training': ReceivedTrainingOnFeedingList.objects.none()}
         form_validator = BreastFeedingQuestionnaireFormValidator(
             cleaned_data=cleaned_data)
         try:
@@ -356,7 +355,9 @@ class TestBreastFeedingQuestionnaireForm(TestModeMixin, TestCase):
     def test_none_response_no_training_outcome(self):
         # Create a mock cleaned data object with only 'none' response and no
         # training_outcome
-        cleaned_data = {'received_training': [self.none_response],
+        cleaned_data = {'received_training':
+                        ReceivedTrainingOnFeedingList.objects.filter(
+                            short_name='none'),
                         'training_outcome': None}
 
         # Call the function and expect it not to raise a ValidationError
@@ -370,7 +371,8 @@ class TestBreastFeedingQuestionnaireForm(TestModeMixin, TestCase):
     def test_other_response_no_training_outcome(self):
         # Create a mock cleaned data object with other responses and no training_outcome
         cleaned_data = {
-            'received_training': [self.training_response1, self.training_response2],
+            'received_training': ReceivedTrainingOnFeedingList.objects.filter(
+                id__in=[self.training_response1.id, self.training_response2.id]),
             'training_outcome': None}
 
         # Call the function and expect it to raise a ValidationError
@@ -381,7 +383,9 @@ class TestBreastFeedingQuestionnaireForm(TestModeMixin, TestCase):
 
     def test_none_response_with_training_outcome(self):
         # Create a mock cleaned data object with only 'none' response and training_outcome
-        cleaned_data = {'received_training': [self.none_response],
+        cleaned_data = {'received_training':
+                        ReceivedTrainingOnFeedingList.objects.filter(
+                            short_name='none'),
                         'training_outcome': 'Some outcome'}
 
         # Call the function and expect it to raise a ValidationError
@@ -393,7 +397,8 @@ class TestBreastFeedingQuestionnaireForm(TestModeMixin, TestCase):
     def test_other_response_with_training_outcome(self):
         # Create a mock cleaned data object with other responses and training_outcome
         cleaned_data = {
-            'received_training': [self.training_response1, self.training_response2],
+            'received_training': ReceivedTrainingOnFeedingList.objects.filter(
+                id__in=[self.training_response1.id, self.training_response2.id]),
             'training_outcome': 'Some outcome'}
 
         # Call the function and expect it not to raise a ValidationError
@@ -406,7 +411,8 @@ class TestBreastFeedingQuestionnaireForm(TestModeMixin, TestCase):
 
     def test_empty_responses_training_outcome(self):
         # Create a mock cleaned data object with empty responses and no training_outcome
-        cleaned_data = {'received_training': [], 'training_outcome': None}
+        cleaned_data = {'received_training': ReceivedTrainingOnFeedingList.objects.none(),
+                        'training_outcome': None}
 
         # Call the function and expect it to raise a ValidationError
         form_validator = BreastFeedingQuestionnaireFormValidator(

@@ -106,7 +106,7 @@ class TestMaternalArvDuringPregForm(TestModeMixin, TestCase):
         '''
         cleaned_data = {
             'maternal_visit': self.maternal_visit,
-            'is_interrupt': NO,
+            'is_interrupt': NOT_APPLICABLE,
             'interrupt': NOT_APPLICABLE,
             'took_arv': NO
         }
