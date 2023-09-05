@@ -128,6 +128,10 @@ class MedicalHistoryFormValidator(FormValidatorMixin, FormValidator):
                 m2m_field=m2m_field)
 
     @property
+    def subject_status(self):
+        return self.maternal_status_helper.hiv_status
+
+    @property
     def maternal_status_helper(self):
         cleaned_data = self.cleaned_data
         visit_obj = cleaned_data.get('maternal_visit')
