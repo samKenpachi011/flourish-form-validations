@@ -104,6 +104,11 @@ class ObstericalHistoryFormValidator(FormValidatorMixin, FormValidator):
             children_died_aft_5yrs = cleaned_data.get('children_died_aft_5yrs') or 0
             live_children = cleaned_data.get('live_children') or 0
 
+            if (live_children != (sum_deliv_37_wks - (
+                children_died_b4_5yrs + children_died_aft_5yrs))):
+                raise ValidationError({
+                    'live_children' : 'The sum of Q8 must be equal to (Q11 + Q12) - (Q9 + Q10)'})
+
             offset = 0
 
             if self.ultrasound_ga_confirmed:
@@ -112,8 +117,8 @@ class ObstericalHistoryFormValidator(FormValidatorMixin, FormValidator):
             if (cleaned_data.get('prev_pregnancies') and
                     sum_deliv_37_wks != ((cleaned_data.get('prev_pregnancies') - offset)
                                          -sum_lost_24_wks)):
-                raise ValidationError('The sum of Q10 and Q11 must be equal to '
-                                      f'(Q3 -{offset}) - (Q5 + Q6). Please correct.')
+                raise ValidationError('The sum of Q11 and Q12 must be equal to '
+                                      f'(Q3 -{offset}) - (Q6 + Q7). Please correct.')
 
             # allowance to compansate 1 child, twins or triplets
             # because a single pregnancy can contain a single child, twins or triplets
@@ -123,8 +128,8 @@ class ObstericalHistoryFormValidator(FormValidatorMixin, FormValidator):
             if live_children > no_of_children_allowance:
                 raise ValidationError({
                     'live_children':
-                        'Living children must be equal to pregnancies delivered(Q9 + '
-                        'Q10) and children lost. Please correct.'})
+                        'Living children must be equal to pregnancies delivered(Q10 + '
+                        'Q11) and children lost. Please correct.'})
 
     def validate_prev_pregnancies(self, cleaned_data=None):
 
