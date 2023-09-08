@@ -69,8 +69,10 @@ class CaregiverChildConsentFormValidator(FormValidator):
                            MALE: 'Male'}
             gender = gender_dict.get(cleaned_data.get('gender'))
             date_str = cleaned_data.get('child_dob')
-            year, month, day = map(int, date_str.split('-'))
-            date_obj = datetime.date(year, month, day)
+            date_obj = None
+            if date_str:
+                year, month, day = map(int, date_str.split('-'))
+                date_obj = datetime.date(year, month, day)
 
             if gender and cleaned_data.get('child_dob'):
                 try:
