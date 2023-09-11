@@ -5,6 +5,7 @@ from edc_constants.constants import YES, NO, RESTARTED, CONTINUOUS, STOPPED, NOT
 from edc_form_validators import FormValidator
 
 from .crf_form_validator import FormValidatorMixin
+from flourish_caregiver.constants import NEVER_RECEIVED_ART
 
 
 class ArvsPrePregnancyFormValidator(FormValidatorMixin, FormValidator):
@@ -31,6 +32,11 @@ class ArvsPrePregnancyFormValidator(FormValidatorMixin, FormValidator):
         self.validate_other_mother()
 
     def validate_prev_preg_art(self, cleaned_data={}):
+        self.required_if(
+            YES,
+            field='prev_preg_art',
+            field_required='art_start_date')
+
         art_start_date = cleaned_data.get('art_start_date')
         self.applicable_if_true(
             art_start_date is not None,
@@ -53,21 +59,24 @@ class ArvsPrePregnancyFormValidator(FormValidatorMixin, FormValidator):
             self._errors.update(msg)
             raise ValidationError(msg)
 
-        qs = self.cleaned_data.get('prior_arv')
+        qs = self.cleaned_data.get('prior_arv', '')
+        prior_preg = self.cleaned_data.get('prior_preg', '')
         if qs and qs.count() >= 1:
             selected = {obj.short_name: obj.name for obj in qs}
-            if (self.cleaned_data.get('prior_preg') != NOT_APPLICABLE and
-                    'prior_arv_na' in selected):
+            if ((prior_preg != NOT_APPLICABLE and prior_preg != NEVER_RECEIVED_ART)
+                and 'prior_arv_na' in selected):
                 message = {
                     'prior_arv':
                         'This field is applicable.'}
                 self._errors.update(message)
                 raise ValidationError(message)
-            elif (self.cleaned_data.get('prior_preg') == NOT_APPLICABLE and
-                  'prior_arv_na' not in selected):
+            elif ((prior_preg == NOT_APPLICABLE or prior_preg == NEVER_RECEIVED_ART)
+                  and 'prior_arv_na' not in selected):
                 message = {
                     'prior_arv':
                         'This field is not applicable.'}
+                self._errors.update(message)
+                raise ValidationError(message)
 
     def validate_other_mother(self):
         selections = ['prior_arv_na']

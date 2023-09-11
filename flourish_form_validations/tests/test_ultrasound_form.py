@@ -154,7 +154,7 @@ class TestUltrasoundForm(TestModeMixin, TestCase):
         except ValidationError as e:
             self.fail(f'ValidationError unexpectedly raised. Got{e}')
 
-    def test_no_gestations_other_fields_not_required_(self):
+    def test_no_gestations_other_fields_not_required(self):
         """
         check if number_of_gestation's is 0, other fields are not required
         """
