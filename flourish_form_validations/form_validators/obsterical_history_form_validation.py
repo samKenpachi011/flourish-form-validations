@@ -124,6 +124,7 @@ class ObstericalHistoryFormValidator(FormValidatorMixin, FormValidator):
             pregs_lt_24wks = cleaned_data.get('pregs_lt_24wks', 0)
 
             total_pregs = pregs_24wks_or_more + pregs_lt_24wks
+            previous_pregs = cleaned_data.get('prev_pregnancies')
 
             if (live_children != (sum_deliv_37_wks - (
                 children_died_b4_5yrs + children_died_aft_5yrs))):
@@ -131,7 +132,7 @@ class ObstericalHistoryFormValidator(FormValidatorMixin, FormValidator):
                     'live_children' :
                     'The sum of Q8 must be equal to (Q11 + Q12) - (Q9 + Q10)'})
 
-            if (total_pregs and
+            if (previous_pregs > 1 and
                 sum_deliv_37_wks != (total_pregs - sum_lost_24_wks)):
                 raise ValidationError('The sum of Q11 and Q12 must be equal to '
                                       '(Q4 + Q5) - (Q6 + Q7). Please correct.')
