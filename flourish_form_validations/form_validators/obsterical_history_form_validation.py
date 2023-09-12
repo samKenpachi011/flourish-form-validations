@@ -66,9 +66,11 @@ class ObstericalHistoryFormValidator(FormValidatorMixin, FormValidator):
 
     @property
     def has_delivered(self):
+        report_datetime = self.cleaned_data.get('report_datetime', None)
         try:
             self.maternal_delivery_cls.objects.get(
-                subject_identifier=self.subject_identifier)
+                subject_identifier=self.subject_identifier,
+                report_datetime__lte=report_datetime)
         except self.maternal_delivery_cls.DoesNotExist:
             return not self.anc_exists
         else:
