@@ -29,6 +29,7 @@ class ObstericalHistoryFormValidator(FormValidatorMixin, FormValidator):
         self.validate_ultrasound(cleaned_data=self.cleaned_data)
         self.validate_prev_pregnancies(cleaned_data=self.cleaned_data)
         self.validate_children_delivery(cleaned_data=self.cleaned_data)
+        self.validate_pregs_lt_24weeks()
 
     @property
     def ultrasound_ga_confirmed(self):
@@ -53,6 +54,22 @@ class ObstericalHistoryFormValidator(FormValidatorMixin, FormValidator):
                 raise ValidationError(message)
             else:
                 return ultrasound.ga_confirmed
+
+    def validate_pregs_lt_24weeks(self):
+        pregs_lt_24wks = self.cleaned_data.get('pregs_lt_24wks', 0)
+        if pregs_lt_24wks > 1:
+            message = {'pregs_lt_24wks':
+                       'The number of pregnancies less than 24 weeks '
+                       'cannot be more than 1'}
+            self._errors.update(message)
+            raise ValidationError(message)
+
+        if self.ultrasound_ga_confirmed < 24 and pregs_lt_24wks != 1:
+            message = {'pregs_lt_24wks':
+                       'Pregnancies less than 24 weeks should be '
+                       'equal to 1.'}
+            self._errors.update(message)
+            raise ValidationError(message)
 
     def validate_ultrasound(self, cleaned_data=None):
         try:
@@ -100,25 +117,24 @@ class ObstericalHistoryFormValidator(FormValidatorMixin, FormValidator):
             sum_lost_24_wks = (cleaned_data.get('lost_before_24wks') +
                                cleaned_data.get('lost_after_24wks'))
 
-            children_died_b4_5yrs = cleaned_data.get('children_died_b4_5yrs') or 0
-            children_died_aft_5yrs = cleaned_data.get('children_died_aft_5yrs') or 0
-            live_children = cleaned_data.get('live_children') or 0
+            children_died_b4_5yrs = cleaned_data.get('children_died_b4_5yrs', 0)
+            children_died_aft_5yrs = cleaned_data.get('children_died_aft_5yrs', 0)
+            live_children = cleaned_data.get('live_children', 0)
+            pregs_24wks_or_more = cleaned_data.get('pregs_24wks_or_more', 0)
+            pregs_lt_24wks = cleaned_data.get('pregs_lt_24wks', 0)
+
+            total_pregs = pregs_24wks_or_more + pregs_lt_24wks
 
             if (live_children != (sum_deliv_37_wks - (
                 children_died_b4_5yrs + children_died_aft_5yrs))):
                 raise ValidationError({
-                    'live_children' : 'The sum of Q8 must be equal to (Q11 + Q12) - (Q9 + Q10)'})
+                    'live_children' :
+                    'The sum of Q8 must be equal to (Q11 + Q12) - (Q9 + Q10)'})
 
-            offset = 0
-
-            if self.ultrasound_ga_confirmed:
-                offset = 1
-
-            if (cleaned_data.get('prev_pregnancies') and
-                    sum_deliv_37_wks != ((cleaned_data.get('prev_pregnancies') - offset)
-                                         -sum_lost_24_wks)):
+            if (total_pregs and
+                sum_deliv_37_wks != (total_pregs - sum_lost_24_wks)):
                 raise ValidationError('The sum of Q11 and Q12 must be equal to '
-                                      f'(Q3 -{offset}) - (Q6 + Q7). Please correct.')
+                                      '(Q4 + Q5) - (Q6 + Q7). Please correct.')
 
             # allowance to compansate 1 child, twins or triplets
             # because a single pregnancy can contain a single child, twins or triplets
@@ -133,11 +149,11 @@ class ObstericalHistoryFormValidator(FormValidatorMixin, FormValidator):
 
     def validate_prev_pregnancies(self, cleaned_data=None):
 
-        pregs_24wks_or_more = cleaned_data.get('pregs_24wks_or_more') or 0
-        lost_before_24wks = cleaned_data.get('lost_before_24wks') or 0
-        lost_after_24wks = cleaned_data.get('lost_after_24wks') or 0
+        pregs_24wks_or_more = cleaned_data.get('pregs_24wks_or_more', 0)
+        pregs_lt_24wks = cleaned_data.get('pregs_lt_24wks', 0)
+        lost_after_24wks = cleaned_data.get('lost_after_24wks', 0)
 
-        sum_pregs = pregs_24wks_or_more + lost_before_24wks
+        sum_pregs = pregs_24wks_or_more + pregs_lt_24wks
 
         previous_pregs = cleaned_data.get('prev_pregnancies')
 
@@ -147,9 +163,9 @@ class ObstericalHistoryFormValidator(FormValidatorMixin, FormValidator):
             offset = 1
 
         if previous_pregs > 1 and sum_pregs != (previous_pregs - offset):
-            raise ValidationError('Total pregnancies should be '
-                                  'equal to sum of pregnancies '
-                                  'lost and current')
+            raise ValidationError('Total pregnancies should be equal to sum of '
+                                  'number of pregnancies less than 24 weeks and '
+                                  'number of pregnancies at least 24 weeks i.e. (Q4 + Q5)')
 
         if self.ultrasound_ga_confirmed > 24 and pregs_24wks_or_more < 1:
             message = {'pregs_24wks_or_more':
