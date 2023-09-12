@@ -157,12 +157,7 @@ class ObstericalHistoryFormValidator(FormValidatorMixin, FormValidator):
 
         previous_pregs = cleaned_data.get('prev_pregnancies')
 
-        offset = 0
-
-        if self.ultrasound_ga_confirmed and self.ultrasound_ga_confirmed < 24:
-            offset = 1
-
-        if previous_pregs > 1 and sum_pregs != (previous_pregs - offset):
+        if previous_pregs > 1 and sum_pregs != previous_pregs:
             raise ValidationError('Total pregnancies should be equal to sum of '
                                   'number of pregnancies less than 24 weeks and '
                                   'number of pregnancies at least 24 weeks i.e. (Q4 + Q5)')
