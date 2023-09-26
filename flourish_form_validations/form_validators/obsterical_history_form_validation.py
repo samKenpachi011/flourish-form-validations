@@ -151,7 +151,7 @@ class ObstericalHistoryFormValidator(FormValidatorMixin, FormValidator):
 
             current_preg = (not self.has_delivered and total_pregs == 1)
 
-            if not current_preg:
+            if self.has_delivered:
                 if (total_pregs and
                     sum_deliv_37_wks != (total_pregs - sum_lost_24_wks)):
                     raise ValidationError('The sum of Q11 and Q12 must be equal to '
