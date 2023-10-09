@@ -11,13 +11,19 @@ class HIVDisclosureStatusFormValidator(FormValidatorMixin, FormValidator):
             'maternal_visit').subject_identifier
         super().clean()
 
-        not_required_fields = ['plan_to_disclose', 'reason_not_disclosed',
-                               'disclosure_age', 'who_disclosed',
-                               'disclosure_difficulty', 'child_reaction']
+        not_required_fields = ['plan_to_disclose', 'reason_not_disclosed', ]
         for field in not_required_fields:
             self.not_required_if(YES,
                                  field='disclosed_status',
                                  field_required=field)
+
+        required_fields = ['disclosure_age', 'who_disclosed',
+                           'disclosure_difficulty', 'child_reaction']
+
+        for field in required_fields:
+            self.required_if(YES,
+                             field='disclosed_status',
+                             field_required=field)
 
         self.validate_other_specify(field='reason_not_disclosed')
         self.validate_other_specify(field='who_disclosed')
