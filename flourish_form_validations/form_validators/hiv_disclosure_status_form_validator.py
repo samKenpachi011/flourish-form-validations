@@ -2,6 +2,7 @@ from django.apps import apps as django_apps
 from django.core.exceptions import ValidationError
 from edc_base.utils import age, get_utcnow
 from edc_constants.choices import YES
+from edc_constants.constants import OTHER
 from edc_form_validators import FormValidator
 
 from .crf_form_validator import FormValidatorMixin
@@ -30,9 +31,14 @@ class HIVDisclosureStatusFormValidator(FormValidatorMixin, FormValidator):
             self.required_if(YES,
                              field='disclosed_status',
                              field_required=field)
-        self.validate_other_specify(field='reason_not_disclosed')
-        self.validate_other_specify(field='who_disclosed')
-        self.validate_other_specify(field='child_reaction')
+
+        other_fields = ['who_disclosed', 'reason_not_disclosed',
+                        'child_reaction']
+
+        for field in other_fields:
+            other_specify_field = f'{field}_other'
+            self.required_if(OTHER, field=field,
+                             required_fields=other_specify_field)
 
         self.validate_child_age()
 
