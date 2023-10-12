@@ -75,6 +75,9 @@ class TestModeMixin:
         validator_class.caregiver_locator_model = \
             'flourish_form_validations.caregiverlocator'
 
+        validator_class.child_assent_model = \
+            'flourish_form_validations.childassent'
+
     class Meta:
         abstract = True
 

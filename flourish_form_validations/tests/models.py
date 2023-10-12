@@ -1,6 +1,6 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
-from django_crypto_fields.fields import FirstnameField, LastnameField
+from django_crypto_fields.fields import FirstnameField, IdentityField, LastnameField
 from edc_base.model_mixins import BaseUuidModel, ListModelMixin
 from edc_base.utils import get_utcnow
 from edc_constants.choices import GENDER, YES_NO, YES_NO_NA
@@ -317,7 +317,7 @@ class CaregiverChildConsent(BaseUuidModel):
 
     child_dob = models.DateField(null=True)
 
-    preg_enroll = models.BooleanField()
+    preg_enroll = models.BooleanField(null=True)
 
     consent_datetime = models.DateTimeField()
 
@@ -332,3 +332,21 @@ class CaregiverOnSchedule(BaseUuidModel):
 
 class ReceivedTrainingOnFeedingList(ListModelMixin, BaseUuidModel):
     pass
+
+
+class ChildAssent(BaseUuidModel):
+    subject_identifier = models.CharField(max_length=25)
+
+    screening_identifier = models.CharField(max_length=50)
+
+    consent_datetime = models.DateTimeField()
+
+    dob = models.DateField()
+
+    identity = IdentityField(
+        verbose_name='Identity number',
+        null=True, blank=True)
+
+    version = models.CharField(
+        max_length=10,
+        editable=False)
