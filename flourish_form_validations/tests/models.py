@@ -313,6 +313,10 @@ class ScreeningPriorBhpParticipants(BaseUuidModel):
 
 
 class CaregiverChildConsent(BaseUuidModel):
+    subject_consent = models.ForeignKey(
+        SubjectConsent,
+        on_delete=models.PROTECT)
+
     subject_identifier = models.CharField(max_length=25)
 
     child_dob = models.DateField(null=True)
