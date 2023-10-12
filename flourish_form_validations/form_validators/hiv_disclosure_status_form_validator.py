@@ -9,9 +9,7 @@ from .crf_form_validator import FormValidatorMixin
 
 
 class HIVDisclosureStatusFormValidator(FormValidatorMixin, FormValidator):
-    child_assent_model = 'flourish_child.childassent'
     caregiver_child_consent_model = 'flourish_caregiver.caregiverchildconsent'
-    maternal_delivery_model = 'flourish_caregiver.maternaldelivery'
 
     def clean(self):
         self.subject_identifier = self.cleaned_data.get(
@@ -53,22 +51,11 @@ class HIVDisclosureStatusFormValidator(FormValidatorMixin, FormValidator):
     @property
     def child_ages(self):
         child_ages = []
-        if self.child_assent_objs:
-            for child in self.child_assent_objs:
-                birth_date = child.dob
-                years = age(birth_date, get_utcnow()).years + age(
-                    birth_date, get_utcnow()).months / 12
-                child_ages.append(years)
         if self.child_caregiver_consent_objs:
             for child in self.child_caregiver_consent_objs:
                 birth_date = child.child_dob
                 years = age(birth_date, get_utcnow()).years + age(
                     birth_date, get_utcnow()).months / 12
-                child_ages.append(years)
-        if self.maternal_delivery_objs:
-            for child in self.maternal_delivery_objs:
-                birth_date = child.delivery_datetime.date()
-                years = age(birth_date, get_utcnow()).months / 12
                 child_ages.append(years)
         return child_ages
 
@@ -78,16 +65,3 @@ class HIVDisclosureStatusFormValidator(FormValidatorMixin, FormValidator):
             self.caregiver_child_consent_model)
         return child_caregiver_consent_model_cls.objects.filter(
             subject_identifier__startswith=self.subject_identifier)
-
-    @property
-    def maternal_delivery_objs(self):
-        maternal_delivery_model_cls = django_apps.get_model(
-            self.maternal_delivery_model)
-        return maternal_delivery_model_cls.objects.filter(
-            subject_identifier=self.subject_identifier)
-
-    @property
-    def child_assent_objs(self):
-        child_assent_model_cls = django_apps.get_model(self.child_assent_model)
-        return child_assent_model_cls.objects.filter(
-            subject_identifier=self.subject_identifier)
