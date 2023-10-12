@@ -51,6 +51,7 @@ class TestRelationshipFatherInvolvement(TestModeMixin, TestCase):
             version='1')
 
         child_consent = CaregiverChildConsent.objects.create(
+            subject_consent=self.subject_consent,
             subject_identifier='11111111-10',
             preg_enroll=True,
             consent_datetime=get_utcnow())

@@ -42,6 +42,7 @@ class TestMaternalDeliveryFormValidator(TestCase):
             version='1')
 
         self.caregiver_child_consent = CaregiverChildConsent.objects.create(
+            subject_consent=self.subject_consent,
             subject_identifier=self.subject_consent.subject_identifier,
             child_dob=get_utcnow(),
             consent_datetime=get_utcnow(),
