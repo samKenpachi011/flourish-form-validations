@@ -36,7 +36,7 @@ class HIVDisclosureStatusFormValidator(FormValidatorMixin, FormValidator):
         for field in other_fields:
             other_specify_field = f'{field}_other'
             self.required_if(OTHER, field=field,
-                             required_fields=other_specify_field)
+                             field_required=other_specify_field)
 
         self.validate_child_age()
 
@@ -64,4 +64,4 @@ class HIVDisclosureStatusFormValidator(FormValidatorMixin, FormValidator):
         child_caregiver_consent_model_cls = django_apps.get_model(
             self.caregiver_child_consent_model)
         return child_caregiver_consent_model_cls.objects.filter(
-            subject_identifier__startswith=self.subject_identifier)
+            subject_consent__subject_identifier=self.subject_identifier)

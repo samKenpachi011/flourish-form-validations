@@ -3,11 +3,10 @@ from django.core.exceptions import ValidationError
 from django.test import tag, TestCase
 from django.utils import timezone
 from edc_base import get_utcnow
-from edc_constants.constants import FEMALE
 
 from flourish_form_validations.form_validators import HIVDisclosureStatusFormValidator
 from flourish_form_validations.tests.models import Appointment, CaregiverChildConsent, \
-    MaternalVisit
+    FlourishConsentVersion, MaternalVisit, SubjectConsent
 from flourish_form_validations.tests.test_model_mixin import TestModeMixin
 
 
@@ -20,15 +19,24 @@ class TestHIVDisclosureStatusFormValidator(TestModeMixin, TestCase):
     def setUp(self):
         self.subject_identifier = '2334432'
 
+        FlourishConsentVersion.objects.create(
+            screening_identifier='ABC12345')
+
+        subject_consent = SubjectConsent.objects.create(
+            subject_identifier='2334432-10', screening_identifier='ABC12345',
+            gender='M', dob=(get_utcnow() - relativedelta(years=25)).date(),
+            consent_datetime=get_utcnow(), version='1')
+
         CaregiverChildConsent.objects.create(
+            subject_consent=subject_consent,
             consent_datetime=get_utcnow(),
             child_dob=get_utcnow() - relativedelta(years=6),
-            subject_identifier='2334432-10')
+            subject_identifier='2334432-10-6')
 
         appointment = Appointment.objects.create(
             subject_identifier='2334432-10',
             appt_datetime=timezone.now(),
-            visit_code='2000',)
+            visit_code='2000', )
 
         self.maternal_visit = MaternalVisit.objects.create(
             subject_identifier=appointment.subject_identifier,
