@@ -234,7 +234,8 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin,
 
             try:
                 consent_obj = self.subject_consent_cls.objects.get(
-                    screening_identifier=self.cleaned_data.get('screening_identifier'),
+                    screening_identifier=self.cleaned_data.get(
+                        'screening_identifier'),
                     version=self.cleaned_data.get('version'))
             except self.subject_consent_cls.DoesNotExist:
                 if consent_age and consent_age < 18:
@@ -346,16 +347,24 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin,
             else:
                 return True
         return False
-    
+
     def validate_age(self):
         """
         Validates if the person being consented is an adult
         """
 
-        dob = self.cleaned_data.get('dob')
-        consent_datetime = self.cleaned_data.get('consent_datetime')
+        dob = self.cleaned_data.get('dob', None)
+        consent_datetime = self.cleaned_data.get('consent_datetime', None)
+
+        if not dob:
+            raise ValidationError({'dob': 'Please specify the date of birth'})
+
+        if not consent_datetime:
+            raise ValidationError(
+                {'consent_datetime': 'Please fill the consent date and time'})
 
         age_in_years = age(dob, consent_datetime.date()).years
 
         if age_in_years < 18:
-            raise ValidationError({'dob': 'The consented individual is below 18'})
+            raise ValidationError(
+                {'dob': 'The consented individual is below 18'})
