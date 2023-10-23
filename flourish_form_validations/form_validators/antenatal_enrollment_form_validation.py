@@ -1,12 +1,31 @@
+from django import forms
+from django.apps import apps as django_apps
 from django.core.exceptions import ValidationError
-from edc_constants.constants import DWTA, IND, NEG, NO, POS, YES
+from edc_constants.constants import YES, POS, NEG, IND, NO, DWTA
 from edc_form_validators import FormValidator
+from flourish_caregiver.helper_classes import EnrollmentHelper
 
 from .crf_form_validator import FormValidatorMixin
 
 
 class AntenatalEnrollmentFormValidator(FormValidatorMixin,
                                        FormValidator):
+
+    antenatal_enrollment_model = 'flourish_caregiver.antenatalenrollment'
+
+    child_consent_model = 'flourish_caregiver.caregiverchildconsent'
+
+    @property
+    def antenatal_enrollment_cls(self):
+        return django_apps.get_model(self.antenatal_enrollment_model)
+
+    @property
+    def child_consent_cls(self):
+        return django_apps.get_model(self.child_consent_model)
+
+    @property
+    def enrolment_helper_cls(self):
+        return EnrollmentHelper
 
     def clean(self):
 
@@ -37,6 +56,18 @@ class AntenatalEnrollmentFormValidator(FormValidatorMixin,
 
         self.validate_current_hiv_status()
 
+        enrollment_helper = self.enrolment_helper_cls(
+            instance_antenatal=self.antenatal_enrollment_cls(
+                **self.cleaned_data),
+            exception_cls=forms.ValidationError)
+
+        try:
+            enrollment_helper.enrollment_hiv_status
+        except ValidationError:
+            raise forms.ValidationError(
+                'Unable to determine maternal hiv status at enrollment.')
+
+        enrollment_helper.raise_validation_error_for_rapidtest()
 
     def validate_current_hiv_status(self):
         if (self.cleaned_data.get('week32_test') == NO and
