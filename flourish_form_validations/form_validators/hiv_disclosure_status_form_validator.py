@@ -42,11 +42,14 @@ class HIVDisclosureStatusFormValidator(FormValidatorMixin, FormValidator):
 
     def validate_child_age(self):
         disclosure_age = self.cleaned_data.get('disclosure_age')
-        if not any(child_age > disclosure_age for child_age in self.child_ages):
-            raise ValidationError(
-                {'disclosure_age': 'Caregiver does not have a child older the age you '
-                                   f'provided for disclosure age. The oldest child is '
-                                   f'{max(self.child_ages)} years old.'})
+        if self.child_ages and disclosure_age:
+            if (not any(
+                child_age > disclosure_age for child_age in self.child_ages)):
+                raise ValidationError(
+                    {'disclosure_age':
+                     'Caregiver does not have a child older than age you '
+                     f'provided for disclosure age. The oldest child is '
+                     f'{max(self.child_ages)} years old.'})
 
     @property
     def child_ages(self):
