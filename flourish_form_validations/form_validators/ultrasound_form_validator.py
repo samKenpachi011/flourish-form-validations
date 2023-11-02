@@ -1,6 +1,7 @@
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
 from edc_form_validators.form_validator import FormValidator
+
 from .crf_form_validator import FormValidatorMixin
 
 
@@ -45,16 +46,15 @@ class UltrasoundFormValidator(FormValidatorMixin, FormValidator):
                 cleaned_data.get('est_edd_ultrasound') >
                 cleaned_data.get('report_datetime').date() +
                 relativedelta(weeks=40)):
-            msg = {'est_edd_ultrasound':
-                   'Estimated edd by ultrasound cannot be'
-                   ' greater than 40 weeks from today'}
+            msg = {'est_edd_ultrasound': 'Estimated edd by ultrasound cannot be'
+                                         ' greater than 40 weeks from today'}
             self._errors.update(msg)
             raise ValidationError(msg)
 
         if cleaned_data.get('ga_by_ultrasound_wks') and (
                 cleaned_data.get('ga_by_ultrasound_wks') > 40):
             msg = {'ga_by_ultrasound_wks':
-                       ('GA by ultrasound cannot be greater than 40 weeks.')}
+                       'GA by ultrasound cannot be greater than 40 weeks.'}
 
             self._errors.update(msg)
             raise ValidationError(msg)
@@ -62,7 +62,7 @@ class UltrasoundFormValidator(FormValidatorMixin, FormValidator):
         if cleaned_data.get('ga_by_ultrasound_days') and (
                 cleaned_data.get('ga_by_ultrasound_days') > 7):
             msg = {'ga_by_ultrasound_days':
-                       ('GA by ultrasound days cannot be greater than 7 days.')}
+                       'GA by ultrasound days cannot be greater than 7 days.'}
 
             self._errors.update(msg)
             raise ValidationError(msg)
@@ -76,9 +76,8 @@ class UltrasoundFormValidator(FormValidatorMixin, FormValidator):
 
             est_conceive_date = (report_datetime.date() -
                                  relativedelta(weeks=ga_by_ultrasound))
-            if (est_edd_ultrasound):
-                weeks_between = (
-                                    (est_edd_ultrasound - est_conceive_date).days) / 7
+            if est_edd_ultrasound:
+                weeks_between = (est_edd_ultrasound - est_conceive_date).days / 7
 
                 if (weeks_between + 1) > ga_by_ultrasound:
 
