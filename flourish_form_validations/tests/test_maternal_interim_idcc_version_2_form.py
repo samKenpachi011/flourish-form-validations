@@ -1,6 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
-from django.test import TestCase
+from django.test import TestCase, tag
 from edc_base.utils import get_utcnow
 from edc_constants.constants import YES, NO
 from unittest.case import skip
@@ -51,6 +51,7 @@ class TestMaternalInterimIdccFormVersion2Validator(TestModeMixin, TestCase):
             'vl_value_and_date_availiable': YES,
             'cd4_value_and_date_availiable': NO,
             'recent_cd4': '400',
+            'vl_detectable': YES,
             'value_vl_size': 'equal',
             'value_vl': 250.2,
             'recent_cd4_date': get_utcnow(),
@@ -72,6 +73,7 @@ class TestMaternalInterimIdccFormVersion2Validator(TestModeMixin, TestCase):
             'any_new_diagnoses': NO,
             'vl_value_and_date_availiable': YES,
             'cd4_value_and_date_availiable': NO,
+            'vl_detectable': YES,
             'value_vl_size': 'equal',
             'value_vl': 4444,
             'recent_vl_date': get_utcnow()
@@ -83,9 +85,9 @@ class TestMaternalInterimIdccFormVersion2Validator(TestModeMixin, TestCase):
         except ValidationError as e:
             self.fail(f'ValidationError unexpectedly raises. Got{e}')
 
-    def test_value_vl_no_less_than_invalid(self):
-        '''Assert raises exception if the last visit is no,
-        but other fields are provided.
+    def test_vl_detectable_is_equal(self):
+        '''Assert raises exception if vl is 
+        detectable but the value_vl_size is not equal
         '''
         cleaned_data = {
             'maternal_visit': self.maternal_visit,
@@ -94,18 +96,19 @@ class TestMaternalInterimIdccFormVersion2Validator(TestModeMixin, TestCase):
             'laboratory_information_available': NO,
             'vl_value_and_date_availiable': YES,
             'cd4_value_and_date_availiable': NO,
-            'value_vl': 250.2,
+            'vl_detectable': YES,
+            'value_vl': 401,
             'recent_vl_date': get_utcnow(),
             'value_vl_size': 'less_than'
         }
         form_validator = MaternalIterimIdccFormVersion2Validator(
             cleaned_data=cleaned_data)
         self.assertRaises(ValidationError, form_validator.validate)
-        self.assertIn('value_vl', form_validator._errors)
+        self.assertIn('value_vl_size', form_validator._errors)
 
-    def test_value_vl_no_less_than_valid(self):
-        '''Assert raises exception if the last visit is no,
-        but other fields are provided.
+    def test_vl_detectable_vl_value_less(self):
+        '''Assert raises exception if vl is 
+        detectable but the value_vl is not greater than 400
         '''
         cleaned_data = {
             'maternal_visit': self.maternal_visit,
@@ -114,40 +117,40 @@ class TestMaternalInterimIdccFormVersion2Validator(TestModeMixin, TestCase):
             'laboratory_information_available': NO,
             'vl_value_and_date_availiable': YES,
             'cd4_value_and_date_availiable': NO,
+            'vl_detectable': YES,
             'value_vl': 400,
             'recent_vl_date': get_utcnow(),
+            'value_vl_size': 'equal'
+        }
+        form_validator = MaternalIterimIdccFormVersion2Validator(
+            cleaned_data=cleaned_data)
+        self.assertRaises(ValidationError, form_validator.validate)
+        self.assertIn('value_vl', form_validator._errors)
+
+    def test_not_vl_detectable_vl_value_equal(self):
+        '''Assert raises exception if vl is not
+        detectable but the value_vl is not equals to 400
+        '''
+        cleaned_data = {
+            'maternal_visit': self.maternal_visit,
+            'info_since_lastvisit': YES,
+            'any_new_diagnoses': NO,
+            'laboratory_information_available': NO,
+            'vl_value_and_date_availiable': YES,
+            'cd4_value_and_date_availiable': NO,
+            'vl_detectable': NO,
+            'value_vl': 403,
+            'recent_vl_date': get_utcnow(),
             'value_vl_size': 'less_than'
         }
         form_validator = MaternalIterimIdccFormVersion2Validator(
             cleaned_data=cleaned_data)
-        try:
-            form_validator.validate()
-        except ValidationError as e:
-            self.fail(f'ValidationError unexpectedly raises. Got{e}')
-
-    def test_value_vl_no_greater_than_invalid(self):
-        '''Assert raises exception if the last visit is no,
-        but other fields are provided.
-        '''
-        cleaned_data = {
-            'maternal_visit': self.maternal_visit,
-            'info_since_lastvisit': YES,
-            'laboratory_information_available': NO,
-            'vl_value_and_date_availiable': YES,
-            'cd4_value_and_date_availiable': NO,
-            'any_new_diagnoses': NO,
-            'value_vl': 250.2,
-            'recent_vl_date': get_utcnow(),
-            'value_vl_size': 'greater_than'
-        }
-        form_validator = MaternalIterimIdccFormVersion2Validator(
-            cleaned_data=cleaned_data)
         self.assertRaises(ValidationError, form_validator.validate)
         self.assertIn('value_vl', form_validator._errors)
 
-    def test_value_vl_no_greater_than_valid(self):
-        '''Assert raises exception if the last visit is no,
-        but other fields are provided.
+    def test_not_vl_detectable_vl_value_less_than(self):
+        '''Assert raises exception if vl is not
+        detectable but the value_vl_size is not less_than
         '''
         cleaned_data = {
             'maternal_visit': self.maternal_visit,
@@ -156,55 +159,31 @@ class TestMaternalInterimIdccFormVersion2Validator(TestModeMixin, TestCase):
             'laboratory_information_available': NO,
             'vl_value_and_date_availiable': YES,
             'cd4_value_and_date_availiable': NO,
-            'value_vl': 10000000,
-            'recent_vl_date': get_utcnow(),
-            'value_vl_size': 'greater_than'
-        }
-        form_validator = MaternalIterimIdccFormVersion2Validator(
-            cleaned_data=cleaned_data)
-        try:
-            form_validator.validate()
-        except ValidationError as e:
-            self.fail(f'ValidationError unexpectedly raises. Got{e}')
-
-    @skip('not sure what is being tested')
-    def test_value_vl_no_equal_invalid(self):
-        '''Assert raises exception if the last visit is no,
-            but other fields are provided.
-            NOTE: There is no check against `equal` response on the
-            validations, so no exception raised as expected. Not
-            sure what's being tested.
-        '''
-        cleaned_data = {
-            'maternal_visit': self.maternal_visit,
-            'info_since_lastvisit': YES,
-            'laboratory_information_available': NO,
-            'vl_result_availiable': YES,
-            'vl_value_and_date_availiable': YES,
-            'cd4_value_and_date_availiable': NO,
-            'value_vl': 250.2,
+            'vl_detectable': NO,
+            'value_vl': 400,
             'recent_vl_date': get_utcnow(),
             'value_vl_size': 'equal'
         }
         form_validator = MaternalIterimIdccFormVersion2Validator(
             cleaned_data=cleaned_data)
         self.assertRaises(ValidationError, form_validator.validate)
-        self.assertIn('value_vl', form_validator._errors)
+        self.assertIn('value_vl_size', form_validator._errors)
 
-    @skip('not sure what is being tested')
-    def test_value_vl_no_equal_valid(self):
-        ''' Assert raises exception if the last visit is no,
-            but other fields are provided.
-            NOTE: There is no check against `equal` response on the
-            validations, so no exception raised as expected. Not
-            sure what's being tested.
+    def test_value_vl_no_less_than_invalid(self):
+        '''Assert raises exception if the vl is detectable but
+          value_vl is less than 400.
         '''
         cleaned_data = {
             'maternal_visit': self.maternal_visit,
             'info_since_lastvisit': YES,
-            'value_vl': 6000,
+            'any_new_diagnoses': NO,
+            'laboratory_information_available': NO,
+            'vl_value_and_date_availiable': YES,
+            'cd4_value_and_date_availiable': NO,
+            'vl_detectable': YES,
+            'value_vl': 250.2,
             'recent_vl_date': get_utcnow(),
-            'value_vl_size': 'equal'
+            'value_vl_size': 'equal',
         }
         form_validator = MaternalIterimIdccFormVersion2Validator(
             cleaned_data=cleaned_data)
