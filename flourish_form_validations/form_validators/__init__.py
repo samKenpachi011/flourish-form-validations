@@ -55,6 +55,7 @@ from .screening_prior_bhp_participants_form_validator import \
     ScreeningPriorBhpParticipantsFormValidator
 from .socio_demographic_data_form_validator import \
     SocioDemographicDataFormValidator
+from .social_work_referral_validator_mixin import SocialWorkReferralValidatorMixin
 from .subject_consent_form_validation import SubjectConsentFormValidator
 from .substance_use_during_form_validator import \
     SubstanceUseDuringPregFormValidator
