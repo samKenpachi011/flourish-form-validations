@@ -13,7 +13,7 @@ from .caregiver_prev_enrolled_form_validator import \
     CaregiverPrevEnrolledFormValidator
 from .caregiver_referral_form_validator import CaregiverReferralFormValidator
 from .caregiver_referral_fu_form_validator import CaregiverReferralFUFormValidator
-from .caregiver_social_work_referral_form import CaregiverSocialWorkReferralFormValidator
+from .caregiver_social_work_referral_form_validator import CaregiverSocialWorkReferralFormValidator
 from .covid19_form_validation import Covid19FormValidator
 from .crf_form_validator import FormValidatorMixin
 from .food_security_questionnaire_form_validator import \
