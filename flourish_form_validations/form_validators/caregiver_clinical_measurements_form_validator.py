@@ -187,7 +187,9 @@ class CaregiverClinicalMeasurementsFormValidator(FormValidatorMixin,
                 self._errors.update(message)
                 raise ValidationError(message)
 
-    def validate_measurement_margin(self, first_measurement_field, second_measurement_field, third_measurement_field):
+    def validate_measurement_margin(self, first_measurement_field,
+                                    second_measurement_field,
+                                    third_measurement_field):
         first_measurement = self.cleaned_data.get(first_measurement_field, None)
         second_measurement = self.cleaned_data.get(second_measurement_field, None)
 
