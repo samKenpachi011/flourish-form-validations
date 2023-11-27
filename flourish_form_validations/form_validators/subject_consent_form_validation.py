@@ -1,9 +1,10 @@
 import re
+
 from django import forms
 from django.apps import apps as django_apps
 from django.core.exceptions import ValidationError
-from edc_base.utils import relativedelta, age, get_utcnow
-from edc_constants.constants import FEMALE, MALE, NO, YES, NOT_APPLICABLE
+from edc_base.utils import age, relativedelta
+from edc_constants.constants import FEMALE, MALE, NO, NOT_APPLICABLE, YES
 from edc_form_validators import FormValidator
 
 from .consents_form_validator_mixin import ConsentsFormValidatorMixin
@@ -12,7 +13,6 @@ from .subject_consent_eligibilty import SubjectConsentEligibility
 
 class SubjectConsentFormValidator(ConsentsFormValidatorMixin,
                                   SubjectConsentEligibility, FormValidator):
-
     prior_screening_model = 'flourish_caregiver.screeningpriorbhpparticipants'
 
     subject_consent_model = 'flourish_caregiver.subjectconsent'
@@ -80,8 +80,8 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin,
             for field in consent_fields:
                 if self.cleaned_data.get(field) != consent_dict[field]:
                     message = {field:
-                               f'{field} was previously reported as, '
-                               f'{consent_dict[field]}, please correct.'}
+                                   f'{field} was previously reported as, '
+                                   f'{consent_dict[field]}, please correct.'}
                     self._errors.update(message)
                     raise ValidationError(message)
 
@@ -92,14 +92,15 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin,
 
         if first_name and not re.match(r'^[A-Z]+$|^([A-Z]+[ ][A-Z]+)$', first_name):
             message = {'first_name': 'Ensure first name is letters (A-Z) in '
-                       'upper case, no special characters, except spaces. Maximum 2 first '
-                       'names allowed.'}
+                                     'upper case, no special characters, except spaces. '
+                                     'Maximum 2 first '
+                                     'names allowed.'}
             self._errors.update(message)
             raise ValidationError(message)
 
         if last_name and not re.match(r'^[A-Z-]+$', last_name):
             message = {'last_name': 'Ensure last name is letters (A-Z) in '
-                       'upper case, no special characters, except hyphens.'}
+                                    'upper case, no special characters, except hyphens.'}
             self._errors.update(message)
             raise ValidationError(message)
 
@@ -116,7 +117,7 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin,
 
         if self.preg_women_screening and self.cleaned_data.get('gender') == MALE:
             message = {'gender': 'Participant is indicated to be pregnant, '
-                       'cannot be male.'}
+                                 'cannot be male.'}
             self._errors.update(message)
             raise ValidationError(message)
 
@@ -166,20 +167,20 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin,
                     if prev_fname and prev_lname:
                         if first_name != prev_fname.upper():
                             message = {'first_name':
-                                       'Participant is the biological mother, first '
-                                       f'name should match {prev_fname}. '}
+                                           'Participant is the biological mother, first '
+                                           f'name should match {prev_fname}. '}
                             self._errors.update(message)
                             raise ValidationError(message)
                         if last_name != prev_lname.upper():
                             message = {'last_name':
-                                       'Participant is the biological mother, last '
-                                       f'name should match {prev_lname}. '}
+                                           'Participant is the biological mother, last '
+                                           f'name should match {prev_lname}. '}
                             self._errors.update(message)
                             raise ValidationError(message)
                 if gender != FEMALE:
                     message = {'gender':
-                               'Participant is the biological mother, gender '
-                               'should be FEMALE. '}
+                                   'Participant is the biological mother, gender '
+                                   'should be FEMALE. '}
                     self._errors.update(message)
                     raise ValidationError(message)
 
@@ -200,27 +201,27 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin,
             if cleaned_data.get('identity') != cleaned_data.get(
                     'confirm_identity'):
                 msg = {'identity':
-                       '\'Identity\' must match \'confirm identity\'.'}
+                           '\'Identity\' must match \'confirm identity\'.'}
                 self._errors.update(msg)
                 raise ValidationError(msg)
             if cleaned_data.get('identity_type') == 'country_id':
                 if len(cleaned_data.get('identity')) != 9:
                     msg = {'identity':
-                           'Country identity provided should contain 9 values.'
-                           ' Please correct.'}
+                               'Country identity provided should contain 9 values.'
+                               ' Please correct.'}
                     self._errors.update(msg)
                     raise ValidationError(msg)
                 gender = cleaned_data.get('gender')
                 if gender == FEMALE and cleaned_data.get('identity')[4] != '2':
                     msg = {'identity':
-                           'Participant gender is Female. Please correct '
-                           'identity number.'}
+                               'Participant gender is Female. Please correct '
+                               'identity number.'}
                     self._errors.update(msg)
                     raise ValidationError(msg)
                 elif gender == MALE and cleaned_data.get('identity')[4] != '1':
                     msg = {'identity':
-                           'Participant is Male. Please correct identity '
-                           'number.'}
+                               'Participant is Male. Please correct identity '
+                               'number.'}
                     self._errors.update(msg)
                     raise ValidationError(msg)
 
@@ -239,8 +240,8 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin,
             except self.subject_consent_cls.DoesNotExist:
                 if consent_age and consent_age < 18:
                     message = {'dob':
-                               'Participant is less than 18 years, age derived '
-                               f'from the DOB is {consent_age}.'}
+                                   'Participant is less than 18 years, age derived '
+                                   f'from the DOB is {consent_age}.'}
                     self._errors.update(message)
                     raise ValidationError(message)
             else:
@@ -248,9 +249,9 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin,
                     consent_datetime.date(), consent_obj.dob).years
                 if consent_age and consent_age != age_in_years:
                     message = {'dob':
-                               'In previous consent the derived age of the '
-                               f'participant is {age_in_years}, but age derived '
-                               f'from the DOB is {consent_age}.'}
+                                   'In previous consent the derived age of the '
+                                   f'participant is {age_in_years}, but age derived '
+                                   f'from the DOB is {consent_age}.'}
                     self._errors.update(message)
                     raise ValidationError(message)
 
@@ -275,7 +276,7 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin,
         if (self.preg_women_screening and not self.bhp_prior_screening
                 and self.cleaned_data.get('recruitment_clinic') == 'Prior'):
             message = {'recruitment_clinic':
-                       'Participant is pregnant, cannot be from prior BHP Study.'}
+                           'Participant is pregnant, cannot be from prior BHP Study.'}
             self._errors.update(message)
             raise ValidationError(message)
 
@@ -291,15 +292,15 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin,
         subject_eligibie = self.subject_eligible(cleaned_data=cleaned_data)
         if not subject_eligibie and cleaned_data.get('child_consent') != NOT_APPLICABLE:
             message = {'child_consent':
-                       'Caregiver is not eligible for participation, this field '
-                       'is not applicable.'}
+                           'Caregiver is not eligible for participation, this field '
+                           'is not applicable.'}
             self._errors.update(message)
             raise ValidationError(message)
         elif subject_eligibie and self.bhp_prior_screening:
             if cleaned_data.get('child_consent') == NOT_APPLICABLE:
                 message = {'child_consent':
-                           'Caregiver is eligible for participation, this '
-                           'field is applicable.'}
+                               'Caregiver is eligible for participation, this '
+                               'field is applicable.'}
                 self._errors.update(message)
                 raise ValidationError(message)
 
@@ -346,7 +347,7 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin,
             else:
                 return True
         return False
-    
+
     def validate_age(self):
         """
         Validates if the person being consented is an adult
@@ -355,7 +356,8 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin,
         dob = self.cleaned_data.get('dob')
         consent_datetime = self.cleaned_data.get('consent_datetime')
 
-        age_in_years = age(dob, consent_datetime.date()).years
+        if dob and consent_datetime:
+            age_in_years = age(dob, consent_datetime.date()).years
 
-        if age_in_years < 18:
-            raise ValidationError({'dob': 'The consented individual is below 18'})
+            if age_in_years < 18:
+                raise ValidationError({'dob': 'The consented individual is below 18'})
