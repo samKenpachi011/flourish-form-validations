@@ -1,8 +1,7 @@
 from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
 from django.core.exceptions import ValidationError
-
-from edc_constants.constants import YES, NO, NEG, IND, POS, UNK
+from edc_constants.constants import IND, NEG, NO, POS, UNK, YES
 from edc_form_validators.form_validator import FormValidator
 
 
@@ -40,13 +39,13 @@ class CaregiverPrevEnrolledFormValidator(FormValidator):
         if (self.cleaned_data.get('maternal_prev_enroll') == YES and
                 self.flourish_participation_interest('another_caregiver_interested')):
             message = {'maternal_prev_enroll':
-                       'Participant is not from any bhp prior studies'}
+                           'Participant is not from any bhp prior studies'}
             self._errors.update(message)
             raise ValidationError(message)
         elif (self.cleaned_data.get('maternal_prev_enroll') == NO and
               self.flourish_participation_interest('interested')):
             message = {'maternal_prev_enroll':
-                       'Participant is from a prior bhp study'}
+                           'Participant is from a prior bhp study'}
             self._errors.update(message)
             raise ValidationError(message)
 
@@ -87,7 +86,7 @@ class CaregiverPrevEnrolledFormValidator(FormValidator):
                         'report_datetime').date() - relativedelta(months=3)
                     if test_date < difference:
                         msg = {'test_date':
-                               'HIV test date should not be older than 3 months'}
+                                   'HIV test date should not be older than 3 months'}
                         self._errors.update(msg)
                         raise ValidationError(msg)
 
@@ -133,7 +132,8 @@ class CaregiverPrevEnrolledFormValidator(FormValidator):
             subject_identifier=self.subject_consent_obj.subject_identifier)
 
         if maternal_dataset_objs:
-            mom_hiv_statuses = maternal_dataset_objs.values_list('mom_hivstatus', flat=True)
+            mom_hiv_statuses = maternal_dataset_objs.values_list('mom_hivstatus',
+                                                                 flat=True)
 
             if 'HIV-infected' in mom_hiv_statuses:
                 return POS
@@ -144,9 +144,10 @@ class CaregiverPrevEnrolledFormValidator(FormValidator):
     @property
     def subject_consent_obj(self):
         try:
-            subject_consent = self.subject_consent_model_cls.objects.get(
+            subject_consent = self.subject_consent_model_cls.objects.filter(
                 subject_identifier=self.cleaned_data.get(
-                    'subject_identifier'))
+                    'subject_identifier')).latest(
+                'consent_datetime')
         except self.subject_consent_model_cls.DoesNotExist:
             return None
         else:
@@ -156,8 +157,9 @@ class CaregiverPrevEnrolledFormValidator(FormValidator):
 
         child_assents_exists = []
 
-        child_consents = self.subject_consent_model_cls.objects.get(
-            subject_identifier=subject_identifier).caregiverchildconsent_set \
+        child_consents = self.subject_consent_model_cls.objects.filter(
+            subject_identifier=subject_identifier).latest(
+            'consent_datetime').caregiverchildconsent_set \
             .only('child_age_at_enrollment', 'is_eligible') \
             .filter(is_eligible=True,
                     child_age_at_enrollment__gte=7,
