@@ -4,7 +4,7 @@ import re
 from django.apps import apps as django_apps
 from django.core.exceptions import ValidationError
 from edc_base.utils import age
-from edc_constants.choices import FEMALE, MALE, YES, NO, NOT_APPLICABLE
+from edc_constants.choices import FEMALE, MALE, NO, NOT_APPLICABLE, YES
 from edc_form_validators import FormValidator
 from edc_form_validators.base_form_validator import NOT_APPLICABLE_ERROR
 
@@ -165,8 +165,7 @@ class CaregiverChildConsentFormValidator(FormValidator):
                     raise ValidationError(msg)
                 elif gender == MALE and cleaned_data.get('identity')[4] != '1':
                     msg = {'identity':
-                               'Participant is Male. Please correct identity '
-                               'number.'}
+                               'Participant is Male. Please correct identity number.'}
                     self._errors.update(msg)
                     raise ValidationError(msg)
 
@@ -183,20 +182,21 @@ class CaregiverChildConsentFormValidator(FormValidator):
         child_dob = cleaned_data.get('child_dob')
         consent_date = cleaned_data.get('consent_datetime')
 
+        # consent date should be used instead of the time right now
         if child_dob and consent_date:
-            child_dob = datetime.datetime.strptime(child_dob, "%Y-%m-%d").date()
-            # consent date should be used instead of the time right now
-            child_age = age(child_dob, consent_date).years
+            child_dob = datetime.datetime.strptime(child_dob, "%Y-%m-%d")
+            child_age = 0
+            if child_dob.date() < consent_date.date():
+                child_age = age(child_dob, consent_date).years
+
             if child_age < 16 and cleaned_data.get(
                     'child_knows_status') in [YES, NO]:
-                msg = {'child_knows_status':
-                           'Child is less than 16 years'}
+                msg = {'child_knows_status': 'Child is less than 16 years'}
                 self._errors.update(msg)
                 raise ValidationError(msg)
             elif child_age >= 16 and cleaned_data.get(
                     'child_knows_status') == NOT_APPLICABLE:
-                msg = {'child_knows_status':
-                           'This field is applicable'}
+                msg = {'child_knows_status': 'This field is applicable'}
                 self._errors.update(msg)
                 raise ValidationError(msg)
 
@@ -204,7 +204,8 @@ class CaregiverChildConsentFormValidator(FormValidator):
 
         child_dob = cleaned_data.get('child_dob')
         if child_dob:
-            date_jun_2025 = datetime.datetime.strptime("2025-01-30", "%Y-%m-%d").date()
+            date_jun_2025 = datetime.datetime.strptime("2025-01-30",
+                                                       "%Y-%m-%d").date()
             child_dob = datetime.datetime.strptime(child_dob, "%Y-%m-%d").date()
             child_age_at_2025 = age(child_dob, date_jun_2025).years
             if cleaned_data.get('gender') == 'F':
