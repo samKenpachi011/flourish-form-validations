@@ -85,7 +85,8 @@ class ObstericalHistoryFormValidator(FormValidatorMixin, FormValidator):
             self._errors.update(message)
             raise ValidationError(message)
 
-        if self.ultrasound_ga_confirmed < 24 and pregs_lt_24wks != 1:
+        if (self.ultrasound_ga_confirmed and (
+                self.ultrasound_ga_confirmed < 24 and pregs_lt_24wks != 1)):
             message = {'pregs_lt_24wks':
                        'Pregnancies less than 24 weeks should be '
                        'equal to 1.'}
@@ -98,30 +99,31 @@ class ObstericalHistoryFormValidator(FormValidatorMixin, FormValidator):
 
         prev_pregnancies = cleaned_data.get('prev_pregnancies')
 
-        if prev_pregnancies == 1 and self.ultrasound_ga_confirmed > 24:
-
-            fields = ['lost_before_24wks', 'lost_after_24wks',
-                      'children_died_aft_5yrs']
-
-            for field in fields:
-                if (field in cleaned_data and
-                        cleaned_data.get(field) != 0):
-                    message = {field: 'You indicated previous pregnancies were '
-                                      f'{prev_pregnancies}, {field} should be '
-                                      f'zero as the current pregnancy is more '
-                                      f'than 24 weeks.'}
-                    self._errors.update(message)
-                    raise ValidationError(message)
-
-        elif prev_pregnancies == 1 and self.ultrasound_ga_confirmed < 24:
-            fields = ['pregs_24wks_or_more', 'lost_after_24wks', ]
-            for field in fields:
-                if cleaned_data.get(field) != 0:
-                    raise ValidationError(
-                        {field: 'You indicated previous pregnancies were '
-                                f'{prev_pregnancies}, {field} should be '
-                                f'zero as the current pregnancy is not more '
-                                f'than 24 weeks.'})
+        if self.ultrasound_ga_confirmed:
+            if prev_pregnancies == 1 and self.ultrasound_ga_confirmed > 24:
+    
+                fields = ['lost_before_24wks', 'lost_after_24wks',
+                          'children_died_aft_5yrs']
+    
+                for field in fields:
+                    if (field in cleaned_data and
+                            cleaned_data.get(field) != 0):
+                        message = {field: 'You indicated previous pregnancies were '
+                                          f'{prev_pregnancies}, {field} should be '
+                                          f'zero as the current pregnancy is more '
+                                          f'than 24 weeks.'}
+                        self._errors.update(message)
+                        raise ValidationError(message)
+    
+            elif prev_pregnancies == 1 and self.ultrasound_ga_confirmed < 24:
+                fields = ['pregs_24wks_or_more', 'lost_after_24wks', ]
+                for field in fields:
+                    if cleaned_data.get(field) != 0:
+                        raise ValidationError(
+                            {field: 'You indicated previous pregnancies were '
+                                    f'{prev_pregnancies}, {field} should be '
+                                    f'zero as the current pregnancy is not more '
+                                    f'than 24 weeks.'})
 
     def validate_children_delivery(self, cleaned_data=None):
         if None not in [cleaned_data.get('children_deliv_before_37wks'),
@@ -183,7 +185,8 @@ class ObstericalHistoryFormValidator(FormValidatorMixin, FormValidator):
                                   'number of pregnancies less than 24 weeks and '
                                   'number of pregnancies at least 24 weeks i.e. (Q4 + Q5)')
 
-        if self.ultrasound_ga_confirmed > 24 and pregs_24wks_or_more < 1:
+        if (self.ultrasound_ga_confirmed and (
+                self.ultrasound_ga_confirmed > 24 and pregs_24wks_or_more < 1)):
             message = {'pregs_24wks_or_more':
                            'Pregnancies more than 24 weeks should be '
                            'more than 1 including the current pregnancy'}
