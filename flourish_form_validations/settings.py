@@ -59,7 +59,11 @@ INSTALLED_APPS = [
     'django_crypto_fields.apps.AppConfig',
     'edc_device.apps.AppConfig',
     'edc_protocol.apps.AppConfig',
+    'edc_timepoint.apps.AppConfig',
+    'edc_appointment.apps.AppConfig',
     'flourish_form_validations.apps.AppConfig',
+
+
 ]
 
 MIDDLEWARE = [

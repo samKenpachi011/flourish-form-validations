@@ -11,7 +11,9 @@ class MaternalArvAtDeliveryFormValidations(FormValidatorMixin, FormValidator):
                          field='change_reason',
                          field_required='change_reason_other')
 
-        self.required_if(YES, field_required='change_reason', field='last_visit_change')
+        self.required_if(YES,
+                         field_required='change_reason',
+                         field='last_visit_change')
 
         self.applicable_if_true(
             self.is_arv_treatment(),

@@ -3,14 +3,13 @@ import re
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ValidationError
-from edc_base.utils import age, get_utcnow
-from edc_constants.choices import FEMALE, MALE, YES, NO, NOT_APPLICABLE
+from edc_base.utils import age
+from edc_constants.choices import FEMALE, MALE, NO, NOT_APPLICABLE, YES
 from edc_form_validators import FormValidator
 from edc_form_validators.base_form_validator import NOT_APPLICABLE_ERROR
 
 
 class CaregiverChildConsentFormValidator(FormValidator):
-
     child_dataset_model = 'flourish_child.childdataset'
 
     preg_women_screening_model = 'flourish_caregiver.screeningpregwomen'
@@ -37,10 +36,10 @@ class CaregiverChildConsentFormValidator(FormValidator):
         not_preg_required_fields = ['first_name', 'last_name']
 
         for field in not_preg_required_fields:
-
-            self.required_if_true(self.cleaned_data.get('study_child_identifier') is not None,
-                                  field_required=field,
-                                  inverse=False)
+            self.required_if_true(
+                self.cleaned_data.get('study_child_identifier') is not None,
+                field_required=field,
+                inverse=False)
 
         self.validate_previously_enrolled(cleaned_data=self.cleaned_data)
         self.clean_full_name_syntax()
@@ -69,16 +68,23 @@ class CaregiverChildConsentFormValidator(FormValidator):
             gender_dict = {FEMALE: 'Female',
                            MALE: 'Male'}
             gender = gender_dict.get(cleaned_data.get('gender'))
+            date_str = cleaned_data.get('child_dob')
+            date_obj = None
+            if date_str:
+                year, month, day = map(int, date_str.split('-'))
+                date_obj = datetime.date(year, month, day)
 
             if gender and cleaned_data.get('child_dob'):
                 try:
                     self.child_dataset_cls.objects.get(
                         study_child_identifier=cleaned_data.get('study_child_identifier'),
                         infant_sex=gender,
-                        dob=cleaned_data.get('child_dob'))
+                        dob=date_obj)
                 except self.child_dataset_cls.DoesNotExist:
-                    message = {'study_child_identifier': 'No child dataset exists for the '
-                               'specified child identifier, gender and dob.'}
+                    message = {
+                        'study_child_identifier': 'No child dataset exists for the '
+                                                  'specified child identifier, '
+                                                  'gender and dob.'}
                     self._errors.update(message)
                     raise ValidationError(message)
             else:
@@ -86,8 +92,9 @@ class CaregiverChildConsentFormValidator(FormValidator):
                     self.child_dataset_cls.objects.get(
                         study_child_identifier=cleaned_data.get('study_child_identifier'))
                 except self.child_dataset_cls.DoesNotExist:
-                    message = {'study_child_identifier': 'No child dataset exists for the '
-                               'specified child identifier'}
+                    message = {
+                        'study_child_identifier': 'No child dataset exists for the '
+                                                  'specified child identifier'}
                     self._errors.update(message)
                     raise ValidationError(message)
 
@@ -99,15 +106,17 @@ class CaregiverChildConsentFormValidator(FormValidator):
         if first_name:
             if not re.match(r'^[A-Z]+$|^([A-Z]+[ ][A-Z]+)$', first_name):
                 message = {'first_name': 'Ensure first name is letters (A-Z) in '
-                           'upper case, no special characters, except spaces. Maximum 2 first '
-                           'names allowed.'}
+                                         'upper case, no special characters, '
+                                         'except spaces. Maximum 2 first '
+                                         'names allowed.'}
                 self._errors.update(message)
                 raise ValidationError(message)
 
         if last_name:
             if not re.match(r'^[A-Z-]+$', last_name):
                 message = {'last_name': 'Ensure last name is letters (A-Z) in '
-                           'upper case, no special characters, except hyphens.'}
+                                        'upper case, no special characters, '
+                                        'except hyphens.'}
                 self._errors.update(message)
                 raise ValidationError(message)
 
@@ -136,37 +145,35 @@ class CaregiverChildConsentFormValidator(FormValidator):
             if cleaned_data.get('identity') != cleaned_data.get(
                     'confirm_identity'):
                 msg = {'identity':
-                       '\'Identity\' must match \'confirm identity\'.'}
+                           '\'Identity\' must match \'confirm identity\'.'}
                 self._errors.update(msg)
                 raise ValidationError(msg)
             if cleaned_data.get('identity_type') in ['country_id',
                                                      'birth_cert']:
                 if len(cleaned_data.get('identity')) != 9:
                     msg = {'identity':
-                           'Country identity provided should contain 9 values. '
-                           'Please correct.'}
+                               'Country identity provided should contain 9 values. '
+                               'Please correct.'}
                     self._errors.update(msg)
                     raise ValidationError(msg)
                 gender = cleaned_data.get('gender')
                 if gender == FEMALE and cleaned_data.get('identity')[4] != '2':
                     msg = {'identity':
-                           'Participant gender is Female. Please correct '
-                           'identity number.'}
+                               'Participant gender is Female. Please correct '
+                               'identity number.'}
                     self._errors.update(msg)
                     raise ValidationError(msg)
                 elif gender == MALE and cleaned_data.get('identity')[4] != '1':
                     msg = {'identity':
-                           'Participant is Male. Please correct identity '
-                           'number.'}
+                               'Participant is Male. Please correct identity number.'}
                     self._errors.update(msg)
                     raise ValidationError(msg)
 
     def validate_child_preg_test(self, cleaned_data=None):
         if (cleaned_data.get('gender') and cleaned_data.get('gender') == 'M'
                 and cleaned_data.get('child_preg_test') in [YES, NO]):
-
             msg = {'child_preg_test':
-                   'Can only be answered as Not applicable since child is Male'}
+                       'Can only be answered as Not applicable since child is Male'}
             self._errors.update(msg)
             raise ValidationError(msg)
 
@@ -174,21 +181,22 @@ class CaregiverChildConsentFormValidator(FormValidator):
 
         child_dob = cleaned_data.get('child_dob')
         consent_date = cleaned_data.get('consent_datetime')
-        
+
+        # consent date should be used instead of the time right now
         if child_dob and consent_date:
-            child_dob = datetime.datetime.strptime(child_dob, "%Y-%m-%d").date()
-            # consent date should be used instead of the time right now
-            child_age = age(child_dob, consent_date).years
+            child_dob = datetime.datetime.strptime(child_dob, "%Y-%m-%d")
+            child_age = 0
+            if child_dob.date() < consent_date.date():
+                child_age = age(child_dob, consent_date).years
+
             if child_age < 16 and cleaned_data.get(
                     'child_knows_status') in [YES, NO]:
-                msg = {'child_knows_status':
-                       'Child is less than 16 years'}
+                msg = {'child_knows_status': 'Child is less than 16 years'}
                 self._errors.update(msg)
                 raise ValidationError(msg)
             elif child_age >= 16 and cleaned_data.get(
                     'child_knows_status') == NOT_APPLICABLE:
-                msg = {'child_knows_status':
-                       'This field is applicable'}
+                msg = {'child_knows_status': 'This field is applicable'}
                 self._errors.update(msg)
                 raise ValidationError(msg)
 
@@ -196,20 +204,21 @@ class CaregiverChildConsentFormValidator(FormValidator):
 
         child_dob = cleaned_data.get('child_dob')
         if child_dob:
-            date_jun_2025 = datetime.datetime.strptime("2025-01-30", "%Y-%m-%d").date()
+            date_jun_2025 = datetime.datetime.strptime("2025-01-30",
+                                                       "%Y-%m-%d").date()
             child_dob = datetime.datetime.strptime(child_dob, "%Y-%m-%d").date()
             child_age_at_2025 = age(child_dob, date_jun_2025).years
             if cleaned_data.get('gender') == 'F':
                 if (child_age_at_2025 < 12
                         and cleaned_data.get('child_preg_test') != NOT_APPLICABLE):
                     msg = {'child_preg_test':
-                           'Child will not be 12 years old by 2025, This field is '
-                           'not applicable'}
+                               'Child will not be 12 years old by 2025, This field is '
+                               'not applicable'}
                     self._errors.update(msg)
                     raise ValidationError(msg)
                 elif (child_age_at_2025 >= 12
-                        and cleaned_data.get('child_preg_test') == NOT_APPLICABLE):
+                      and cleaned_data.get('child_preg_test') == NOT_APPLICABLE):
                     msg = {'child_preg_test':
-                           'Child is Female. This field is applicable'}
+                               'Child is Female. This field is applicable'}
                     self._errors.update(msg)
                     raise ValidationError(msg)

@@ -113,10 +113,11 @@ class SocioDemographicDataFormValidator(FormValidatorMixin, FormValidator):
             except self.child_socio_demographic_cls.DoesNotExist:
                 pass
             else:
-                stay_with_child = self.cleaned_data.get('stay_with_child')
-                if child_sociodemographics.stay_with_caregiver != stay_with_child:
+                stay_with_child = self.cleaned_data.get('stay_with_child', None)
+                if (stay_with_child and
+                    getattr(child_sociodemographics, 'stay_with_caregiver', None) != stay_with_child):
                     raise ValidationError({'stay_with_child':
-                                               'The response don\'t match with the '
-                                               f' Child Social demographics CRF at '
-                                               f'visit '
-                                               f'{child_sociodemographics.visit_code}'})
+                                           'The response don\'t match with the '
+                                           f' Child Social demographics CRF at '
+                                           f'visit '
+                                           f'{child_sociodemographics.visit_code}'})

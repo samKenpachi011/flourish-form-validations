@@ -1,9 +1,9 @@
 from django.apps import apps as django_apps
 from django.core.exceptions import ValidationError
-from edc_constants.constants import YES, NO, NOT_APPLICABLE, POS
+from edc_constants.constants import NO, NOT_APPLICABLE, POS, YES
 from edc_form_validators import FormValidator
-from flourish_caregiver.helper_classes import MaternalStatusHelper
 
+from flourish_caregiver.helper_classes import MaternalStatusHelper
 from .crf_form_validator import FormValidatorMixin
 
 
@@ -23,9 +23,20 @@ class MedicalHistoryFormValidator(FormValidatorMixin, FormValidator):
             'maternal_visit').subject_identifier
         super().clean()
 
+        self.validate_other_specify(field='current_symptoms')
+
+        illness_fields = ['current_symptoms', 'symptoms_start_date', 'clinic_visit']
+
+        for field in illness_fields:
+            self.required_if(
+                YES,
+                field_required=field,
+                field='current_illness',
+            )
+
         self.validate_caregiver_chronic_multiple_selection(
             cleaned_data=self.cleaned_data)
-        self.validate_chronic_since_who_diagnosis_neg(
+        self.validate_who_diagnosis_neg(
             cleaned_data=self.cleaned_data)
         self.validate_who_diagnosis_who_chronic_list(
             cleaned_data=self.cleaned_data)
@@ -34,10 +45,9 @@ class MedicalHistoryFormValidator(FormValidatorMixin, FormValidator):
         self.validate_other_caregiver_medications()
         self.applicable_if_true(
             self.subject_status == POS,
-            field_applicable='know_hiv_status',)
+            field_applicable='know_hiv_status', )
 
-    def validate_chronic_since_who_diagnosis_neg(self, cleaned_data=None):
-
+    def validate_who_diagnosis_neg(self, cleaned_data=None):
         subject_status = self.maternal_status_helper.hiv_status
 
         self.applicable_if_true(
@@ -58,8 +68,8 @@ class MedicalHistoryFormValidator(FormValidatorMixin, FormValidator):
                 selected = {obj.short_name: obj.name for obj in qs}
                 if 'who_na' in selected:
                     msg = {'who':
-                           'Participant indicated that they had WHO stage III '
-                           'and IV, list of diagnosis cannot be N/A'}
+                               'Participant indicated that they had WHO stage III '
+                               'and IV, list of diagnosis cannot be N/A'}
                     self._errors.update(msg)
                     raise ValidationError(msg)
         elif cleaned_data.get('who_diagnosis') != YES:
@@ -67,6 +77,11 @@ class MedicalHistoryFormValidator(FormValidatorMixin, FormValidator):
             message = ('Participant did not indicate that they have WHO stage'
                        ' III and IV, list of diagnosis must be N/A')
             self.validate_m2m_na(m2m, response='who_na', message=message)
+
+        self.m2m_other_specify(
+            'who_other',
+            m2m_field='who',
+            field_other='who_other')
 
     def validate_caregiver_chronic_multiple_selection(self, cleaned_data=None):
         selected = {}
@@ -76,15 +91,15 @@ class MedicalHistoryFormValidator(FormValidatorMixin, FormValidator):
         if cleaned_data.get('chronic_since') == YES:
             if 'mhist_na' in selected:
                 msg = {'caregiver_chronic':
-                       'Participant indicated that they had chronic'
-                       ' conditions list of diagnosis cannot be N/A'}
+                           'Participant indicated that they had chronic'
+                           ' conditions list of diagnosis cannot be N/A'}
                 self._errors.update(msg)
                 raise ValidationError(msg)
         elif cleaned_data.get('chronic_since') == NO:
             if 'mhist_na' not in selected:
                 msg = {'caregiver_chronic':
-                       'Participant indicated that they had no chronic '
-                       'conditions list of diagnosis should be N/A'}
+                           'Participant indicated that they had no chronic '
+                           'conditions list of diagnosis should be N/A'}
                 self._errors.update(msg)
                 raise ValidationError(msg)
         self.m2m_single_selection_if(

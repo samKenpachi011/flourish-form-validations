@@ -1,9 +1,10 @@
 import re
+
 from django import forms
 from django.apps import apps as django_apps
 from django.core.exceptions import ValidationError
-from edc_base.utils import relativedelta, age, get_utcnow
-from edc_constants.constants import FEMALE, MALE, NO, YES, NOT_APPLICABLE
+from edc_base.utils import age, relativedelta
+from edc_constants.constants import FEMALE, MALE, NO, NOT_APPLICABLE, YES
 from edc_form_validators import FormValidator
 
 from .consents_form_validator_mixin import ConsentsFormValidatorMixin
@@ -12,7 +13,6 @@ from .subject_consent_eligibilty import SubjectConsentEligibility
 
 class SubjectConsentFormValidator(ConsentsFormValidatorMixin,
                                   SubjectConsentEligibility, FormValidator):
-
     prior_screening_model = 'flourish_caregiver.screeningpriorbhpparticipants'
 
     subject_consent_model = 'flourish_caregiver.subjectconsent'
@@ -92,14 +92,15 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin,
 
         if first_name and not re.match(r'^[A-Z]+$|^([A-Z]+[ ][A-Z]+)$', first_name):
             message = {'first_name': 'Ensure first name is letters (A-Z) in '
-                       'upper case, no special characters, except spaces. Maximum 2 first '
-                       'names allowed.'}
+                                     'upper case, no special characters, except spaces. '
+                                     'Maximum 2 first '
+                                     'names allowed.'}
             self._errors.update(message)
             raise ValidationError(message)
 
         if last_name and not re.match(r'^[A-Z-]+$', last_name):
             message = {'last_name': 'Ensure last name is letters (A-Z) in '
-                       'upper case, no special characters, except hyphens.'}
+                                    'upper case, no special characters, except hyphens.'}
             self._errors.update(message)
             raise ValidationError(message)
 
@@ -116,7 +117,7 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin,
 
         if self.preg_women_screening and self.cleaned_data.get('gender') == MALE:
             message = {'gender': 'Participant is indicated to be pregnant, '
-                       'cannot be male.'}
+                                 'cannot be male.'}
             self._errors.update(message)
             raise ValidationError(message)
 
@@ -363,8 +364,9 @@ class SubjectConsentFormValidator(ConsentsFormValidatorMixin,
             raise ValidationError(
                 {'consent_datetime': 'Please fill the consent date and time'})
 
-        age_in_years = age(dob, consent_datetime.date()).years
+        if dob and consent_datetime:
+            age_in_years = age(dob, consent_datetime.date()).years
 
-        if age_in_years < 18:
-            raise ValidationError(
-                {'dob': 'The consented individual is below 18'})
+            if age_in_years < 18:
+                raise ValidationError(
+                    {'dob': 'The consented individual is below 18'})

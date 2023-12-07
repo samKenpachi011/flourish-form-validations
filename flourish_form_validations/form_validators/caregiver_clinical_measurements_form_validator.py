@@ -23,8 +23,8 @@ class CaregiverClinicalMeasurementsFormValidator(FormValidatorMixin,
         if (cleaned_data.get('systolic_bp') and cleaned_data.get('diastolic_bp')):
             if cleaned_data.get('systolic_bp') < cleaned_data.get('diastolic_bp'):
                 msg = {'diastolic_bp':
-                           'Systolic blood pressure cannot be lower than the'
-                           'diastolic blood pressure. Please correct.'}
+                       'Systolic blood pressure cannot be lower than the'
+                       'diastolic blood pressure. Please correct.'}
                 self._errors.update(msg)
                 raise ValidationError(msg)
 
@@ -187,7 +187,9 @@ class CaregiverClinicalMeasurementsFormValidator(FormValidatorMixin,
                 self._errors.update(message)
                 raise ValidationError(message)
 
-    def validate_measurement_margin(self, first_measurement_field, second_measurement_field, third_measurement_field):
+    def validate_measurement_margin(self, first_measurement_field,
+                                    second_measurement_field,
+                                    third_measurement_field):
         first_measurement = self.cleaned_data.get(first_measurement_field, None)
         second_measurement = self.cleaned_data.get(second_measurement_field, None)
 
