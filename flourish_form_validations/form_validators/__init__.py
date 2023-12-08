@@ -18,6 +18,7 @@ from .caregiver_social_work_referral_form_validator import \
     CaregiverSocialWorkReferralFormValidator
 from .caregiver_social_work_referral_form_validator import \
     CaregiverSocialWorkReferralFormValidator
+from .caregiver_safi_stigma_validator import CaregiverSafiStigmaFormValidator
 from .caregiver_tb_referral_outcome_form_validator import \
     CaregiverTBReferralOutcomeFormValidator
 from .caregiver_tb_screening_form_validator import CaregiverTBScreeningFormValidator
