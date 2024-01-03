@@ -1,6 +1,6 @@
 from django.apps import apps as django_apps
 from django.core.exceptions import ValidationError
-from edc_constants.constants import NO, NOT_APPLICABLE, POS, YES
+from edc_constants.constants import NO, NOT_APPLICABLE, POS, YES, OTHER
 from edc_form_validators import FormValidator
 
 from flourish_caregiver.helper_classes import MaternalStatusHelper
@@ -23,11 +23,19 @@ class MedicalHistoryFormValidator(FormValidatorMixin, FormValidator):
             'maternal_visit').subject_identifier
         super().clean()
 
-        self.validate_other_specify(field='current_symptoms')
+        self.m2m_other_specify(OTHER, m2m_field='current_symptoms',
+                               field_other='current_symptoms_other')
 
-        illness_fields = ['current_symptoms', 'symptoms_start_date', 'clinic_visit']
+        illness_fields = ['current_symptoms',
+                          'symptoms_start_date', 'clinic_visit']
 
         for field in illness_fields:
+
+            if field == 'current_symptoms':
+                self.m2m_required_if(YES,
+                                     field='current_illness',
+                                     m2m_field=field)
+                continue
             self.required_if(
                 YES,
                 field_required=field,
@@ -68,8 +76,8 @@ class MedicalHistoryFormValidator(FormValidatorMixin, FormValidator):
                 selected = {obj.short_name: obj.name for obj in qs}
                 if 'who_na' in selected:
                     msg = {'who':
-                               'Participant indicated that they had WHO stage III '
-                               'and IV, list of diagnosis cannot be N/A'}
+                           'Participant indicated that they had WHO stage III '
+                           'and IV, list of diagnosis cannot be N/A'}
                     self._errors.update(msg)
                     raise ValidationError(msg)
         elif cleaned_data.get('who_diagnosis') != YES:
@@ -91,15 +99,15 @@ class MedicalHistoryFormValidator(FormValidatorMixin, FormValidator):
         if cleaned_data.get('chronic_since') == YES:
             if 'mhist_na' in selected:
                 msg = {'caregiver_chronic':
-                           'Participant indicated that they had chronic'
-                           ' conditions list of diagnosis cannot be N/A'}
+                       'Participant indicated that they had chronic'
+                       ' conditions list of diagnosis cannot be N/A'}
                 self._errors.update(msg)
                 raise ValidationError(msg)
         elif cleaned_data.get('chronic_since') == NO:
             if 'mhist_na' not in selected:
                 msg = {'caregiver_chronic':
-                           'Participant indicated that they had no chronic '
-                           'conditions list of diagnosis should be N/A'}
+                       'Participant indicated that they had no chronic '
+                       'conditions list of diagnosis should be N/A'}
                 self._errors.update(msg)
                 raise ValidationError(msg)
         self.m2m_single_selection_if(

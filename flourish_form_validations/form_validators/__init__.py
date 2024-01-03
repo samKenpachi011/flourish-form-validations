@@ -16,8 +16,6 @@ from .caregiver_referral_form_validator import CaregiverReferralFormValidator
 from .caregiver_referral_fu_form_validator import CaregiverReferralFUFormValidator
 from .caregiver_social_work_referral_form_validator import \
     CaregiverSocialWorkReferralFormValidator
-from .caregiver_social_work_referral_form_validator import \
-    CaregiverSocialWorkReferralFormValidator
 from .caregiver_tb_referral_outcome_form_validator import \
     CaregiverTBReferralOutcomeFormValidator
 from .caregiver_tb_screening_form_validator import CaregiverTBScreeningFormValidator
