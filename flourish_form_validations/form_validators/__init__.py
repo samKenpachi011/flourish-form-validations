@@ -3,6 +3,7 @@ from .antenatal_enrollment_form_validation import \
 from .arvs_pre_pregnancy_form_validation import ArvsPrePregnancyFormValidator
 from .breastfeeding_questionnaire_form_validator import \
     BreastFeedingQuestionnaireFormValidator
+from .brief_danger_assessment_form_validator import BriefDangerAssessmentFormValidator
 from .caregiver_child_consent_form_validator import \
     CaregiverChildConsentFormValidator
 from .caregiver_clinical_measurements_form_validator import \
