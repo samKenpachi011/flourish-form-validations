@@ -14,13 +14,6 @@ class RelationshipFatherInvolvementFormValidator(FormValidatorMixin, FormValidat
     maternal_delivery_model = 'flourish_caregiver.maternaldelivery'
     caregiver_child_consent_model = 'flourish_caregiver.caregiverchildconsent'
 
-    def onschedule_model(self, instance=None):
-        schedule = getattr(instance, 'schedule', None)
-        return getattr(schedule, 'onschedule_model', None)
-
-    def onschedule_model_cls(self, onschedule_model):
-        return django_apps.get_model(onschedule_model)
-
     @property
     def maternal_delivery_model_cls(self):
         return django_apps.get_model(self.maternal_delivery_model)
@@ -67,16 +60,33 @@ class RelationshipFatherInvolvementFormValidator(FormValidatorMixin, FormValidat
         m2m_fields = ['read_books', 'told_stories', 'sang_songs',
                       'took_child_outside', 'played_with_child',
                       'named_with_child', ]
+
+        # The order of the responses correlates to the m2m_fields order, and
+        # validator code block below assumes that.
+        noone_responses = ['read_noone', 'stories_noone', 'sang_noone',
+                           'outside_noone', 'played_noone', 'named_noone']
+
+        na_responses = ['read_na', 'stories_na', 'sang_na', 'outside_na',
+                        'played_na', 'named_na']
+
+        pnta_responses = ['read_pnta', 'stories_pnta', 'sang_pnta',
+                          'outside_pnta', 'played_pnta', 'named_pnta']
+
+        other_responses = ['read_oth', 'stories_oth', 'sang_oth',
+                           'outside_oth', 'played_oth', 'named_oth']
+
         condition = self.has_delivered
-        for field in m2m_fields:
+        for _count, field in enumerate(m2m_fields):
             self.m2m_applicable_if_true(condition, m2m_field=field)
             self.m2m_single_selection_if(
-                *[NOT_APPLICABLE, PNTA, 'no_one'],
+                *[na_responses[_count], pnta_responses[_count], noone_responses[_count]],
                 m2m_field=field)
+
             self.m2m_other_specify(
-                *['other'],
+                *[other_responses[_count]],
                 m2m_field=field,
                 field_other=f'{field}_other')
+
             self.m2m_response_na(
                 [NO, PNTA, DONT_KNOW],
                 field='biological_father_alive',
@@ -189,7 +199,8 @@ class RelationshipFatherInvolvementFormValidator(FormValidatorMixin, FormValidat
             child_subject_identifier = model_obj.child_subject_identifier
             if self.is_preg_enrol(child_subject_identifier):
                 return self.maternal_delivery_model_cls.objects.filter(
-                    subject_identifier=subject_identifier).exists()
+                    subject_identifier=subject_identifier,
+                    child_subject_identifier=child_subject_identifier).exists()
             return True
 
     def is_preg_enrol(self, child_subject_identifier):
