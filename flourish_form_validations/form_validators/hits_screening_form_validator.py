@@ -11,5 +11,5 @@ class HITSScreeningFormValidator(FormValidatorMixin, FormValidator):
         for field in fields:
             self.required_if(
                 YES,
-                field=field,
-                field_required='in_relationship')
+                field_required=field,
+                field='in_relationship')
