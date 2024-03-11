@@ -60,16 +60,33 @@ class RelationshipFatherInvolvementFormValidator(FormValidatorMixin, FormValidat
         m2m_fields = ['read_books', 'told_stories', 'sang_songs',
                       'took_child_outside', 'played_with_child',
                       'named_with_child', ]
+
+        # The order of the responses correlates to the m2m_fields order, and
+        # validator code block below assumes that.
+        noone_responses = ['read_noone', 'stories_noone', 'sang_noone',
+                           'outside_noone', 'played_noone', 'named_noone']
+
+        na_responses = ['read_na', 'stories_na', 'sang_na', 'outside_na',
+                        'played_na', 'named_na']
+
+        pnta_responses = ['read_pnta', 'stories_pnta', 'sang_pnta',
+                          'outside_pnta', 'played_pnta', 'named_pnta']
+
+        other_responses = ['read_oth', 'stories_oth', 'sang_oth',
+                           'outside_oth', 'played_oth', 'named_oth']
+
         condition = self.has_delivered
-        for field in m2m_fields:
+        for _count, field in enumerate(m2m_fields):
             self.m2m_applicable_if_true(condition, m2m_field=field)
             self.m2m_single_selection_if(
-                *[NOT_APPLICABLE, PNTA, 'no_one'],
+                *[na_responses[_count], pnta_responses[_count], noone_responses[_count]],
                 m2m_field=field)
+
             self.m2m_other_specify(
-                *['other'],
+                *[other_responses[_count]],
                 m2m_field=field,
                 field_other=f'{field}_other')
+
             self.m2m_response_na(
                 [NO, PNTA, DONT_KNOW],
                 field='biological_father_alive',
